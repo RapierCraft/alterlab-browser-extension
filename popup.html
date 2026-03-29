@@ -217,6 +217,17 @@
       <span class="al-version-badge" id="versionBadge">v...</span>
     </div>
 
+    <!-- Update Available Banner (shown when a newer version exists) -->
+    <div id="updateBanner" class="al-hidden" style="margin: 0 var(--al-space-3); padding: var(--al-space-2) var(--al-space-3); background: var(--al-warning-bg, rgba(245, 158, 11, 0.1)); border: 1px solid var(--al-warning-border, rgba(245, 158, 11, 0.3)); border-radius: var(--al-radius-md, 8px); display: flex; align-items: center; gap: var(--al-space-2); font-size: var(--al-text-sm);">
+      <svg style="width: 16px; height: 16px; color: #f59e0b; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      <span style="flex: 1; color: var(--al-text);">Update <strong id="updateVersion">v0.0.0</strong> available</span>
+      <a id="updateLink" href="#" target="_blank" rel="noopener" style="color: var(--al-accent); font-weight: var(--al-weight-semibold, 600); text-decoration: none; white-space: nowrap;">Download</a>
+    </div>
+
     <!-- Auth Checking View (brief loading state) -->
     <div id="authCheckView" class="al-section al-hidden">
       <div style="text-align: center; padding: var(--al-space-4) 0;">

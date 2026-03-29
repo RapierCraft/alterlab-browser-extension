@@ -1,4 +1,5 @@
 {
+  "update_url": "https://alterlab.io/api/extension/updates.xml",
   "permissions": ["sidePanel"],
   "side_panel": {
     "default_path": "sidepanel.html"

@@ -27,6 +27,9 @@ const BADGE_ALARM_NAME = "alterlab-badge-refresh";
 const BADGE_REFRESH_MINUTES = 30;
 const SESSION_STALENESS_ALARM = "alterlab-session-staleness";
 const SESSION_STALENESS_MINUTES = 60;
+const UPDATE_CHECK_ALARM = "alterlab-update-check";
+const UPDATE_CHECK_MINUTES = 24 * 60; // 24 hours
+const VERSION_API_URL = "https://alterlab.io/api/extension/version";
 
 // ---------------------------------------------------------------------------
 // Side panel fallback — Chrome uses browser.sidePanel, Firefox uses a
@@ -235,6 +238,12 @@ browser.runtime.onInstalled.addListener((details) => {
   // Set up periodic session staleness check
   browser.alarms.create(SESSION_STALENESS_ALARM, {
     periodInMinutes: SESSION_STALENESS_MINUTES,
+  });
+
+  // Set up periodic update check (Firefox — Chrome uses native update_url)
+  browser.alarms.create(UPDATE_CHECK_ALARM, {
+    delayInMinutes: 1, // Check shortly after install/update
+    periodInMinutes: UPDATE_CHECK_MINUTES,
   });
 
   // Create context menus
@@ -980,6 +989,10 @@ browser.alarms.onAlarm.addListener((alarm) => {
     // Check all session profiles for staleness and notify side panels
     checkSessionProfileStaleness();
   }
+
+  if (alarm.name === UPDATE_CHECK_ALARM) {
+    checkForExtensionUpdate();
+  }
 });
 
 /**
@@ -1002,6 +1015,78 @@ async function checkSessionProfileStaleness() {
     }
   } catch {
     // ignore
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Extension Update Check (Firefox — Chrome uses native update_url)
+// ---------------------------------------------------------------------------
+
+/**
+ * Compare two semver strings. Returns true if `current` is older than `latest`.
+ */
+function isVersionOutdated(current, latest) {
+  const parse = (v) => v.split(".").map(Number);
+  const [cMajor = 0, cMinor = 0, cPatch = 0] = parse(current);
+  const [lMajor = 0, lMinor = 0, lPatch = 0] = parse(latest);
+  if (cMajor !== lMajor) return cMajor < lMajor;
+  if (cMinor !== lMinor) return cMinor < lMinor;
+  return cPatch < lPatch;
+}
+
+/**
+ * Check for a newer extension version via the AlterLab API.
+ * If a newer version is found, stores the update info and shows a badge.
+ * Works on both Chrome and Firefox, but primarily useful for Firefox
+ * where there is no native auto-update for unsigned self-hosted extensions.
+ */
+async function checkForExtensionUpdate() {
+  try {
+    const response = await fetch(VERSION_API_URL);
+    if (!response.ok) return;
+
+    const data = await response.json();
+    const latestVersion = data.version;
+    if (!latestVersion) return;
+
+    const currentVersion = browser.runtime.getManifest().version;
+
+    if (isVersionOutdated(currentVersion, latestVersion)) {
+      // Store update info for the popup/side panel to read
+      await browser.storage.local.set({
+        updateAvailable: {
+          current: currentVersion,
+          latest: latestVersion,
+          download: data.download,
+          release: data.release,
+          checkedAt: new Date().toISOString(),
+        },
+      });
+
+      // Show "!" badge to indicate update available
+      browser.action.setBadgeText({ text: "!" });
+      browser.action.setBadgeBackgroundColor({ color: "#f59e0b" });
+
+      // Notify open side panels / popups
+      notifySidePanels({
+        type: "UPDATE_AVAILABLE",
+        current: currentVersion,
+        latest: latestVersion,
+        download: data.download,
+      });
+
+      console.log(
+        `[AlterLab] Update available: v${currentVersion} → v${latestVersion}`,
+      );
+    } else {
+      // Clear any previous update notification
+      const stored = await browser.storage.local.get("updateAvailable");
+      if (stored.updateAvailable) {
+        await browser.storage.local.remove("updateAvailable");
+      }
+    }
+  } catch {
+    // Network error — silently ignore, will retry on next alarm
   }
 }
 
