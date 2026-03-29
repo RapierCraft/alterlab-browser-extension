@@ -92,6 +92,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Manifest unavailable — non-critical, continue
   }
 
+  // Check for available updates and show banner
+  checkUpdateBanner();
+
   bindEvents();
   bindAuthMessageListener();
 
@@ -1000,4 +1003,46 @@ function animateCopyCheck(btn) {
   setTimeout(() => {
     btn.classList.remove("al-copied");
   }, 1500);
+}
+
+/**
+ * Check for stored update info from background script and show banner.
+ * Also listens for UPDATE_AVAILABLE messages from the background script
+ * in case an update is detected while the popup is open.
+ */
+async function checkUpdateBanner() {
+  const banner = document.getElementById("updateBanner");
+  const versionEl = document.getElementById("updateVersion");
+  const linkEl = document.getElementById("updateLink");
+  if (!banner || !versionEl || !linkEl) return;
+
+  function showBanner(latest, download) {
+    versionEl.textContent = `v${latest}`;
+    // Detect browser for the right download link
+    const isFirefox =
+      typeof browser !== "undefined" &&
+      typeof browser.runtime.getBrowserInfo === "function";
+    const url = isFirefox ? download?.firefox : download?.chrome;
+    linkEl.href = url || download?.chrome || "#";
+    banner.classList.remove("al-hidden");
+  }
+
+  try {
+    const result = await browser.storage.local.get("updateAvailable");
+    if (result.updateAvailable) {
+      showBanner(
+        result.updateAvailable.latest,
+        result.updateAvailable.download,
+      );
+    }
+  } catch {
+    // Non-critical — banner just won't show
+  }
+
+  // Listen for live update notifications from background
+  browser.runtime.onMessage.addListener((message) => {
+    if (message.type === "UPDATE_AVAILABLE") {
+      showBanner(message.latest, message.download);
+    }
+  });
 }
