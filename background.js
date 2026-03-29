@@ -208,22 +208,25 @@ function webRequestOptions(...baseOptions) {
 // Extension lifecycle
 // ---------------------------------------------------------------------------
 
-browser.runtime.onInstalled.addListener((details) => {
+browser.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === "install") {
     console.log("[AlterLab] Extension installed.");
     browser.action.setBadgeBackgroundColor({ color: "#6366f1" });
 
-    // Set first-run flags — overlay will show once on first side panel open
-    browser.storage.local.set({
-      firstRunComplete: false,
-      hasSeenOverlay: false,
-    });
-
-    // Open welcome tab — tells user they're all set, close tab and browse
-    browser.tabs.create({
-      url: "https://alterlab.io/welcome?source=extension",
-      active: true,
-    });
+    // Guard: only open welcome tab once (Firefox temporary add-ons
+    // re-fire onInstalled on every load from about:debugging)
+    const { welcomeTabOpened } = await browser.storage.local.get("welcomeTabOpened");
+    if (!welcomeTabOpened) {
+      browser.storage.local.set({
+        firstRunComplete: false,
+        hasSeenOverlay: false,
+        welcomeTabOpened: true,
+      });
+      browser.tabs.create({
+        url: "https://alterlab.io/welcome?source=extension",
+        active: true,
+      });
+    }
   } else if (details.reason === "update") {
     console.log(
       `[AlterLab] Extension updated to v${browser.runtime.getManifest().version}`,
