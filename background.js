@@ -448,6 +448,22 @@ async function handleDashboardRequest(message) {
         };
       }
 
+      case "SEND_API_KEY": {
+        // Welcome page sends the user's API key after sign-in
+        const { apiKey, apiUrl } = payload || {};
+        if (!apiKey || typeof apiKey !== "string" || !apiKey.startsWith("sk_live_")) {
+          return { error: "Invalid API key format" };
+        }
+        await saveConfig(apiKey, apiUrl || null);
+        // Notify any open side panels / popups
+        try {
+          await browser.runtime.sendMessage({ type: "CONFIG_UPDATED" });
+        } catch (_) {
+          // No listeners — fine
+        }
+        return { success: true };
+      }
+
       default:
         return { error: `Unknown action: ${action}` };
     }
