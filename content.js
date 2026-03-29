@@ -11,6 +11,37 @@
 (() => {
   "use strict";
 
+  // --- Extension presence marker ---
+  // Inject a detectable marker so the AlterLab web app can detect the extension
+  // without relying on message passing (which requires timing coordination).
+  (() => {
+    const version = browser.runtime.getManifest().version;
+    const isFirefox =
+      typeof navigator !== "undefined" &&
+      navigator.userAgent.toLowerCase().includes("firefox");
+    const browserName = isFirefox ? "firefox" : "chrome";
+
+    // Set window property (accessible to page scripts)
+    try {
+      const script = document.createElement("script");
+      script.textContent = `window.__ALTERLAB_CONNECT__=${JSON.stringify({ version, browser: browserName })};`;
+      (document.head || document.documentElement).appendChild(script);
+      script.remove();
+    } catch {
+      // Content Security Policy may block inline scripts on some pages — fall through to meta tag
+    }
+
+    // Add meta tag as fallback (always readable via DOM)
+    try {
+      const meta = document.createElement("meta");
+      meta.name = "alterlab-connect";
+      meta.content = `${version},${browserName}`;
+      (document.head || document.documentElement).appendChild(meta);
+    } catch {
+      // Silently ignore — non-critical
+    }
+  })();
+
   /**
    * Analyze the current page and compute a scrape complexity score (0-100).
    * Higher score = harder to scrape.
