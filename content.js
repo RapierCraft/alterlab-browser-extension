@@ -1963,10 +1963,14 @@
     if (!ALTERLAB_ORIGINS.includes(pageOrigin)) return;
 
     // Respond with extension info
+    const isFF =
+      typeof navigator !== "undefined" &&
+      navigator.userAgent.toLowerCase().includes("firefox");
     window.postMessage(
       {
         type: "ALTERLAB_EXTENSION_PONG",
         version: browser.runtime.getManifest().version,
+        browser: isFF ? "firefox" : "chrome",
         capabilities: ["cookie-capture", "page-analysis", "request-monitor"],
       },
       pageOrigin,
