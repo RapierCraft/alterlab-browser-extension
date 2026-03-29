@@ -199,6 +199,7 @@ function cacheElements() {
     cookieList: document.getElementById("cookieList"),
     sessionName: document.getElementById("sessionName"),
     captureBtn: document.getElementById("captureBtn"),
+    openDashboardBtn: document.getElementById("openDashboardBtn"),
     copyBtn: document.getElementById("copyBtn"),
     captureStatus: document.getElementById("captureStatus"),
     selectAllBtn: document.getElementById("selectAllBtn"),
@@ -917,6 +918,7 @@ function renderConversionHook(analysis) {
 
 function bindCaptureEvents() {
   els.captureBtn.addEventListener("click", handleCapture);
+  els.openDashboardBtn.addEventListener("click", handleOpenDashboard);
   els.copyBtn.addEventListener("click", handleCopyJson);
   els.selectAllBtn.addEventListener("click", () => {
     selectedCookieKeys = new Set(currentCookies.map(cookieKey));
@@ -1091,6 +1093,7 @@ function updateSelectedCount() {
   const count = selectedCookieKeys.size;
   els.selectedCount.textContent = `${count} selected`;
   els.captureBtn.disabled = count === 0;
+  els.openDashboardBtn.disabled = count === 0;
   els.copyBtn.disabled = count === 0;
 }
 
@@ -1175,6 +1178,75 @@ async function handleCapture() {
   } finally {
     els.captureBtn.disabled = false;
     els.captureBtn.innerHTML = "Capture & Send";
+  }
+}
+
+/**
+ * Open the AlterLab dashboard sessions page with captured cookies pre-filled
+ * via URL deep link. Uses base64url encoding for the cookie payload.
+ * If the total URL exceeds ~7500 chars, filters to auth-relevant cookies only.
+ */
+async function handleOpenDashboard() {
+  if (selectedCookieKeys.size === 0) return;
+
+  const config = await loadConfig();
+  const sessionName = els.sessionName.value.trim() || currentDomain;
+
+  // Build cookie dict from selected cookies
+  const cookieDict = {};
+  for (const cookie of currentCookies) {
+    if (selectedCookieKeys.has(cookieKey(cookie))) {
+      cookieDict[cookie.name] = cookie.value;
+    }
+  }
+
+  // Base64url encode the cookies JSON
+  const MAX_URL_LENGTH = 7500;
+  let cookieJson = JSON.stringify(cookieDict);
+  let encoded = btoa(cookieJson).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+  // Build the deep link URL
+  const baseUrl = `${config.apiUrl}/dashboard/tools/sessions`;
+  const params = new URLSearchParams({
+    action: "create",
+    domain: currentDomain,
+    name: sessionName,
+    cookies: encoded,
+  });
+
+  let fullUrl = `${baseUrl}?${params.toString()}`;
+
+  // If URL is too long, filter to auth cookies only
+  if (fullUrl.length > MAX_URL_LENGTH) {
+    const authCookieDict = {};
+    for (const cookie of currentCookies) {
+      if (selectedCookieKeys.has(cookieKey(cookie)) && isAuthCookie(cookie.name)) {
+        authCookieDict[cookie.name] = cookie.value;
+      }
+    }
+    cookieJson = JSON.stringify(authCookieDict);
+    encoded = btoa(cookieJson).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    params.set("cookies", encoded);
+    params.set("filtered", "1"); // Signal that some cookies were omitted
+    fullUrl = `${baseUrl}?${params.toString()}`;
+
+    // If still too long after filtering, warn and abort
+    if (fullUrl.length > MAX_URL_LENGTH) {
+      showToast("error", "Too many cookies", "Cookie data is too large for a URL deep link. Use 'Capture & Send' instead.");
+      return;
+    }
+  }
+
+  // Open the dashboard in a new tab
+  try {
+    await browser.tabs.create({ url: fullUrl });
+    showStatus(
+      els.captureStatus,
+      "success",
+      "Dashboard opened with cookies pre-filled!",
+    );
+  } catch (err) {
+    showToast("error", "Failed to open dashboard", err.message || "Could not open a new tab.");
   }
 }
 
