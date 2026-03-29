@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlterLab Connect</title>
+    <link rel="stylesheet" href="design-tokens.css" />
+    <link rel="stylesheet" href="components.css" />
+    <link rel="stylesheet" href="sidepanel.css" />
+    <script src="browser-polyfill.min.js"></script>
+    <script src="theme.js"></script>
+  </head>
+  <body>
+    <!-- Onboarding carousel — shown once on first install -->
+    <div class="onboarding-overlay hidden" id="onboardingOverlay">
+      <div class="onboarding-card">
+        <!-- Step 1: What is AlterLab Connect -->
+        <div class="onboarding-step active" data-step="0">
+          <div class="onboarding-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <h2>See how hard any page is to scrape</h2>
+          <p>Every page gets a complexity score — from simple static sites to heavily protected pages. It updates automatically as you browse.</p>
+          <div class="onboarding-preview">
+            <span class="onboarding-score" id="onboardingScoreNum">--</span>
+            <span class="onboarding-preview-label">
+              <strong>Scrape Complexity</strong>
+              Higher = harder to scrape
+            </span>
+          </div>
+        </div>
+
+        <!-- Step 2: Scrape tab -->
+        <div class="onboarding-step" data-step="1">
+          <div class="onboarding-icon onboarding-icon-scrape">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"/>
+              <line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+          </div>
+          <h2>Extract any page in one click</h2>
+          <p>Get clean Markdown, HTML, JSON, or a full screenshot from any page — no code required. Perfect for feeding data into LLMs or building datasets.</p>
+          <div class="onboarding-preview onboarding-preview-formats">
+            <span class="onboarding-format-chip">Markdown</span>
+            <span class="onboarding-format-chip">HTML</span>
+            <span class="onboarding-format-chip">JSON</span>
+            <span class="onboarding-format-chip">Screenshot</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Cookie capture -->
+        <div class="onboarding-step" data-step="2">
+          <div class="onboarding-icon onboarding-icon-cookies">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/>
+              <path d="M8.5 8.5v.01"/>
+              <path d="M16 15.5v.01"/>
+              <path d="M12 12v.01"/>
+              <path d="M11 17v.01"/>
+              <path d="M7 14v.01"/>
+            </svg>
+          </div>
+          <h2>Capture cookies for authenticated scraping</h2>
+          <p>Log into any site in your browser, then capture your session cookies. Use them to scrape pages that require authentication — dashboards, intranets, gated content.</p>
+          <div class="onboarding-preview onboarding-preview-auth">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>Your browser session becomes your API key</span>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="onboarding-nav">
+          <button class="onboarding-nav-btn" id="onboardingBackBtn" disabled>Back</button>
+          <div class="onboarding-dots" id="onboardingDots">
+            <span class="onboarding-dot active" data-dot="0"></span>
+            <span class="onboarding-dot" data-dot="1"></span>
+            <span class="onboarding-dot" data-dot="2"></span>
+          </div>
+          <button class="onboarding-nav-btn onboarding-nav-next" id="onboardingNextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spectrum bar — brand accent -->
+    <div class="al-spectrum-bar"></div>
+
+    <!-- Header -->
+    <div class="header">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;flex-shrink:0;">
+        <rect width="24" height="24" rx="6" fill="#6366f1"/>
+        <path d="M12 5.5L6.5 18h2.8l1-2.5h3.4l1 2.5h2.8L12 5.5zm-0.6 8L12 11l0.6 2.5h-1.2z" fill="white"/>
+      </svg>
+      <h1>AlterLab Connect</h1>
+      <button
+        class="al-theme-toggle"
+        id="themeToggle"
+        role="switch"
+        aria-checked="false"
+        aria-label="Toggle light mode"
+        tabindex="0"
+        style="margin-left:auto;margin-right:8px;"
+      >
+        <span class="al-theme-icon al-theme-icon-moon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </span>
+        <span class="al-theme-icon al-theme-icon-sun">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </span>
+      </button>
+      <span class="domain-pill" id="domainPill">---</span>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-bar-indicator" id="tabBarIndicator"></div>
+      <button data-tab="inspect">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Inspect
+      </button>
+      <button class="active" data-tab="scrape">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 17 10 11 4 5"/>
+          <line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+        Scrape
+      </button>
+      <button data-tab="meta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7V4h16v3"/>
+          <path d="M9 20h6"/>
+          <path d="M12 4v16"/>
+        </svg>
+        Meta
+      </button>
+      <button data-tab="robots">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Robots
+      </button>
+      <button data-tab="cookies">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/>
+          <path d="M8.5 8.5v.01"/>
+          <path d="M16 15.5v.01"/>
+          <path d="M12 12v.01"/>
+          <path d="M11 17v.01"/>
+          <path d="M7 14v.01"/>
+        </svg>
+        Cookies
+      </button>
+      <button data-tab="network">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        Network
+      </button>
+      <button data-tab="selector">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+          <path d="M13 13l6 6"/>
+        </svg>
+        Selector
+      </button>
+      <button data-tab="account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Account
+      </button>
+    </div>
+
+    <!-- ============ INSPECT TAB ============ -->
+    <div class="tab-panel" id="panel-inspect">
+      <!-- Score -->
+      <div class="card" id="scoreCard">
+        <div class="score-ring">
+          <div class="score-circle">
+            <svg viewBox="0 0 64 64">
+              <circle class="bg-ring" cx="32" cy="32" r="28" />
+              <circle
+                class="fg-ring"
+                id="scoreRing"
+                cx="32"
+                cy="32"
+                r="28"
+                stroke-dasharray="175.93"
+                stroke-dashoffset="175.93"
+              />
+            </svg>
+            <!-- Skeleton circle overlay — visible until score arrives -->
+            <div class="skel skel-circle" id="scoreSkeleton" style="position:absolute;inset:0;"></div>
+            <span class="score-value" id="scoreValue" style="opacity:0;">--</span>
+          </div>
+          <div class="score-label">
+            <strong id="scoreDifficulty" class="analyzing-pulse">Analyzing...</strong>
+            <span id="scoreDescription">
+              <span class="skel skel-text" style="margin-bottom:4px;"></span>
+              <span class="skel skel-text-sm"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversion hook (shown when score > 60) -->
+      <div class="conversion-hook" id="conversionHook">
+        <div class="hook-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          <span id="hookTitle">AlterLab can bypass this</span>
+        </div>
+        <span id="hookBody">This site uses active anti-bot protection.</span>
+        <span class="tier-badge" id="hookTierBadge">Tier 3</span>
+        <div class="hook-stack" id="hookStack"></div>
+      </div>
+
+      <!-- Anti-bot Stack (categorized) -->
+      <div class="card" id="antiBotCard">
+        <div class="card-header">
+          <span class="card-title">Anti-Bot Stack</span>
+          <span class="card-badge" id="antiBotCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div class="antibot-stack" id="antiBotStack">
+          <div class="antibot-stack-empty">Scanning...</div>
+        </div>
+      </div>
+
+      <!-- Tech Stack -->
+      <div class="card" id="techStackCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Tech Stack</span>
+          <span class="card-badge" id="techStackCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="techStackBody"></div>
+      </div>
+
+      <!-- Signals -->
+      <div class="card" id="signalsCard">
+        <div class="card-header">
+          <span class="card-title">Signals</span>
+          <span class="card-badge" id="signalCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <ul class="signal-list" id="signalList">
+          <li class="skel-signal"><span class="skel skel-dot"></span><span class="skel skel-signal-text"></span></li>
+          <li class="skel-signal"><span class="skel skel-dot"></span><span class="skel skel-signal-text" style="width:85%;"></span></li>
+          <li class="skel-signal"><span class="skel skel-dot"></span><span class="skel skel-signal-text" style="width:60%;"></span></li>
+        </ul>
+      </div>
+
+      <!-- Pagination -->
+      <div class="card" id="paginationCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Pagination</span>
+        </div>
+        <div class="pagination-info" id="paginationInfo"></div>
+      </div>
+
+      <!-- API Endpoints -->
+      <div class="card" id="apiCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Detected API Endpoints</span>
+          <span class="card-badge" id="apiCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <ul class="endpoint-list" id="apiEndpointList"></ul>
+      </div>
+
+      <!-- Export Snippets -->
+      <div class="card export-card" id="exportCard">
+        <div class="card-header">
+          <span class="card-title">Export</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Scrape config for this page as ready-to-use code.
+        </p>
+        <div class="export-btn-row" id="exportBtnRow">
+          <button class="export-fmt-btn" data-export-fmt="curl">cURL</button>
+          <button class="export-fmt-btn" data-export-fmt="python">Python</button>
+          <button class="export-fmt-btn" data-export-fmt="node">Node.js</button>
+          <button class="export-fmt-btn" data-export-fmt="alterlab">AlterLab API</button>
+        </div>
+        <div class="export-snippet-box" id="exportSnippetBox">
+          <pre class="export-snippet-pre" id="exportSnippetPre"></pre>
+          <div class="export-copy-row">
+            <button class="btn btn-secondary btn-sm" id="exportCopyBtn">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share Report -->
+      <div class="card" id="shareReportCard">
+        <div class="card-header">
+          <span class="card-title">Share Report</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Generate a shareable scrapability report for this site.
+        </p>
+        <button class="btn btn-primary btn-full" id="shareReportBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Generate Shareable Link
+        </button>
+        <div id="shareReportResult" style="display: none; margin-top: 10px;">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="shareReportUrl" readonly
+              style="flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 12px; font-family: 'JetBrains Mono', monospace;" />
+            <button class="btn btn-secondary btn-sm" id="shareReportCopyBtn">Copy</button>
+          </div>
+        </div>
+        <div id="shareReportStatus" class="status" style="margin-top: 8px;"></div>
+      </div>
+    </div>
+
+    <!-- ============ SCRAPE TAB ============ -->
+    <div class="tab-panel active" id="panel-scrape">
+      <!-- Format Picker -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Scrape This Page</span>
+          <span class="scrape-usage-pill" id="scrapeUsagePill" title="Free scrapes remaining">3 free</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Extract content from the current page in your preferred format.
+        </p>
+
+        <!-- Format selector -->
+        <div class="scrape-format-grid" id="scrapeFormatGrid">
+          <button class="scrape-format-btn active" data-format="markdown">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+              <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/>
+              <path d="M9 15l2-2 2 2"/>
+              <path d="M9 11h6"/>
+            </svg>
+            <span>Markdown</span>
+            <span class="format-hint">LLM-ready</span>
+          </button>
+          <button class="scrape-format-btn" data-format="html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+            <span>HTML</span>
+            <span class="format-hint">Clean markup</span>
+          </button>
+          <button class="scrape-format-btn" data-format="json">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+            <span>JSON</span>
+            <span class="format-hint">Structured data</span>
+          </button>
+          <button class="scrape-format-btn" data-format="screenshot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span>Screenshot</span>
+            <span class="format-hint">Full page</span>
+          </button>
+        </div>
+
+        <!-- Run button -->
+        <button class="btn btn-primary btn-full scrape-run-btn" id="scrapeRunBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Scrape This Page
+        </button>
+
+        <div id="scrapeStatus" class="status"></div>
+      </div>
+
+      <!-- Results area -->
+      <div class="card scrape-results-card hidden" id="scrapeResultsCard">
+        <div class="card-header">
+          <span class="card-title">Results</span>
+          <div style="display: flex; gap: 6px; margin-left: auto;">
+            <button class="btn btn-secondary btn-sm" id="scrapeCopyBtn" title="Copy to clipboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              Copy
+            </button>
+            <button class="btn btn-secondary btn-sm" id="scrapeDownloadBtn" title="Download">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="scrape-results-content" id="scrapeResultsContent"></div>
+      </div>
+
+      <!-- Free tier upsell (hidden until limit hit) -->
+      <div class="card scrape-upsell hidden" id="scrapeUpsell">
+        <div class="upsell-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <h3 class="upsell-title">You've used your 3 free scrapes</h3>
+        <p class="upsell-desc">Create a free AlterLab account for <strong>1,000 monthly scrapes</strong> plus API access, scheduling, and more.</p>
+        <a href="https://alterlab.io/signup?utm_source=extension&utm_medium=upsell&utm_campaign=free_limit" target="_blank" class="btn btn-primary btn-full upsell-cta">
+          Create Free Account
+        </a>
+        <p class="upsell-alt">Already have an account? <a href="#" id="upsellConnectLink">Connect your API key</a></p>
+      </div>
+
+      <!-- Advanced: Submit to API (merged from Job tab) -->
+      <details class="card" id="jobSectionCard">
+        <summary class="card-header" style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center;">
+          <span class="card-title">Advanced: Submit to API</span>
+          <svg class="details-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-left: auto; transition: transform 0.2s;">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </summary>
+
+        <div style="padding-top: 8px;">
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Pre-filled from the current page analysis. Edit and submit to AlterLab.
+          </p>
+
+          <div class="form-group">
+            <label for="jobUrl">URL</label>
+            <input type="text" id="jobUrl" placeholder="https://..." readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Job Preview</label>
+            <div class="job-preview" id="jobPreview">Loading...</div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn btn-primary btn-full" id="submitJobBtn" disabled>
+              Submit Scrape Job
+            </button>
+            <button class="btn btn-secondary btn-sm" id="copyJobBtn" title="Copy job JSON">
+              Copy
+            </button>
+          </div>
+
+          <div id="jobStatus" class="status"></div>
+
+          <!-- Post-submit export -->
+          <div class="export-card" id="jobExportCard" style="display: none; margin-top: 12px;">
+            <div class="card-header" style="margin-bottom: 8px;">
+              <span class="card-title">Export as Code</span>
+            </div>
+            <div class="export-btn-row" id="jobExportBtnRow">
+              <button class="export-fmt-btn" data-job-export-fmt="curl">cURL</button>
+              <button class="export-fmt-btn" data-job-export-fmt="python">Python</button>
+              <button class="export-fmt-btn" data-job-export-fmt="node">Node.js</button>
+              <button class="export-fmt-btn" data-job-export-fmt="alterlab">AlterLab API</button>
+            </div>
+            <div class="export-snippet-box" id="jobExportSnippetBox">
+              <pre class="export-snippet-pre" id="jobExportSnippetPre"></pre>
+              <div class="export-copy-row">
+                <button class="btn btn-secondary btn-sm" id="jobExportCopyBtn">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inline auth prompt — appears when user tries to submit without API key -->
+          <div class="inline-auth-prompt hidden" id="jobAuthPrompt">
+            <div class="auth-prompt-title">Connect your AlterLab account</div>
+            <div class="auth-prompt-desc">An API key is needed to submit scrape jobs. You can still copy the job JSON without connecting.</div>
+            <input
+              type="password"
+              id="jobAuthKey"
+              placeholder="sk_live_..."
+              spellcheck="false"
+              autocomplete="off"
+              style="margin-bottom: 0;"
+            />
+            <div class="auth-prompt-row">
+              <button class="btn btn-primary btn-full btn-sm" id="jobAuthConnect">Connect & Submit</button>
+            </div>
+            <div id="jobAuthStatus" class="status"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============ META TAB (SEO Analyzer) ============ -->
+    <div class="tab-panel" id="panel-meta">
+      <!-- SEO Score -->
+      <div class="card" id="seoScoreCard">
+        <div class="score-ring">
+          <div class="score-circle">
+            <svg viewBox="0 0 64 64">
+              <circle class="bg-ring" cx="32" cy="32" r="28" />
+              <circle
+                class="fg-ring"
+                id="seoScoreRing"
+                cx="32"
+                cy="32"
+                r="28"
+                stroke-dasharray="175.93"
+                stroke-dashoffset="175.93"
+              />
+            </svg>
+            <span class="score-value" id="seoScoreValue">--</span>
+          </div>
+          <div class="score-label">
+            <strong id="seoScoreLabel">Analyzing...</strong>
+            <span id="seoScoreDesc">Scanning page for SEO metadata.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validation Issues -->
+      <div class="card" id="seoIssuesCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Issues</span>
+          <span class="card-badge" id="seoIssueCount" style="background: rgba(239, 68, 68, 0.15); color: var(--error);">0</span>
+        </div>
+        <ul class="seo-issue-list" id="seoIssueList"></ul>
+      </div>
+
+      <!-- Basic SEO Tags -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">SEO Tags</span>
+        </div>
+        <div class="meta-table" id="seoBasicTable">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Open Graph -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Open Graph</span>
+          <span class="card-badge" id="ogTagCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="ogImagePreview" class="og-image-preview" style="display: none;">
+          <img id="ogImageEl" alt="OG Image preview" />
+        </div>
+        <div class="meta-table" id="ogTable">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Twitter Cards -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Twitter Cards</span>
+          <span class="card-badge" id="twitterTagCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div class="meta-table" id="twitterTable">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- JSON-LD -->
+      <div class="card" id="jsonLdCard">
+        <div class="card-header">
+          <span class="card-title">JSON-LD Structured Data</span>
+          <span class="card-badge" id="jsonLdCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="jsonLdContent" class="json-ld-content">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="meta-export-row">
+        <button class="btn btn-secondary btn-sm btn-full" id="metaCopyAllBtn">Copy All as JSON</button>
+      </div>
+    </div>
+
+    <!-- ============ ROBOTS TAB ============ -->
+    <div class="tab-panel" id="panel-robots">
+      <!-- Fetch action -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">robots.txt</span>
+          <button class="btn btn-primary btn-sm" id="rtFetchBtn">Fetch</button>
+        </div>
+        <div class="status hidden" id="rtStatus"></div>
+        <div class="rt-loading hidden" id="rtLoading">
+          <span class="spinner"></span>
+          <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">Fetching robots.txt...</span>
+        </div>
+        <!-- Upsell / not-connected hint -->
+        <div class="rt-upsell" id="rtUpsell">
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Fetches and analyzes the <code>robots.txt</code> file for the current domain.
+          </p>
+        </div>
+      </div>
+
+      <!-- Robots content (hidden until fetched) -->
+      <div class="hidden" id="rtContent">
+        <!-- Syntax-highlighted robots.txt -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Raw Content</span>
+            <button class="btn btn-secondary btn-sm" id="rtCopyRobots">Copy</button>
+          </div>
+          <pre class="rt-code-block" id="rtCodeBlock"></pre>
+        </div>
+
+        <!-- Bot chips -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">User Agents</span>
+          </div>
+          <div class="rt-bot-list" id="rtBotList"></div>
+          <div class="rt-bot-rules" id="rtBotRules"></div>
+        </div>
+
+        <!-- Crawl checker -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Crawl Checker</span>
+          </div>
+          <div class="rt-crawl-row">
+            <input type="text" id="rtCrawlInput" placeholder="/path/to/check" spellcheck="false" autocomplete="off" class="rt-crawl-input" />
+            <button class="btn btn-secondary btn-sm" id="rtCheckBtn">Check</button>
+          </div>
+          <div class="rt-crawl-result" id="rtCrawlResult"></div>
+        </div>
+
+        <!-- Sitemaps -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Sitemaps</span>
+            <button class="btn btn-secondary btn-sm" id="rtExportUrls" disabled>Export URLs</button>
+          </div>
+          <div id="rtSitemapContainer"></div>
+          <div class="rt-sitemap-tree hidden" id="rtSitemapTree"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ COOKIES TAB (Inspector) ============ -->
+    <div class="tab-panel" id="panel-cookies">
+      <!-- Stats summary -->
+      <div class="ci-stats">
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciTotalCount">0</span>
+          <span class="ci-stat-label">Total</span>
+        </div>
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciAuthCount">0</span>
+          <span class="ci-stat-label">Auth</span>
+        </div>
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciExpiredCount">0</span>
+          <span class="ci-stat-label">Expired</span>
+        </div>
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciTotalSize">0 B</span>
+          <span class="ci-stat-label">Size</span>
+        </div>
+      </div>
+
+      <!-- Search + Sort -->
+      <div class="ci-toolbar">
+        <div class="ci-search">
+          <input type="search" id="ciSearchInput" placeholder="Search cookies..." autocomplete="off" spellcheck="false" />
+        </div>
+        <button class="ci-sort-btn active" id="ciSortBtn" title="Sort cookies">Name</button>
+      </div>
+
+      <!-- Filter chips + subdomains toggle -->
+      <div class="ci-controls">
+        <div class="ci-filter-row">
+          <button class="ci-filter-chip active" data-filter="all">All</button>
+          <button class="ci-filter-chip" data-filter="auth">Auth</button>
+          <button class="ci-filter-chip" data-filter="secure">Secure</button>
+          <button class="ci-filter-chip" data-filter="httponly">HttpOnly</button>
+          <button class="ci-filter-chip" data-filter="expired">Expired</button>
+          <button class="ci-filter-chip" data-filter="session">Session</button>
+        </div>
+        <span class="ci-result-count" id="ciResultCount">0</span>
+      </div>
+
+      <div class="ci-controls">
+        <label class="ci-toggle-row">
+          <input type="checkbox" id="ciSubdomains" checked />
+          Include subdomains
+        </label>
+      </div>
+
+      <!-- Cookie list -->
+      <div class="ci-cookie-list" id="ciCookieList">
+        <div class="ci-empty">Loading cookies...</div>
+      </div>
+
+      <!-- Export + Bulk actions -->
+      <div class="ci-export-row">
+        <button class="btn btn-secondary btn-sm" id="ciExportJson" title="Export all as JSON">JSON</button>
+        <button class="btn btn-secondary btn-sm" id="ciExportNetscape" title="Export all as Netscape/curl format">Netscape</button>
+        <button class="btn btn-secondary btn-sm" id="ciExportKV" title="Export all as key=value (Cookie header)">key=value</button>
+      </div>
+
+      <div class="ci-bulk-row">
+        <span class="ci-result-count" id="ciFilteredInfo"></span>
+        <button class="ci-bulk-delete" id="ciBulkDelete">Clear all cookies</button>
+      </div>
+
+      <div id="ciStatus" class="status"></div>
+
+      <!-- Send to AlterLab (merged from Capture tab) -->
+      <details class="card" id="captureSectionCard">
+        <summary class="card-header" style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center;">
+          <span class="card-title">Send to AlterLab</span>
+          <span class="card-badge" id="cookieCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <svg class="details-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-left: auto; transition: transform 0.2s;">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </summary>
+
+        <div style="padding-top: 8px;">
+          <div class="selection-controls">
+            <button id="selectAllBtn">Select all</button>
+            <span class="separator">|</span>
+            <button id="selectNoneBtn">None</button>
+            <span class="separator">|</span>
+            <button id="selectAuthBtn">Auth only</button>
+            <span class="selected-count" id="selectedCount">0 selected</span>
+          </div>
+
+          <div class="cookie-list" id="cookieList"></div>
+
+          <div class="session-name-row">
+            <label for="sessionName">Session name</label>
+            <input
+              type="text"
+              id="sessionName"
+              placeholder="Amazon Prime - Mar 2026"
+            />
+          </div>
+
+          <div class="actions-row">
+            <button class="btn btn-primary btn-full" id="captureBtn" disabled>
+              Capture & Send
+            </button>
+            <button
+              class="btn btn-secondary btn-sm"
+              id="copyBtn"
+              title="Copy selected cookies as JSON"
+              disabled
+            >
+              Copy
+            </button>
+          </div>
+
+          <div id="captureStatus" class="status"></div>
+
+          <!-- Inline auth prompt — appears when user tries to capture without API key -->
+          <div class="inline-auth-prompt hidden" id="captureAuthPrompt">
+            <div class="auth-prompt-title">Connect your AlterLab account</div>
+            <div class="auth-prompt-desc">An API key is needed to sync cookies to your AlterLab instance. You can still copy cookies as JSON without connecting.</div>
+            <input
+              type="password"
+              id="captureAuthKey"
+              placeholder="sk_live_..."
+              spellcheck="false"
+              autocomplete="off"
+              style="margin-bottom: 0;"
+            />
+            <div class="auth-prompt-row">
+              <button class="btn btn-primary btn-full btn-sm" id="captureAuthConnect">Connect & Capture</button>
+            </div>
+            <div id="captureAuthStatus" class="status"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============ NETWORK TAB ============ -->
+    <div class="tab-panel" id="panel-network">
+      <!-- Controls -->
+      <div class="card" style="padding: 10px 14px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="text" id="netSearchInput" placeholder="Filter by URL or method..." style="
+            flex: 1; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 6px; padding: 6px 10px; color: var(--text);
+            font-size: 12px; font-family: inherit; outline: none;
+          " />
+          <span id="netRequestCount" style="font-size: 11px; color: var(--text-muted); white-space: nowrap;">0 requests</span>
+          <button id="netClearBtn" class="btn btn-secondary btn-sm" style="padding: 5px 8px; font-size: 11px;">Clear</button>
+        </div>
+        <div id="netFilterBar" style="display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;">
+          <button class="net-filter-btn active" data-filter="all" style="
+            background: var(--accent); color: white; border: none; border-radius: 4px;
+            padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">All</button>
+          <button class="net-filter-btn" data-filter="products" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Products</button>
+          <button class="net-filter-btn" data-filter="listings" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Listings</button>
+          <button class="net-filter-btn" data-filter="articles" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Articles</button>
+          <button class="net-filter-btn" data-filter="reviews" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Reviews</button>
+          <button class="net-filter-btn" data-filter="graphql" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">GraphQL</button>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="netEmptyState" class="card" style="text-align: center; padding: 32px 14px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="width: 40px; height: 40px; margin: 0 auto 12px;">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">No API requests captured yet</div>
+        <div style="font-size: 12px; color: var(--text-muted);">
+          Browse the page to capture XHR and fetch requests.<br/>
+          Only JSON and API responses are shown.
+        </div>
+      </div>
+
+      <!-- Request list -->
+      <div id="netRequestList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+
+      <!-- Headers (merged from Headers tab) -->
+      <details class="card" id="headersSectionCard" style="margin-top: 8px;">
+        <summary class="card-header" style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center;">
+          <span class="card-title">Request Headers</span>
+          <span class="card-badge" id="hdrRequestCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <svg class="details-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-left: auto; transition: transform 0.2s;">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </summary>
+
+        <div style="padding-top: 8px;">
+          <!-- Stats bar -->
+          <div class="hdr-stats">
+            <span class="hdr-stat-count"><strong id="hdrRequestCountInner">0</strong> requests</span>
+            <button class="hdr-clear-btn" id="hdrClearBtn">Clear</button>
+          </div>
+
+          <!-- Search -->
+          <div class="hdr-toolbar">
+            <div class="hdr-search">
+              <input type="search" id="hdrSearchInput" placeholder="Search URL or header..." autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+
+          <!-- Type filters -->
+          <div class="hdr-filter-row">
+            <div class="hdr-filters" id="hdrFilters">
+              <button class="hdr-filter-chip active" data-hdr-filter="all">All</button>
+              <button class="hdr-filter-chip" data-hdr-filter="xhr">XHR</button>
+              <button class="hdr-filter-chip" data-hdr-filter="document">Doc</button>
+              <button class="hdr-filter-chip" data-hdr-filter="script">Script</button>
+              <button class="hdr-filter-chip" data-hdr-filter="stylesheet">CSS</button>
+              <button class="hdr-filter-chip" data-hdr-filter="image">Image</button>
+              <button class="hdr-filter-chip" data-hdr-filter="font">Font</button>
+              <button class="hdr-filter-chip" data-hdr-filter="other">Other</button>
+            </div>
+            <span class="ci-result-count" id="hdrFilteredCount">0</span>
+          </div>
+
+          <!-- Request list -->
+          <div class="hdr-request-list" id="hdrRequestList">
+            <div class="hdr-empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12h16"/>
+                <path d="M4 6h16"/>
+                <path d="M4 18h12"/>
+              </svg>
+              <p>Navigate to a page to capture network requests.</p>
+            </div>
+          </div>
+
+          <div id="hdrStatus" class="status"></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============ SELECTOR TAB ============ -->
+    <div class="tab-panel" id="panel-selector">
+      <!-- Activation card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Selector Builder</span>
+          <button class="btn btn-primary btn-sm" id="selToggleBtn">Start Picking</button>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+          Hover elements to preview selectors. Click to capture. Press Esc to stop.
+        </p>
+        <div id="selActiveIndicator" class="status" style="display:none;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:6px;animation:pulse 1.5s infinite;"></span>
+          Picking mode active — click any element on the page
+        </div>
+      </div>
+
+      <!-- Selector list -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Captured Selectors</span>
+          <span class="card-badge" id="selCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="selSelectorList" style="font-size: 12px; color: var(--text-muted);">
+          No selectors captured yet. Start picking to add elements.
+        </div>
+      </div>
+
+      <!-- Test & export -->
+      <div class="card" id="selExportCard" style="display:none;">
+        <div class="card-header">
+          <span class="card-title">Export</span>
+        </div>
+        <div class="actions-row" style="margin-bottom:8px;">
+          <button class="btn btn-secondary btn-sm" id="selCopyCurl">Copy as cURL</button>
+          <button class="btn btn-secondary btn-sm" id="selCopyPython">Copy as Python</button>
+          <button class="btn btn-secondary btn-sm" id="selCopyNode">Copy as Node.js</button>
+        </div>
+        <div class="actions-row">
+          <button class="btn btn-secondary btn-sm" id="selCopyJson">Copy as JSON</button>
+          <button class="btn btn-secondary btn-sm" id="selClearAll">Clear All</button>
+        </div>
+      </div>
+
+      <div id="selStatus" class="status"></div>
+    </div>
+
+    <!-- ============ ACCOUNT TAB ============ -->
+    <div class="tab-panel" id="panel-account">
+      <!-- Auth checking state -->
+      <div id="accountAuthCheck" class="card hidden">
+        <div style="text-align: center; padding: 24px 0;">
+          <span class="spinner"></span>
+          <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Checking login status...</p>
+        </div>
+      </div>
+
+      <!-- Login prompt (shown when not logged in) -->
+      <div id="accountLogin" class="card hidden">
+        <div style="text-align: center; padding: 16px 0;">
+          <svg style="width: 36px; height: 36px; color: var(--accent); margin-bottom: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="5"/>
+            <path d="M20 21a8 8 0 0 0-16 0"/>
+          </svg>
+          <h3 style="font-size: 14px; font-weight: 600; color: var(--text); margin: 0 0 4px 0;">Sign in to AlterLab</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 16px 0; line-height: 1.5;">
+            Connect your account to capture cookies, manage sessions, and access your credits.
+          </p>
+          <button class="btn btn-primary btn-full" id="accountLoginBtn" style="margin-bottom: 8px;">
+            <svg style="width: 14px; height: 14px; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Sign in
+          </button>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0;">
+            No account? <a href="#" id="accountSignupLink" style="color: var(--accent);">Create one free</a>
+          </p>
+        </div>
+
+        <!-- Manual setup toggle -->
+        <details style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px;">
+          <summary style="font-size: 11px; color: var(--text-muted); cursor: pointer; user-select: none; padding: 4px 0;">
+            Advanced: Manual API key
+          </summary>
+          <div style="margin-top: 8px;">
+            <div class="form-group">
+              <label for="apiKeyInput">API Key</label>
+              <input type="password" id="apiKeyInput" placeholder="sk_live_..." spellcheck="false" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="apiUrlInput">API URL</label>
+              <input type="text" id="apiUrlInput" placeholder="https://alterlab.io" spellcheck="false" autocomplete="off" />
+            </div>
+            <button class="btn btn-primary btn-full" id="connectBtn">Connect</button>
+            <div id="accountStatus" class="status"></div>
+          </div>
+        </details>
+
+        <div class="tour-link-row">
+          <a href="#" id="takeTourBtnLogin" class="tour-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            Take a tour
+          </a>
+        </div>
+      </div>
+
+      <!-- Legacy setup (hidden, kept for backward compat with bindAccountEvents) -->
+      <div id="accountSetup" class="card hidden"></div>
+
+      <!-- Connected state -->
+      <div id="accountConnected" class="card hidden">
+        <div class="card-header">
+          <span class="card-title">Account</span>
+          <span class="card-badge" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">Connected</span>
+        </div>
+
+        <div class="account-info">
+          <div class="account-row">
+            <span class="label">Instance</span>
+            <span class="value" id="accountInstance">---</span>
+          </div>
+          <div class="account-row">
+            <span class="label">Credits</span>
+            <span class="value" id="accountCredits">---</span>
+          </div>
+          <div class="credits-bar">
+            <div class="credits-bar-fill" id="creditsBarFill" style="width: 0%"></div>
+          </div>
+          <div class="account-row">
+            <span class="label">Sessions</span>
+            <span class="value" id="accountSessions">---</span>
+          </div>
+        </div>
+
+        <div class="actions-row" style="margin-top: 16px;">
+          <button class="btn btn-secondary btn-full btn-sm" id="disconnectBtn">
+            Disconnect
+          </button>
+        </div>
+
+        <div class="tour-link-row">
+          <a href="#" id="takeTourBtn" class="tour-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            Take a tour
+          </a>
+        </div>
+      </div>
+
+      <!-- Saved sessions -->
+      <div class="card" id="savedSessionsCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Saved Sessions</span>
+          <span class="card-badge" id="sessionCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="savedSessionsList" style="font-size: 12px; color: var(--text-muted);">
+          Loading sessions...
+        </div>
+      </div>
+    </div>
+
+    <!-- Offline banner — persistent, shown/hidden by JS -->
+    <div id="offlineBanner" class="offline-banner hidden">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+        <line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+      </svg>
+      <span>You're offline &mdash; cached data shown</span>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="al-toast-container"></div>
+
+    <script src="shared.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

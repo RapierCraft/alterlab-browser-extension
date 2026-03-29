@@ -1,0 +1,16 @@
+{
+  "background": {
+    "scripts": [
+      "browser-polyfill.min.js",
+      "browser-api.js",
+      "shared.js",
+      "background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "connect@alterlab.io",
+      "strict_min_version": "109.0"
+    }
+  }
+}

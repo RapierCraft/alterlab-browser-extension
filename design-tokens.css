@@ -1,0 +1,346 @@
+/*
+ * AlterLab Connect — Design Tokens
+ * CSS custom properties for the browser extension design system.
+ * Dark mode is the DEFAULT. Light mode via [data-theme="light"].
+ *
+ * Color space: oklch (perceptual uniformity, wide-gamut ready)
+ * Palette: Stone — matches AlterLab web (globals.css)
+ * Grid: 8px base unit
+ */
+
+/* ------------------------------------------------------------------ */
+/*  Dark theme (default)                                               */
+/* ------------------------------------------------------------------ */
+
+:root {
+  /* --- Surface colors --- */
+  --al-bg:             oklch(0.10 0 0);   /* #0c0a09  stone-950  */
+  --al-bg-raised:      oklch(0.14 0 0);   /* #1c1917  stone-900  */
+  --al-bg-input:       oklch(0.20 0 0);   /* #292524  stone-800  */
+  --al-bg-hover:       oklch(0.24 0 0);   /* #3a3633            */
+  --al-bg-overlay:     oklch(0.10 0 0 / 0.80);
+
+  /* --- Text --- */
+  --al-text:           oklch(0.98 0 0);   /* #fafaf9  stone-50   */
+  --al-text-secondary: oklch(0.68 0 0);   /* #a8a29e  stone-400  */
+  --al-text-muted:     oklch(0.55 0 0);   /* #78716c  stone-500  */
+  --al-text-inverse:   oklch(0.10 0 0);   /* for light-bg badges */
+
+  /* --- Borders --- */
+  --al-border:         oklch(0.30 0 0);   /* #44403c  stone-700  */
+  --al-border-subtle:  oklch(0.22 0 0);   /* softer dividers     */
+  --al-border-focus:   oklch(0.65 0.18 265);  /* matches accent  */
+
+  /* --- Brand accent (indigo) --- */
+  --al-accent:         oklch(0.55 0.18 265);  /* #6366f1  indigo-500  */
+  --al-accent-hover:   oklch(0.62 0.18 265);  /* #818cf8  indigo-400  */
+  --al-accent-muted:   oklch(0.55 0.18 265 / 0.15);
+  --al-accent-text:    oklch(0.72 0.14 265);  /* readable on dark bg  */
+
+  /* --- Semantic: status --- */
+  --al-success:        oklch(0.65 0.20 145);  /* #22c55e  green-500   */
+  --al-success-muted:  oklch(0.65 0.20 145 / 0.12);
+  --al-warning:        oklch(0.70 0.16 85);   /* #eab308  yellow-500  */
+  --al-warning-muted:  oklch(0.70 0.16 85 / 0.12);
+  --al-error:          oklch(0.55 0.22 25);   /* #ef4444  red-500     */
+  --al-error-muted:    oklch(0.55 0.22 25 / 0.12);
+  --al-info:           oklch(0.60 0.15 240);  /* #3b82f6  blue-500    */
+  --al-info-muted:     oklch(0.60 0.15 240 / 0.12);
+
+  /* --- Semantic: score gradient --- */
+  --al-score-great:    oklch(0.65 0.20 145);  /* green   */
+  --al-score-good:     oklch(0.70 0.16 85);   /* yellow  */
+  --al-score-fair:     oklch(0.65 0.18 55);   /* orange  */
+  --al-score-poor:     oklch(0.55 0.22 25);   /* red     */
+
+  /* --- Brand: spectrum bar gradient --- */
+  --al-spectrum:       linear-gradient(90deg,
+    oklch(0.55 0.22 25),   /* red     */
+    oklch(0.65 0.18 55),   /* orange  */
+    oklch(0.70 0.16 85),   /* yellow  */
+    oklch(0.65 0.20 145),  /* green   */
+    oklch(0.60 0.15 240),  /* blue    */
+    oklch(0.55 0.18 265),  /* indigo  */
+    oklch(0.55 0.20 310)   /* violet  */
+  );
+
+  /* --- Typography --- */
+  --al-font-sans:      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --al-font-mono:      "JetBrains Mono", "Fira Code", "SF Mono", Menlo, monospace;
+
+  --al-text-xs:        11px;
+  --al-text-sm:        12px;
+  --al-text-base:      13px;
+  --al-text-md:        14px;
+  --al-text-lg:        15px;
+  --al-text-xl:        18px;
+
+  --al-leading-tight:  1.3;
+  --al-leading-normal: 1.5;
+  --al-leading-relaxed:1.6;
+
+  --al-tracking-tight: -0.02em;
+  --al-tracking-normal:-0.01em;
+
+  --al-weight-normal:  400;
+  --al-weight-medium:  500;
+  --al-weight-semibold:600;
+  --al-weight-bold:    700;
+
+  /* --- Spacing (8px grid) --- */
+  --al-space-0:   0;
+  --al-space-1:   4px;
+  --al-space-2:   8px;
+  --al-space-3:   12px;
+  --al-space-4:   16px;
+  --al-space-5:   20px;
+  --al-space-6:   24px;
+  --al-space-8:   32px;
+  --al-space-10:  40px;
+  --al-space-12:  48px;
+
+  /* --- Radii --- */
+  --al-radius-xs:  3px;
+  --al-radius-sm:  4px;
+  --al-radius-md:  6px;
+  --al-radius-lg:  8px;
+  --al-radius-xl:  12px;
+  --al-radius-full:9999px;
+
+  /* --- Shadows --- */
+  --al-shadow-sm:  0 1px 2px oklch(0 0 0 / 0.3);
+  --al-shadow-md:  0 2px 8px oklch(0 0 0 / 0.4);
+  --al-shadow-lg:  0 4px 16px oklch(0 0 0 / 0.5);
+  --al-shadow-focus: 0 0 0 2px var(--al-accent-muted);
+
+  /* --- Z-index --- */
+  --al-z-base:     1;
+  --al-z-dropdown: 10;
+  --al-z-sticky:   20;
+  --al-z-overlay:  30;
+  --al-z-modal:    40;
+  --al-z-toast:    50;
+  --al-z-tooltip:  60;
+
+  /* --- Transitions --- */
+  --al-duration-fast:   100ms;
+  --al-duration-normal: 150ms;
+  --al-duration-slow:   250ms;
+  --al-ease-default:    cubic-bezier(0.4, 0, 0.2, 1);
+  --al-ease-bounce:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- Layout constraints --- */
+  --al-popup-width:      360px;
+  --al-popup-max-height: 480px;
+  --al-sidepanel-width:  320px;
+  --al-sidepanel-max-w:  400px;
+  --al-panel-padding:    var(--al-space-3);   /* 12px edges */
+  --al-element-gap:      var(--al-space-2);   /* 8px between elements */
+
+  /* --- Scrollbar --- */
+  --al-scrollbar-width:  6px;
+  --al-scrollbar-thumb:  var(--al-border);
+  --al-scrollbar-track:  transparent;
+}
+
+
+/* ------------------------------------------------------------------ */
+/*  Light theme                                                        */
+/* ------------------------------------------------------------------ */
+
+[data-theme="light"] {
+  /* --- Surface colors --- */
+  --al-bg:             oklch(0.98 0 0);   /* #fafaf9  stone-50   */
+  --al-bg-raised:      oklch(1.00 0 0);   /* #ffffff  white      */
+  --al-bg-input:       oklch(0.96 0 0);   /* #f5f5f4  stone-100  */
+  --al-bg-hover:       oklch(0.93 0 0);   /* #e7e5e4  stone-200  */
+  --al-bg-overlay:     oklch(0.98 0 0 / 0.80);
+
+  /* --- Text --- */
+  --al-text:           oklch(0.15 0 0);   /* #1c1917  stone-900  */
+  --al-text-secondary: oklch(0.44 0 0);   /* #57534e  stone-600  */
+  --al-text-muted:     oklch(0.55 0 0);   /* #78716c  stone-500  */
+  --al-text-inverse:   oklch(0.98 0 0);
+
+  /* --- Borders --- */
+  --al-border:         oklch(0.87 0 0);   /* #d6d3d1  stone-300  */
+  --al-border-subtle:  oklch(0.93 0 0);   /* #e7e5e4  stone-200  */
+  --al-border-focus:   oklch(0.55 0.18 265);
+
+  /* --- Brand accent --- */
+  --al-accent:         oklch(0.50 0.20 265);  /* slightly deeper for light bg */
+  --al-accent-hover:   oklch(0.45 0.22 265);
+  --al-accent-muted:   oklch(0.50 0.20 265 / 0.10);
+  --al-accent-text:    oklch(0.45 0.20 265);
+
+  /* --- Semantic: status --- */
+  --al-success:        oklch(0.55 0.22 145);  /* darker green for contrast  */
+  --al-success-muted:  oklch(0.55 0.22 145 / 0.08);
+  --al-warning:        oklch(0.60 0.18 85);
+  --al-warning-muted:  oklch(0.60 0.18 85 / 0.08);
+  --al-error:          oklch(0.50 0.24 25);
+  --al-error-muted:    oklch(0.50 0.24 25 / 0.08);
+  --al-info:           oklch(0.52 0.17 240);
+  --al-info-muted:     oklch(0.52 0.17 240 / 0.08);
+
+  /* --- Semantic: score gradient --- */
+  --al-score-great:    oklch(0.55 0.22 145);
+  --al-score-good:     oklch(0.60 0.18 85);
+  --al-score-fair:     oklch(0.60 0.20 55);
+  --al-score-poor:     oklch(0.50 0.24 25);
+
+  /* --- Shadows (lighter) --- */
+  --al-shadow-sm:  0 1px 2px oklch(0 0 0 / 0.06);
+  --al-shadow-md:  0 2px 8px oklch(0 0 0 / 0.08);
+  --al-shadow-lg:  0 4px 16px oklch(0 0 0 / 0.12);
+  --al-shadow-focus: 0 0 0 2px var(--al-accent-muted);
+}
+
+
+/* ------------------------------------------------------------------ */
+/*  Base resets                                                        */
+/* ------------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-base);
+  line-height: var(--al-leading-normal);
+  letter-spacing: var(--al-tracking-normal);
+  color: var(--al-text);
+  background: var(--al-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: var(--al-scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--al-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--al-scrollbar-thumb);
+  border-radius: var(--al-radius-xs);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--al-text-muted);
+}
+
+/* Focus ring — visible and accessible */
+:focus-visible {
+  outline: 2px solid var(--al-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--al-radius-sm);
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Selection */
+::selection {
+  background: var(--al-accent-muted);
+  color: var(--al-text);
+}
+
+
+/* ------------------------------------------------------------------ */
+/*  Animations                                                         */
+/* ------------------------------------------------------------------ */
+
+@keyframes al-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes al-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes al-slide-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes al-slide-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes al-slide-left {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes al-slide-right {
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes al-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes al-count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes al-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+@keyframes al-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes al-toast-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes al-toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+
+/* ------------------------------------------------------------------ */
+/*  Utility classes                                                    */
+/* ------------------------------------------------------------------ */
+
+.al-hidden { display: none !important; }
+.al-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.al-mono { font-family: var(--al-font-mono); }
+.al-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

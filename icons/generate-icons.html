@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Generate AlterLab Extension Icons</title>
+  </head>
+  <body>
+    <h2>AlterLab Extension Icon Generator</h2>
+    <p>Click each button to download the icon PNG, then place in this directory.</p>
+
+    <canvas id="canvas" style="display: none"></canvas>
+
+    <div>
+      <button onclick="generateIcon(16)">Download icon16.png</button>
+      <button onclick="generateIcon(48)">Download icon48.png</button>
+      <button onclick="generateIcon(128)">Download icon128.png</button>
+    </div>
+
+    <h3>Preview:</h3>
+    <div id="preview"></div>
+
+    <script>
+      function generateIcon(size) {
+        const canvas = document.getElementById("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+
+        // Rounded rect background
+        const radius = size * 0.2;
+        ctx.clearRect(0, 0, size, size);
+        ctx.beginPath();
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(size - radius, 0);
+        ctx.quadraticCurveTo(size, 0, size, radius);
+        ctx.lineTo(size, size - radius);
+        ctx.quadraticCurveTo(size, size, size - radius, size);
+        ctx.lineTo(radius, size);
+        ctx.quadraticCurveTo(0, size, 0, size - radius);
+        ctx.lineTo(0, radius);
+        ctx.quadraticCurveTo(0, 0, radius, 0);
+        ctx.closePath();
+
+        // Gradient fill (indigo)
+        const gradient = ctx.createLinearGradient(0, 0, size, size);
+        gradient.addColorStop(0, "#6366f1");
+        gradient.addColorStop(1, "#4f46e5");
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // Letter "A"
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${size * 0.55}px Inter, -apple-system, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("A", size / 2, size / 2 + size * 0.03);
+
+        // Download
+        const link = document.createElement("a");
+        link.download = `icon${size}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        // Preview
+        const img = document.createElement("img");
+        img.src = canvas.toDataURL("image/png");
+        img.style.margin = "8px";
+        img.style.border = "1px solid #ccc";
+        img.title = `${size}x${size}`;
+        document.getElementById("preview").appendChild(img);
+      }
+
+      // Auto-generate previews
+      [16, 48, 128].forEach((s) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = s;
+        canvas.height = s;
+        const ctx = canvas.getContext("2d");
+        const radius = s * 0.2;
+        ctx.beginPath();
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(s - radius, 0);
+        ctx.quadraticCurveTo(s, 0, s, radius);
+        ctx.lineTo(s, s - radius);
+        ctx.quadraticCurveTo(s, s, s - radius, s);
+        ctx.lineTo(radius, s);
+        ctx.quadraticCurveTo(0, s, 0, s - radius);
+        ctx.lineTo(0, radius);
+        ctx.quadraticCurveTo(0, 0, radius, 0);
+        ctx.closePath();
+        const g = ctx.createLinearGradient(0, 0, s, s);
+        g.addColorStop(0, "#6366f1");
+        g.addColorStop(1, "#4f46e5");
+        ctx.fillStyle = g;
+        ctx.fill();
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${s * 0.55}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("A", s / 2, s / 2 + s * 0.03);
+        const img = document.createElement("img");
+        img.src = canvas.toDataURL("image/png");
+        img.style.margin = "8px";
+        img.style.border = "1px solid #ccc";
+        img.title = `${s}x${s}`;
+        document.getElementById("preview").appendChild(img);
+      });
+    </script>
+  </body>
+</html>

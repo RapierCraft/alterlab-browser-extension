@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 440px; height: 280px; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .tile {
+      width: 440px;
+      height: 280px;
+      background: linear-gradient(135deg, #0c0a09 0%, #1c1917 50%, #0c0a09 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Subtle grid pattern */
+    .tile::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    /* Glow */
+    .glow {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+    }
+    .content { position: relative; z-index: 1; text-align: center; }
+    .icon-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 4px 24px rgba(99,102,241,0.4);
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fafaf9;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #a8a29e;
+      margin-top: 8px;
+      max-width: 340px;
+      line-height: 1.5;
+    }
+    .badges {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      justify-content: center;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      color: #d6d3d1;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    /* Spectrum bar */
+    .spectrum {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6);
+    }
+  </style>
+</head>
+<body>
+  <div class="tile">
+    <div class="glow"></div>
+    <div class="content">
+      <div class="icon-row">
+        <div class="icon-box">A</div>
+        <div class="title">AlterLab Connect</div>
+      </div>
+      <div class="subtitle">
+        Developer tools for web scraping — page analysis, cookie capture, and authenticated scraping
+      </div>
+      <div class="badges">
+        <div class="badge">Page Inspector</div>
+        <div class="badge">Cookie Capture</div>
+        <div class="badge">Session Manager</div>
+      </div>
+    </div>
+    <div class="spectrum"></div>
+  </div>
+</body>
+</html>
