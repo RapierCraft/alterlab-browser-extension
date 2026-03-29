@@ -29,8 +29,13 @@ const EXCLUDED = new Set([
   "package-lock.json",
   "node_modules",
   ".gitignore",
+  ".git",
   "dist",
   "store-assets",
+  "tests",
+  "playwright.config.mjs",
+  "test-results",
+  "playwright-report",
 ]);
 
 // ---------------------------------------------------------------------------
