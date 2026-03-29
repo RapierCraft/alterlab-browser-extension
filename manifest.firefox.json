@@ -10,11 +10,11 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "connect@alterlab.io",
-      "strict_min_version": "115.0"
+      "strict_min_version": "115.0",
+      "data_collection_permissions": {
+        "technicallySendDataToThirdParty": true,
+        "dataUsedForAI": false
+      }
     }
-  },
-  "data_collection_permissions": {
-    "technicallySendDataToThirdParty": true,
-    "dataUsedForAI": false
   }
 }
