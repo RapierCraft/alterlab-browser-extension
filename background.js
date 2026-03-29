@@ -389,6 +389,74 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 });
 
 // ---------------------------------------------------------------------------
+// Dashboard bridge handler
+// ---------------------------------------------------------------------------
+
+/**
+ * Handle a DASHBOARD_REQUEST forwarded from the content script bridge.
+ * Routes by `action` field to existing handler logic.
+ *
+ * @param {Object} message - { action, payload, correlationId }
+ * @returns {Promise<Object>} - { ...data } on success, { error: string } on failure
+ */
+async function handleDashboardRequest(message) {
+  const { action, payload } = message;
+
+  try {
+    switch (action) {
+      case "GET_COOKIES": {
+        // Reuse existing cookie capture infrastructure
+        const domain = payload.domain;
+        if (!domain) return { error: "Missing domain in payload" };
+        return await handleGetCookies(domain, payload.url || null);
+      }
+
+      case "CAPTURE_NOW": {
+        // Capture cookies from the currently active tab's domain
+        const tabs = await browser.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (!tabs.length || !tabs[0].url) {
+          return { error: "No active tab found" };
+        }
+        const tabUrl = new URL(tabs[0].url);
+        const domain = payload.domain || tabUrl.hostname;
+        return await handleGetCookies(domain, tabs[0].url);
+      }
+
+      case "GET_STATUS": {
+        // Return extension status, version, and active tab info
+        const manifest = browser.runtime.getManifest();
+        const activeTabs = await browser.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        const activeTab = activeTabs.length > 0 ? activeTabs[0] : null;
+        return {
+          version: manifest.version,
+          active: true,
+          activeTab: activeTab
+            ? {
+                url: activeTab.url || null,
+                title: activeTab.title || null,
+                domain: activeTab.url
+                  ? new URL(activeTab.url).hostname
+                  : null,
+              }
+            : null,
+        };
+      }
+
+      default:
+        return { error: `Unknown action: ${action}` };
+    }
+  } catch (err) {
+    return { error: err.message || "Dashboard request failed" };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Message handling
 // ---------------------------------------------------------------------------
 
@@ -551,6 +619,14 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === "CAPTURE_SCREENSHOT") {
     handleCaptureScreenshot().then(sendResponse);
+    return true; // async response
+  }
+
+  // --- Generic dashboard bridge ---
+  // Routes DASHBOARD_REQUEST messages from the content script bridge.
+  // Each action maps to existing handler logic.
+  if (message.type === "DASHBOARD_REQUEST") {
+    handleDashboardRequest(message).then(sendResponse);
     return true; // async response
   }
 });

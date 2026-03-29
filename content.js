@@ -2044,6 +2044,87 @@
     );
   });
 
+  // --- Generic dashboard ↔ extension bridge ---
+  // Handles ALTERLAB_DASHBOARD_REQUEST messages from the dashboard page,
+  // forwards them to background.js via browser.runtime.sendMessage, and
+  // relays the response back as ALTERLAB_EXTENSION_RESPONSE with the
+  // same correlationId for request/response matching.
+  //
+  // Supported actions: GET_COOKIES, CAPTURE_NOW, GET_STATUS
+  // Protocol:
+  //   Dashboard → postMessage({ type: "ALTERLAB_DASHBOARD_REQUEST", correlationId, action, payload })
+  //   Extension → postMessage({ type: "ALTERLAB_EXTENSION_RESPONSE", correlationId, success, data/error })
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || !event.data) return;
+    if (event.data.type !== "ALTERLAB_DASHBOARD_REQUEST") return;
+
+    // Only respond on AlterLab domains
+    const pageOrigin = window.location.origin;
+    if (!ALTERLAB_ORIGINS.includes(pageOrigin)) return;
+
+    const { correlationId, action, payload } = event.data;
+    if (!correlationId || !action) {
+      window.postMessage(
+        {
+          type: "ALTERLAB_EXTENSION_RESPONSE",
+          correlationId: correlationId || null,
+          success: false,
+          error: "Missing correlationId or action",
+        },
+        pageOrigin,
+      );
+      return;
+    }
+
+    // Forward to background.js as a DASHBOARD_REQUEST
+    browser.runtime.sendMessage(
+      {
+        type: "DASHBOARD_REQUEST",
+        action: action,
+        payload: payload || {},
+        correlationId: correlationId,
+      },
+      (response) => {
+        if (browser.runtime.lastError) {
+          window.postMessage(
+            {
+              type: "ALTERLAB_EXTENSION_RESPONSE",
+              correlationId: correlationId,
+              success: false,
+              error: browser.runtime.lastError.message || "Extension error",
+            },
+            pageOrigin,
+          );
+          return;
+        }
+
+        if (!response) {
+          window.postMessage(
+            {
+              type: "ALTERLAB_EXTENSION_RESPONSE",
+              correlationId: correlationId,
+              success: false,
+              error: "No response from extension background",
+            },
+            pageOrigin,
+          );
+          return;
+        }
+
+        window.postMessage(
+          {
+            type: "ALTERLAB_EXTENSION_RESPONSE",
+            correlationId: correlationId,
+            success: !response.error,
+            data: response.error ? undefined : response,
+            error: response.error || undefined,
+          },
+          pageOrigin,
+        );
+      },
+    );
+  });
+
   // Inject the interceptor early
   injectNetworkInterceptor();
 
