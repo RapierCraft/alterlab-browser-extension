@@ -1,0 +1,41 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for a new feature or improvement? We'd like to hear it.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of the feature you'd like to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: What problem does this solve? How would you use it?
+      placeholder: "I frequently need to... and currently the extension doesn't support..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: If you have a specific implementation in mind, describe it here.
+
+  - type: dropdown
+    id: browser-target
+    attributes:
+      label: Target Browser(s)
+      multiple: true
+      options:
+        - Chrome / Chromium
+        - Firefox
+        - Both
