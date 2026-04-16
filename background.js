@@ -596,7 +596,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "FETCH_URL") {
     handleFetchUrl(message.url)
       .then(sendResponse)
-      .catch((err) => sendResponse({ error: err.message, body: null }));
+      .catch((err) => sendResponse({ error: err.message, body: null, status: 0 }));
     return true; // async response
   }
 
@@ -1262,9 +1262,15 @@ async function checkForExtensionUpdate() {
 // ---------------------------------------------------------------------------
 
 /**
- * Fetch a URL from the background service worker context.
- * This bypasses CORS restrictions since service workers are not subject
- * to the same-origin policy for fetch requests.
+ * Fetch a URL from the background service worker context (CORS bypass).
+ * Service workers are not subject to same-origin policy for fetch requests.
+ *
+ * Always resolves — never rejects. Return shape is always:
+ *   { error: string|null, body: string|null, status: number }
+ *
+ * Callers MUST check `result.error` before accessing `result.body`.
+ * Do NOT treat the return value as a fetch Response object — it has no
+ * `.ok` property and `.text()` method does not exist on it.
  */
 async function handleFetchUrl(url) {
   try {
