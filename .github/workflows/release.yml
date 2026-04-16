@@ -1,0 +1,129 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 2.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      chrome-zip: ${{ steps.build.outputs.chrome-zip }}
+      firefox-zip: ${{ steps.build.outputs.firefox-zip }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Bump version in manifest.json
+        run: |
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            m.version = '${{ inputs.version }}';
+            fs.writeFileSync('manifest.json', JSON.stringify(m, null, 2) + '\n');
+          "
+
+      - name: Build both browsers
+        id: build
+        run: |
+          npm run build
+          echo "chrome-zip=dist/alterlab-connect-chrome.zip" >> "$GITHUB_OUTPUT"
+          echo "firefox-zip=dist/alterlab-connect-firefox.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version bump and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "release: v${{ inputs.version }} [skip ci]"
+          git tag "v${{ inputs.version }}"
+          git push origin main --tags
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-builds
+          path: |
+            dist/alterlab-connect-chrome.zip
+            dist/alterlab-connect-firefox.zip
+            dist/firefox/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-builds
+          path: dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/alterlab-connect-chrome.zip
+            dist/alterlab-connect-firefox.zip
+
+  publish-chrome:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ vars.CWS_ENABLED == 'true' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-builds
+          path: dist/
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Upload to Chrome Web Store
+        run: |
+          npx chrome-webstore-upload-cli upload \
+            --source dist/alterlab-connect-chrome.zip \
+            --extension-id ${{ secrets.CWS_EXTENSION_ID }} \
+            --client-id ${{ secrets.CWS_CLIENT_ID }} \
+            --client-secret ${{ secrets.CWS_CLIENT_SECRET }} \
+            --refresh-token ${{ secrets.CWS_REFRESH_TOKEN }} \
+            --auto-publish
+        continue-on-error: true
+
+  publish-firefox:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ vars.AMO_ENABLED == 'true' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: extension-builds
+          path: dist/
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sign and submit to Firefox AMO
+        run: |
+          npx web-ext sign \
+            --source-dir dist/firefox/ \
+            --api-key ${{ secrets.AMO_JWT_ISSUER }} \
+            --api-secret ${{ secrets.AMO_JWT_SECRET }} \
+            --channel listed
+        continue-on-error: true
