@@ -3639,7 +3639,8 @@ async function handleInlineAuth(
   connectBtn.innerHTML = '<span class="spinner"></span>';
 
   try {
-    const apiUrl = ALTERLAB_DEFAULT_API_URL;
+    const savedConfig = await loadConfig();
+    const apiUrl = savedConfig.apiUrl || ALTERLAB_DEFAULT_API_URL;
     const resp = await fetch(`${apiUrl}/api/v1/auth/me`, {
       headers: { "X-API-Key": apiKey },
     });
