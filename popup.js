@@ -35,7 +35,6 @@ const AUTH_COOKIE_PATTERNS = [
   /^li_at$/i, // LinkedIn
   /^JSESSIONID$/i, // Java apps
   /^connect\.sid$/i, // Express.js
-  /^_ga_/i, // Not auth but often needed
   /^laravel_session$/i, // Laravel
   /^PHPSESSID$/i, // PHP
   /^ASP\.NET_SessionId$/i, // ASP.NET
