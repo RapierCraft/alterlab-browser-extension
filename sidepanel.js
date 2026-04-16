@@ -2847,6 +2847,11 @@ async function handleShareReport() {
     return;
   }
 
+  if (currentAnalysis.score == null) {
+    showToast("warning", "Incomplete analysis", "Wait for scoring to complete before sharing.");
+    return;
+  }
+
   const config = await loadConfig();
   const apiUrl = config.apiUrl || ALTERLAB_DEFAULT_API_URL;
 
