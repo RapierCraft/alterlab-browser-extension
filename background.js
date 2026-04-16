@@ -1430,7 +1430,7 @@ async function replaySyncQueue() {
  * Send a message to all open side panel / popup instances.
  */
 function notifySidePanels(message) {
-  browser.runtime.sendMessage(message).catch(() => {
+  browser.runtime.sendMessage({ ...message, target: "sidepanel" }).catch(() => {
     // No listeners — side panel may be closed
   });
 }

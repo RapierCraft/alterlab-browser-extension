@@ -168,8 +168,13 @@ function bindEvents() {
 
 function bindAuthMessageListener() {
   browser.runtime.onMessage.addListener((message) => {
+    // CONFIG_UPDATED and AUTH_STATUS_CHANGED from background are targeted at
+    // the side panel. Ignore them when they carry target:"sidepanel" so the
+    // popup does not call showCaptureView() / showLoginView() unexpectedly.
+    if (message.target === "sidepanel") return;
+
     if (message.type === "CONFIG_UPDATED") {
-      // Background auto-configured after login detection — refresh popup
+      // Sent by the popup itself (no target) after the user saves settings
       showCaptureView();
     }
 
