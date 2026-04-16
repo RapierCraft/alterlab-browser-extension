@@ -1624,16 +1624,18 @@ function bindCookieInspectorEvents() {
     }, 150);
   });
 
-  // Sort button — cycles through fields
+  // Sort button — cycles through fields; first click on a field = ascending,
+  // second click on same field = descending, third click = advance to next field ascending
   const sortFields = ["name", "domain", "expiry", "size"];
   const sortLabels = { name: "Name", domain: "Domain", expiry: "Expiry", size: "Size" };
   els.ciSortBtn.addEventListener("click", () => {
-    const idx = sortFields.indexOf(ciSortField);
-    const nextIdx = (idx + 1) % sortFields.length;
-    if (sortFields[nextIdx] === ciSortField) {
-      ciSortAsc = !ciSortAsc;
+    if (ciSortAsc) {
+      // Same field, toggle to descending
+      ciSortAsc = false;
     } else {
-      ciSortField = sortFields[nextIdx];
+      // Advance to next field, reset to ascending
+      const idx = sortFields.indexOf(ciSortField);
+      ciSortField = sortFields[(idx + 1) % sortFields.length];
       ciSortAsc = true;
     }
     els.ciSortBtn.textContent = sortLabels[ciSortField] + (ciSortAsc ? " \u2191" : " \u2193");
