@@ -1681,7 +1681,11 @@ function bindCookieInspectorEvents() {
     });
   });
 
-  // Subdomains toggle
+  // Subdomains toggle — must call loadInspectorCookies() (re-fetches via
+  // browser.cookies.getAll with the updated domain filter) rather than
+  // renderInspectorCookies() (which only re-renders the already-cached
+  // ciAllCookies array). Without the full re-fetch, subdomain cookies not
+  // present in the initial fetch remain invisible after toggling.
   els.ciSubdomains.addEventListener("change", () => {
     loadInspectorCookies();
   });
