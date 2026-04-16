@@ -612,6 +612,58 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
   }
 
+  if (message.type === "NETWORK_REQUEST") {
+    // Content script forwards page-context XHR/fetch interception data.
+    // entry fields: id, method, url, status, statusText, contentType,
+    //   responseSize, responseTime, body, dataType, timestamp, source
+    const tabId = sender.tab && sender.tab.id;
+    if (tabId != null && tabId >= 0) {
+      let tabData = tabNetworkRequests.get(tabId);
+      if (!tabData) {
+        tabData = { requests: [], pending: new Map() };
+        tabNetworkRequests.set(tabId, tabData);
+      }
+
+      const entry = message.entry;
+      if (entry) {
+        // Normalise to the same shape as webRequest entries so the sidepanel
+        // can render them uniformly. Mark source so the panel can indicate
+        // this came from the page-context interceptor (has response body).
+        const normalisedEntry = {
+          requestId: entry.id || String(entry.timestamp),
+          url: entry.url || "",
+          method: entry.method || "GET",
+          type: entry.dataType || "other",
+          timestamp: entry.timestamp || Date.now(),
+          requestHeaders: [],
+          responseHeaders: [],
+          statusCode: entry.status || 0,
+          statusLine: entry.statusText || "",
+          duration: entry.responseTime || 0,
+          contentType: entry.contentType || "",
+          responseSize: entry.responseSize || 0,
+          body: entry.body || "",
+          dataType: entry.dataType || null,
+          source: entry.source || "content",
+        };
+
+        tabData.requests.push(normalisedEntry);
+        if (tabData.requests.length > MAX_REQUESTS_PER_TAB) {
+          tabData.requests.shift();
+        }
+
+        // Notify side panel so the network tab updates live
+        notifySidePanels({
+          type: "NETWORK_REQUEST_ADDED",
+          tabId,
+          entry: normalisedEntry,
+        });
+      }
+    }
+    sendResponse({ status: "ok" });
+    return false;
+  }
+
   if (message.type === "SESSION_SAVED" || message.type === "CONFIG_UPDATED") {
     sendResponse({ status: "ok" });
     return false;
