@@ -13,6 +13,7 @@ const elements = {
   keySelectorStatus: document.getElementById("keySelectorStatus"),
   loginView: document.getElementById("loginView"),
   loginBtn: document.getElementById("loginBtn"),
+  loginStatus: document.getElementById("loginStatus"),
   signupLink: document.getElementById("signupLink"),
   useApiKeyBtn: document.getElementById("useApiKeyBtn"),
   hideApiKeyBtn: document.getElementById("hideApiKeyBtn"),
@@ -353,7 +354,7 @@ async function handleKeySelect(keyInfo, apiUrl) {
 // Login / Signup
 // ---------------------------------------------------------------------------
 
-function handleLogin() {
+async function handleLogin() {
   const apiUrl = elements.apiUrlInput
     ? elements.apiUrlInput.value.trim()
     : ALTERLAB_DEFAULT_API_URL;
@@ -367,25 +368,51 @@ function handleLogin() {
     if (loadingLabel) loadingLabel.classList.remove("al-hidden");
     elements.loginBtn.disabled = true;
   }
+  hideStatus(elements.loginStatus);
 
-  browser.tabs.create({
-    url: `${baseUrl}/signin?source=extension`,
-    active: true,
-  });
-  // Close popup — when user comes back, the next popup open will re-check auth
-  window.close();
+  try {
+    await browser.tabs.create({
+      url: `${baseUrl}/signin?source=extension`,
+      active: true,
+    });
+    // Tab created successfully — close popup so user can complete sign-in
+    window.close();
+  } catch (err) {
+    // Tab creation failed — restore button and show error so user isn't left with a blank popup
+    if (elements.loginBtn) {
+      const defaultLabel = elements.loginBtn.querySelector(".al-auth-btn-default");
+      const loadingLabel = elements.loginBtn.querySelector(".al-auth-btn-loading");
+      if (defaultLabel) defaultLabel.classList.remove("al-hidden");
+      if (loadingLabel) loadingLabel.classList.add("al-hidden");
+      elements.loginBtn.disabled = false;
+    }
+    showStatus(
+      elements.loginStatus,
+      "error",
+      err?.message || "Could not open sign-in tab. Please try again.",
+    );
+  }
 }
 
-function handleSignup() {
+async function handleSignup() {
   const apiUrl = elements.apiUrlInput
     ? elements.apiUrlInput.value.trim()
     : ALTERLAB_DEFAULT_API_URL;
   const baseUrl = normalizeUrl(apiUrl || ALTERLAB_DEFAULT_API_URL);
-  browser.tabs.create({
-    url: `${baseUrl}/register?source=extension`,
-    active: true,
-  });
-  window.close();
+
+  try {
+    await browser.tabs.create({
+      url: `${baseUrl}/register?source=extension`,
+      active: true,
+    });
+    window.close();
+  } catch (err) {
+    showStatus(
+      elements.loginStatus,
+      "error",
+      err?.message || "Could not open sign-up tab. Please try again.",
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
