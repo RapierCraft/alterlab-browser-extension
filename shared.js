@@ -145,13 +145,17 @@ function scrapeScoreColor(score) {
 
 /**
  * Map a scrape score to the recommended AlterLab tier (1-4).
+ * Canonical implementation — used everywhere score→tier mapping is needed.
  */
-function scrapeScoreTier(score) {
-  if (score <= 30) return 1;
+function scoreToTier(score) {
+  if (score == null || score <= 30) return 1;
   if (score <= 60) return 2;
   if (score <= 80) return 3;
   return 4;
 }
+
+// Backward-compat alias — remove once all callers use scoreToTier directly.
+const scrapeScoreTier = scoreToTier;
 
 /**
  * Human-readable difficulty label for a scrape score.

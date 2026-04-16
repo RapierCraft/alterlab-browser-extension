@@ -2713,17 +2713,6 @@ function handleScrapeDownload() {
 }
 
 // ---------------------------------------------------------------------------
-// Score-to-Tier Mapping
-// ---------------------------------------------------------------------------
-
-function scoreToTier(score) {
-  if (score == null || score <= 30) return 1;
-  if (score <= 60) return 2;
-  if (score <= 80) return 3;
-  return 4;
-}
-
-// ---------------------------------------------------------------------------
 // Page-Level Snippet Generation (for Inspect & Job export)
 // ---------------------------------------------------------------------------
 
@@ -3031,10 +3020,9 @@ function updateJobPreview(analysis) {
   }
 
   // Suggest tier based on score
-  if (analysis && analysis.score > 60) {
-    job.tier = 4;
-  } else if (analysis && analysis.score > 30) {
-    job.tier = 3;
+  if (analysis) {
+    const suggestedTier = scoreToTier(analysis.score);
+    if (suggestedTier > 1) job.tier = suggestedTier;
   }
 
   els.jobPreview.textContent = JSON.stringify(job, null, 2);
