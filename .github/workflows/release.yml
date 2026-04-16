@@ -12,6 +12,38 @@ permissions:
   contents: write
 
 jobs:
+  staging-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check AlterLab staging for undeployed extension changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "## AlterLab Staging Check" >> "$GITHUB_STEP_SUMMARY"
+
+          # Compare staging to main in AlterLab repo
+          DIFF=$(gh api repos/RapierCraftStudios/AlterLab/compare/main...staging \
+            --jq '.files[].filename' 2>/dev/null || echo "")
+
+          if [ -z "$DIFF" ]; then
+            echo "✅ AlterLab staging is up to date with main (or unable to check)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Check for extension-related files
+          EXT_FILES=$(echo "$DIFF" | grep -iE "extension|bridge|welcome|useExtensionBridge" || true)
+
+          if [ -n "$EXT_FILES" ]; then
+            echo "⚠️ **WARNING**: AlterLab staging has undeployed extension-related changes:" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$EXT_FILES" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**Deploy AlterLab first** (merge staging → main) before publishing the extension." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "✅ No extension-related changes pending on AlterLab staging" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   build:
     runs-on: ubuntu-latest
     outputs:
