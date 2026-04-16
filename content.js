@@ -2030,11 +2030,13 @@
     if (!ALTERLAB_ORIGINS.includes(pageOrigin)) return;
 
     const domain = event.data.domain;
+    const correlationId = event.data.correlationId || null;
     if (!domain || typeof domain !== "string") {
       window.postMessage(
         {
           type: "ALTERLAB_CAPTURE_ERROR",
           domain: domain || "",
+          correlationId: correlationId,
           error: "Invalid domain",
         },
         pageOrigin,
@@ -2054,6 +2056,7 @@
             {
               type: "ALTERLAB_CAPTURE_ERROR",
               domain: domain,
+              correlationId: correlationId,
               error: browser.runtime.lastError.message || "Extension error",
             },
             pageOrigin,
@@ -2066,6 +2069,7 @@
             {
               type: "ALTERLAB_CAPTURE_ERROR",
               domain: domain,
+              correlationId: correlationId,
               error: response.error,
             },
             pageOrigin,
@@ -2077,6 +2081,7 @@
           {
             type: "ALTERLAB_COOKIES_CAPTURED",
             domain: domain,
+            correlationId: correlationId,
             cookies: response ? response.cookies : [],
           },
           pageOrigin,
