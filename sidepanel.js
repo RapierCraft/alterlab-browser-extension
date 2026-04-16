@@ -277,6 +277,24 @@ function cacheElements() {
     selCopyJson: document.getElementById("selCopyJson"),
     selClearAll: document.getElementById("selClearAll"),
     selStatus: document.getElementById("selStatus"),
+    // Meta Tab (SEO Analyzer)
+    seoScoreRing: document.getElementById("seoScoreRing"),
+    seoScoreValue: document.getElementById("seoScoreValue"),
+    seoScoreLabel: document.getElementById("seoScoreLabel"),
+    seoScoreDesc: document.getElementById("seoScoreDesc"),
+    seoIssuesCard: document.getElementById("seoIssuesCard"),
+    seoIssueCount: document.getElementById("seoIssueCount"),
+    seoIssueList: document.getElementById("seoIssueList"),
+    seoBasicTable: document.getElementById("seoBasicTable"),
+    ogTagCount: document.getElementById("ogTagCount"),
+    ogImagePreview: document.getElementById("ogImagePreview"),
+    ogImageEl: document.getElementById("ogImageEl"),
+    ogTable: document.getElementById("ogTable"),
+    twitterTagCount: document.getElementById("twitterTagCount"),
+    twitterTable: document.getElementById("twitterTable"),
+    jsonLdCount: document.getElementById("jsonLdCount"),
+    jsonLdContent: document.getElementById("jsonLdContent"),
+    metaCopyAllBtn: document.getElementById("metaCopyAllBtn"),
     // Share Report
     shareReportBtn: document.getElementById("shareReportBtn"),
     shareReportResult: document.getElementById("shareReportResult"),
@@ -354,6 +372,11 @@ function bindTabNavigation() {
       const panel = document.getElementById(`panel-${tabName}`);
       panel.classList.add("active", direction);
 
+      // Render Meta tab when switching to it
+      if (tabName === "meta") {
+        renderMetaTab();
+      }
+
       // Auto-refresh headers when network tab is active (headers merged into network)
       if (tabName === "network") {
         loadNetworkRequests();
@@ -419,6 +442,7 @@ async function requestPageAnalysis(tabId) {
       analysisResolved = true;
       currentAnalysis = analysis;
       renderInspectTab(analysis);
+      renderMetaTab();
       updateJobPreview(analysis);
       // Send score to background for badge
       browser.runtime.sendMessage({
@@ -734,6 +758,312 @@ function renderInspectTimeout() {
   els.signalList.innerHTML =
     '<li><span class="signal-dot yellow"></span>Analysis timed out \u2014 try refreshing</li>';
   els.conversionHook.classList.remove("visible");
+}
+
+// ---------------------------------------------------------------------------
+// Meta Tab — SEO Analyzer
+// ---------------------------------------------------------------------------
+
+/**
+ * Render the Meta tab using currentAnalysis.meta data collected by content.js.
+ * Populates SEO score ring, issues list, SEO tags table, OG table, Twitter
+ * cards table, and JSON-LD structured data blocks.
+ * Safe to call when currentAnalysis is null — shows "Not available" state.
+ */
+function renderMetaTab() {
+  const meta = currentAnalysis && currentAnalysis.meta ? currentAnalysis.meta : null;
+  const circumference = 2 * Math.PI * 28; // r=28, matches Inspect tab ring
+
+  if (!meta) {
+    // No analysis yet — show clear unavailable state rather than "Scanning..."
+    if (els.seoScoreValue) els.seoScoreValue.textContent = "--";
+    if (els.seoScoreLabel) els.seoScoreLabel.textContent = "Not available";
+    if (els.seoScoreDesc) els.seoScoreDesc.textContent = "Analyze a page first.";
+    if (els.seoIssuesCard) els.seoIssuesCard.style.display = "none";
+    if (els.seoBasicTable) els.seoBasicTable.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">No data</span></div>';
+    if (els.ogTable) els.ogTable.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">No data</span></div>';
+    if (els.twitterTable) els.twitterTable.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">No data</span></div>';
+    if (els.jsonLdContent) els.jsonLdContent.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">No data</span></div>';
+    return;
+  }
+
+  // ------------------------------------------------------------------
+  // 1. Compute SEO score and issues
+  // ------------------------------------------------------------------
+  const issues = [];
+  const title = meta.title || "";
+  const description = (meta.basic && meta.basic["description"]) || meta["description"] || "";
+  const canonical = meta.canonical || "";
+  const robots = (meta.basic && meta.basic["robots"]) || meta["robots"] || "";
+  const ogKeys = meta.og || {};
+  const twitterKeys = meta.twitter || {};
+  const jsonLd = Array.isArray(meta.jsonLd) ? meta.jsonLd : [];
+
+  // Title checks
+  if (!title) {
+    issues.push({ severity: "error", text: "Missing <title> tag" });
+  } else if (title.length < 10) {
+    issues.push({ severity: "warning", text: `Title too short (${title.length} chars, aim for 30–60)` });
+  } else if (title.length > 60) {
+    issues.push({ severity: "warning", text: `Title too long (${title.length} chars, aim for 30–60)` });
+  }
+
+  // Description checks
+  if (!description) {
+    issues.push({ severity: "error", text: "Missing meta description" });
+  } else if (description.length < 50) {
+    issues.push({ severity: "warning", text: `Meta description too short (${description.length} chars, aim for 120–160)` });
+  } else if (description.length > 160) {
+    issues.push({ severity: "warning", text: `Meta description too long (${description.length} chars, aim for 120–160)` });
+  }
+
+  // Canonical check
+  if (!canonical) {
+    issues.push({ severity: "warning", text: "No canonical URL defined" });
+  }
+
+  // Robots noindex/nofollow check
+  if (robots && (robots.includes("noindex") || robots.includes("nofollow"))) {
+    issues.push({ severity: "error", text: `Robots directive blocks crawling: "${robots}"` });
+  }
+
+  // OG checks
+  if (!ogKeys["og:title"]) {
+    issues.push({ severity: "warning", text: "Missing og:title — needed for social sharing" });
+  }
+  if (!ogKeys["og:description"]) {
+    issues.push({ severity: "warning", text: "Missing og:description — needed for social sharing" });
+  }
+  if (!ogKeys["og:image"]) {
+    issues.push({ severity: "warning", text: "Missing og:image — social previews will be blank" });
+  }
+
+  // Twitter card check
+  if (!twitterKeys["twitter:card"]) {
+    issues.push({ severity: "info", text: "No Twitter Card tags found" });
+  }
+
+  // Score calculation: start at 100, deduct per issue
+  let seoScore = 100;
+  for (const issue of issues) {
+    if (issue.severity === "error") seoScore -= 20;
+    else if (issue.severity === "warning") seoScore -= 8;
+    else if (issue.severity === "info") seoScore -= 3;
+  }
+  seoScore = Math.max(0, Math.min(100, seoScore));
+
+  // ------------------------------------------------------------------
+  // 2. Render score ring
+  // ------------------------------------------------------------------
+  const offset = circumference - (seoScore / 100) * circumference;
+  let ringColor;
+  if (seoScore >= 80) ringColor = "var(--success, #22c55e)";
+  else if (seoScore >= 50) ringColor = "var(--warning, #f59e0b)";
+  else ringColor = "var(--error, #ef4444)";
+
+  if (els.seoScoreRing) {
+    els.seoScoreRing.style.stroke = ringColor;
+    els.seoScoreRing.style.strokeDashoffset = String(offset);
+    els.seoScoreRing.classList.add("ring-revealed");
+  }
+  if (els.seoScoreValue) {
+    els.seoScoreValue.textContent = String(seoScore);
+    els.seoScoreValue.style.color = ringColor;
+    els.seoScoreValue.style.opacity = "1";
+    els.seoScoreValue.classList.add("score-revealed");
+  }
+
+  let scoreLabel, scoreDesc;
+  if (seoScore >= 90) { scoreLabel = "Excellent"; scoreDesc = "Strong SEO metadata — well optimized."; }
+  else if (seoScore >= 70) { scoreLabel = "Good"; scoreDesc = "A few improvements could help visibility."; }
+  else if (seoScore >= 50) { scoreLabel = "Needs work"; scoreDesc = "Several SEO issues detected."; }
+  else { scoreLabel = "Poor"; scoreDesc = "Critical SEO metadata is missing."; }
+
+  if (els.seoScoreLabel) els.seoScoreLabel.textContent = scoreLabel;
+  if (els.seoScoreDesc) els.seoScoreDesc.textContent = scoreDesc;
+
+  // ------------------------------------------------------------------
+  // 3. Render issues list
+  // ------------------------------------------------------------------
+  if (els.seoIssuesCard && els.seoIssueList && els.seoIssueCount) {
+    if (issues.length > 0) {
+      els.seoIssuesCard.style.display = "block";
+      els.seoIssueCount.textContent = String(issues.length);
+      els.seoIssueList.innerHTML = "";
+      for (const issue of issues) {
+        const li = document.createElement("li");
+        li.className = "seo-issue-item";
+        const dotColor =
+          issue.severity === "error" ? "var(--error, #ef4444)"
+          : issue.severity === "warning" ? "var(--warning, #f59e0b)"
+          : "var(--text-muted)";
+        li.innerHTML = `<span class="signal-dot" style="background:${dotColor};flex-shrink:0;"></span><span>${escapeHtml(issue.text)}</span>`;
+        els.seoIssueList.appendChild(li);
+      }
+    } else {
+      els.seoIssuesCard.style.display = "none";
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 4. Render Basic SEO Tags table
+  // ------------------------------------------------------------------
+  if (els.seoBasicTable) {
+    const basicRows = [
+      { key: "title", label: "Title", value: title },
+      { key: "description", label: "Description", value: description },
+      { key: "canonical", label: "Canonical", value: canonical },
+      { key: "robots", label: "Robots", value: (meta.basic && meta.basic["robots"]) || meta["robots"] || "" },
+      { key: "author", label: "Author", value: (meta.basic && meta.basic["author"]) || "" },
+      { key: "keywords", label: "Keywords", value: (meta.basic && meta.basic["keywords"]) || "" },
+      { key: "viewport", label: "Viewport", value: (meta.basic && meta.basic["viewport"]) || "" },
+    ];
+
+    els.seoBasicTable.innerHTML = "";
+    let anyBasic = false;
+    for (const row of basicRows) {
+      if (!row.value) continue;
+      anyBasic = true;
+      els.seoBasicTable.appendChild(buildMetaRow(row.label, row.value));
+    }
+    if (!anyBasic) {
+      els.seoBasicTable.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">None found</span></div>';
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 5. Render Open Graph table
+  // ------------------------------------------------------------------
+  if (els.ogTable) {
+    const ogEntries = Object.entries(ogKeys);
+    els.ogTable.innerHTML = "";
+    if (els.ogTagCount) els.ogTagCount.textContent = String(ogEntries.length);
+
+    if (ogEntries.length === 0) {
+      els.ogTable.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">No OG tags found</span></div>';
+    } else {
+      for (const [key, value] of ogEntries) {
+        els.ogTable.appendChild(buildMetaRow(key, value));
+      }
+    }
+
+    // OG image preview
+    const ogImage = ogKeys["og:image"];
+    if (els.ogImagePreview && els.ogImageEl) {
+      if (ogImage) {
+        els.ogImageEl.src = ogImage;
+        els.ogImageEl.onerror = () => { els.ogImagePreview.style.display = "none"; };
+        els.ogImageEl.onload = () => { els.ogImagePreview.style.display = "block"; };
+        els.ogImagePreview.style.display = "none"; // shown by onload
+      } else {
+        els.ogImagePreview.style.display = "none";
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 6. Render Twitter Cards table
+  // ------------------------------------------------------------------
+  if (els.twitterTable) {
+    const twitterEntries = Object.entries(twitterKeys);
+    els.twitterTable.innerHTML = "";
+    if (els.twitterTagCount) els.twitterTagCount.textContent = String(twitterEntries.length);
+
+    if (twitterEntries.length === 0) {
+      els.twitterTable.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">No Twitter Card tags found</span></div>';
+    } else {
+      for (const [key, value] of twitterEntries) {
+        els.twitterTable.appendChild(buildMetaRow(key, value));
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 7. Render JSON-LD blocks
+  // ------------------------------------------------------------------
+  if (els.jsonLdContent) {
+    els.jsonLdContent.innerHTML = "";
+    if (els.jsonLdCount) els.jsonLdCount.textContent = String(jsonLd.length);
+
+    if (jsonLd.length === 0) {
+      els.jsonLdContent.innerHTML = '<div class="meta-row placeholder"><span class="meta-key">No JSON-LD found</span></div>';
+    } else {
+      for (let i = 0; i < jsonLd.length; i++) {
+        const schema = jsonLd[i];
+        const schemaType = schema["@type"] || "Unknown";
+        const wrapper = document.createElement("div");
+        wrapper.className = "json-ld-block";
+        wrapper.style.cssText = "margin-bottom:8px;";
+
+        const label = document.createElement("div");
+        label.className = "json-ld-type-label";
+        label.style.cssText = "font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;";
+        label.textContent = Array.isArray(schemaType) ? schemaType.join(", ") : String(schemaType);
+        wrapper.appendChild(label);
+
+        const pre = document.createElement("pre");
+        pre.className = "json-ld-pre";
+        pre.style.cssText = "margin:0;padding:10px;background:var(--bg-input);border-radius:6px;font-size:11px;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text-primary);";
+        pre.textContent = JSON.stringify(schema, null, 2);
+        wrapper.appendChild(pre);
+        els.jsonLdContent.appendChild(wrapper);
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 8. Wire "Copy All as JSON" button (idempotent — remove old listener first)
+  // ------------------------------------------------------------------
+  if (els.metaCopyAllBtn) {
+    const newBtn = els.metaCopyAllBtn.cloneNode(true);
+    els.metaCopyAllBtn.parentNode.replaceChild(newBtn, els.metaCopyAllBtn);
+    els.metaCopyAllBtn = newBtn;
+
+    els.metaCopyAllBtn.addEventListener("click", () => {
+      const exportData = {
+        url: currentUrl,
+        title,
+        canonical,
+        basic: meta.basic || {},
+        og: meta.og || {},
+        twitter: meta.twitter || {},
+        jsonLd: meta.jsonLd || [],
+        seoScore,
+        seoIssues: issues,
+      };
+      const text = JSON.stringify(exportData, null, 2);
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = els.metaCopyAllBtn.textContent;
+        els.metaCopyAllBtn.textContent = "Copied!";
+        setTimeout(() => { els.metaCopyAllBtn.textContent = orig; }, 1500);
+      }).catch(() => {
+        showToast("error", "Copy failed", "Could not copy to clipboard.");
+      });
+    });
+  }
+}
+
+/**
+ * Build a single meta-table row element with key and value.
+ * Truncates long values and shows full value on title hover.
+ */
+function buildMetaRow(key, value) {
+  const row = document.createElement("div");
+  row.className = "meta-row";
+
+  const keyEl = document.createElement("span");
+  keyEl.className = "meta-key";
+  keyEl.textContent = key;
+
+  const valEl = document.createElement("span");
+  valEl.className = "meta-value";
+  const strVal = String(value);
+  valEl.textContent = strVal.length > 120 ? strVal.substring(0, 120) + "…" : strVal;
+  valEl.title = strVal;
+
+  row.appendChild(keyEl);
+  row.appendChild(valEl);
+  return row;
 }
 
 /**
