@@ -44,6 +44,12 @@ const HAS_SIDE_PANEL = typeof browser !== "undefined" && !!browser.sidePanel;
 // persist there too — the storage.session API is available in both MV3 runtimes.
 let panelWindowId = null;
 
+// Synchronous guard against duplicate welcome tabs when onInstalled fires
+// twice in rapid succession (Firefox temporary add-on reload edge case).
+// Set immediately — before the async storage write — so a second concurrent
+// handler sees true and bails out without waiting for storage.
+let welcomeTabOpenedInMemory = false;
+
 // Promise that resolves once the persisted panelWindowId has been loaded from
 // storage. openSidePanel() awaits this before acting so that a user click
 // immediately after script load does not race against the async restore and
@@ -238,7 +244,12 @@ browser.runtime.onInstalled.addListener(async (details) => {
     browser.action.setBadgeBackgroundColor({ color: "#6366f1" });
 
     // Guard: only open welcome tab once (Firefox temporary add-ons
-    // re-fire onInstalled on every load from about:debugging)
+    // re-fire onInstalled on every load from about:debugging).
+    // The in-memory flag is set synchronously before the async storage write
+    // so a second concurrent handler sees true and bails out immediately.
+    if (welcomeTabOpenedInMemory) return;
+    welcomeTabOpenedInMemory = true;
+
     const { welcomeTabOpened } = await browser.storage.local.get("welcomeTabOpened");
     if (!welcomeTabOpened) {
       browser.storage.local.set({
