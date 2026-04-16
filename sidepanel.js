@@ -4450,30 +4450,60 @@ function handleCrawlCheck() {
   const botGroup = rtParsed.groups[rtSelectedBot.toLowerCase()];
   const wildcardGroup = rtParsed.groups["*"];
 
-  // Merge rules: specific bot overrides wildcard
-  const group = botGroup || wildcardGroup;
-
-  if (!group) {
+  if (!botGroup && !wildcardGroup) {
     // No rules at all — allowed
     showCrawlResult(true, checkPath, "No rules found — crawling is allowed.");
     return;
   }
 
+  // RFC 9309 §2.2.2: specific-agent rules take precedence over wildcard (*).
+  // When a bot-specific group exists, its rules win for paths they explicitly
+  // cover. For paths NOT covered by the specific group, wildcard rules still
+  // apply. We implement this by running the longest-match algorithm over all
+  // rules combined, but when two rules have equal specificity we prefer the
+  // bot-specific one over the wildcard one.
+
   // Find the best matching rule (longest prefix match)
   let bestMatch = null;
   let bestLen = -1;
+  let bestIsBot = false;
 
-  const allRules = [
-    ...group.allow.map((p) => ({ type: "allow", path: p })),
-    ...group.disallow.map((p) => ({ type: "disallow", path: p })),
-  ];
+  const botRules = botGroup
+    ? [
+        ...botGroup.allow.map((p) => ({ type: "allow", path: p, isBot: true })),
+        ...botGroup.disallow.map((p) => ({ type: "disallow", path: p, isBot: true })),
+      ]
+    : [];
+  const wildcardRules = wildcardGroup
+    ? [
+        ...wildcardGroup.allow.map((p) => ({ type: "allow", path: p, isBot: false })),
+        ...wildcardGroup.disallow.map((p) => ({ type: "disallow", path: p, isBot: false })),
+      ]
+    : [];
+
+  const allRules = [...botRules, ...wildcardRules];
 
   for (const rule of allRules) {
     if (matchRobotsPattern(rule.path, checkPath)) {
       const len = rule.path.replace(/\*/g, "").length;
-      if (len > bestLen || (len === bestLen && rule.type === "allow")) {
+      // Precedence (RFC 9309 §2.2.1 + §2.2.2):
+      // 1. Longer path wins (more specific match).
+      // 2. On equal path length: Allow beats Disallow.
+      // 3. On equal path length and equal type: bot-specific beats wildcard.
+      let wins = false;
+      if (len > bestLen) {
+        wins = true;
+      } else if (len === bestLen && bestMatch) {
+        if (rule.type === "allow" && bestMatch.type === "disallow") {
+          wins = true; // Allow beats Disallow
+        } else if (rule.type === bestMatch.type && rule.isBot && !bestIsBot) {
+          wins = true; // Bot-specific beats wildcard on equal footing
+        }
+      }
+      if (wins) {
         bestLen = len;
         bestMatch = rule;
+        bestIsBot = rule.isBot;
       }
     }
   }
