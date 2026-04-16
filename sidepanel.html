@@ -985,42 +985,75 @@
 
       <!-- Login prompt (shown when not logged in) -->
       <div id="accountLogin" class="card hidden">
-        <div style="text-align: center; padding: 16px 0;">
-          <svg style="width: 36px; height: 36px; color: var(--accent); margin-bottom: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="5"/>
-            <path d="M20 21a8 8 0 0 0-16 0"/>
+        <!-- Branding -->
+        <div class="sp-auth-brand">
+          <svg class="sp-auth-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="24" height="24" rx="6" fill="#6366f1"/>
+            <path d="M12 5.5L6.5 18h2.8l1-2.5h3.4l1 2.5h2.8L12 5.5zm-0.6 8L12 11l0.6 2.5h-1.2z" fill="white"/>
           </svg>
-          <h3 style="font-size: 14px; font-weight: 600; color: var(--text); margin: 0 0 4px 0;">Sign in to AlterLab</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 16px 0; line-height: 1.5;">
-            Connect your account to capture cookies, manage sessions, and access your credits.
-          </p>
-          <button class="btn btn-primary btn-full" id="accountLoginBtn" style="margin-bottom: 8px;">
-            <svg style="width: 14px; height: 14px; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            Sign in
-          </button>
-          <p style="font-size: 11px; color: var(--text-muted); margin: 0;">
-            No account? <a href="#" id="accountSignupLink" style="color: var(--accent);">Create one free</a>
-          </p>
+          <span class="sp-auth-brand-name">AlterLab</span>
         </div>
 
-        <!-- Manual setup toggle -->
-        <details style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px;">
-          <summary style="font-size: 11px; color: var(--text-muted); cursor: pointer; user-select: none; padding: 4px 0;">
-            Advanced: Manual API key
-          </summary>
-          <div style="margin-top: 8px;">
-            <div class="form-group">
-              <label for="apiKeyInput">API Key</label>
-              <input type="password" id="apiKeyInput" placeholder="sk_live_..." spellcheck="false" autocomplete="off" />
-            </div>
-            <div class="form-group">
-              <label for="apiUrlInput">API URL</label>
-              <input type="text" id="apiUrlInput" placeholder="https://alterlab.io" spellcheck="false" autocomplete="off" />
-            </div>
-            <button class="btn btn-primary btn-full" id="connectBtn">Connect</button>
-            <div id="accountStatus" class="status"></div>
+        <h3 class="sp-auth-headline">Unlock all features</h3>
+        <p class="sp-auth-sub">Sign in to capture cookies, manage sessions, and access your credits.</p>
+
+        <!-- Feature list -->
+        <ul class="sp-auth-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Cookie capture &amp; session sync
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Scrape jobs &amp; job history
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Credit balance &amp; API access
+          </li>
+        </ul>
+
+        <!-- Primary CTA -->
+        <button class="btn btn-primary btn-full sp-auth-signin-btn" id="accountLoginBtn">
+          <span class="sp-auth-btn-default">
+            <svg style="width: 14px; height: 14px; margin-right: 6px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Sign in with AlterLab
+          </span>
+          <span class="sp-auth-btn-loading hidden">
+            <span class="spinner spinner-sm"></span>
+            <span style="margin-left: 6px;">Opening sign-in tab…</span>
+          </span>
+        </button>
+
+        <p class="sp-auth-footer">
+          No account? <a href="#" id="accountSignupLink" style="color: var(--accent); font-weight: 500; text-decoration: none;">Create one free</a>
+        </p>
+
+        <!-- API key divider -->
+        <div class="sp-auth-divider"><span>or</span></div>
+
+        <button class="btn btn-ghost btn-full btn-sm" id="accountUseApiKeyBtn" type="button">
+          <svg style="width: 12px; height: 12px; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          Use API key directly
+        </button>
+
+        <!-- API key panel (revealed on click) -->
+        <div id="accountApiKeyPanel" class="sp-auth-apikey-panel hidden">
+          <div class="sp-auth-apikey-header">
+            <span>API Key Setup</span>
+            <button class="btn btn-ghost btn-sm sp-auth-apikey-hide" id="accountHideApiKeyBtn" type="button">Hide</button>
           </div>
-        </details>
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label for="apiKeyInput">API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="sk_live_..." spellcheck="false" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label for="apiUrlInput">API URL</label>
+            <input type="text" id="apiUrlInput" placeholder="https://alterlab.io" spellcheck="false" autocomplete="off" />
+          </div>
+          <button class="btn btn-primary btn-full" id="connectBtn" style="margin-top: 8px;">Connect</button>
+          <div id="accountStatus" class="status"></div>
+        </div>
 
         <div class="tour-link-row">
           <a href="#" id="takeTourBtnLogin" class="tour-link">

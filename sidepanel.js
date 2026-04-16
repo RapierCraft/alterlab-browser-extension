@@ -229,6 +229,9 @@ function cacheElements() {
     accountLogin: document.getElementById("accountLogin"),
     accountLoginBtn: document.getElementById("accountLoginBtn"),
     accountSignupLink: document.getElementById("accountSignupLink"),
+    accountUseApiKeyBtn: document.getElementById("accountUseApiKeyBtn"),
+    accountHideApiKeyBtn: document.getElementById("accountHideApiKeyBtn"),
+    accountApiKeyPanel: document.getElementById("accountApiKeyPanel"),
     accountSetup: document.getElementById("accountSetup"),
     accountConnected: document.getElementById("accountConnected"),
     apiKeyInput: document.getElementById("apiKeyInput"),
@@ -3151,10 +3154,25 @@ function bindAccountEvents() {
         ? els.apiUrlInput.value.trim()
         : ALTERLAB_DEFAULT_API_URL;
       const baseUrl = normalizeUrl(apiUrl || ALTERLAB_DEFAULT_API_URL);
+
+      // Show loading state
+      const defaultLabel = els.accountLoginBtn.querySelector(".sp-auth-btn-default");
+      const loadingLabel = els.accountLoginBtn.querySelector(".sp-auth-btn-loading");
+      if (defaultLabel) defaultLabel.classList.add("hidden");
+      if (loadingLabel) loadingLabel.classList.remove("hidden");
+      els.accountLoginBtn.disabled = true;
+
       browser.tabs.create({
         url: `${baseUrl}/signin?source=extension`,
         active: true,
       });
+
+      // Reset button state after a moment in case user returns to the panel
+      setTimeout(() => {
+        if (defaultLabel) defaultLabel.classList.remove("hidden");
+        if (loadingLabel) loadingLabel.classList.add("hidden");
+        els.accountLoginBtn.disabled = false;
+      }, 8000);
     });
   }
   if (els.accountSignupLink) {
@@ -3168,6 +3186,27 @@ function bindAccountEvents() {
         url: `${baseUrl}/register?source=extension`,
         active: true,
       });
+    });
+  }
+
+  // API key panel toggle
+  if (els.accountUseApiKeyBtn) {
+    els.accountUseApiKeyBtn.addEventListener("click", () => {
+      if (els.accountApiKeyPanel) {
+        els.accountApiKeyPanel.classList.remove("hidden");
+        els.accountUseApiKeyBtn.classList.add("hidden");
+        if (els.apiKeyInput) els.apiKeyInput.focus();
+      }
+    });
+  }
+  if (els.accountHideApiKeyBtn) {
+    els.accountHideApiKeyBtn.addEventListener("click", () => {
+      if (els.accountApiKeyPanel) {
+        els.accountApiKeyPanel.classList.add("hidden");
+      }
+      if (els.accountUseApiKeyBtn) {
+        els.accountUseApiKeyBtn.classList.remove("hidden");
+      }
     });
   }
 }

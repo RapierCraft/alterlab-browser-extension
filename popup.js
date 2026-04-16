@@ -53,6 +53,9 @@ const elements = {
   loginView: document.getElementById("loginView"),
   loginBtn: document.getElementById("loginBtn"),
   signupLink: document.getElementById("signupLink"),
+  useApiKeyBtn: document.getElementById("useApiKeyBtn"),
+  hideApiKeyBtn: document.getElementById("hideApiKeyBtn"),
+  apiKeyPanel: document.getElementById("apiKeyPanel"),
   captureView: document.getElementById("captureView"),
   apiKeyInput: document.getElementById("apiKeyInput"),
   apiUrlInput: document.getElementById("apiUrlInput"),
@@ -163,6 +166,27 @@ function bindEvents() {
     elements.signupLink.addEventListener("click", (e) => {
       e.preventDefault();
       handleSignup();
+    });
+  }
+
+  // API key panel toggle
+  if (elements.useApiKeyBtn) {
+    elements.useApiKeyBtn.addEventListener("click", () => {
+      if (elements.apiKeyPanel) {
+        elements.apiKeyPanel.classList.remove("al-hidden");
+        elements.useApiKeyBtn.classList.add("al-hidden");
+        if (elements.apiKeyInput) elements.apiKeyInput.focus();
+      }
+    });
+  }
+  if (elements.hideApiKeyBtn) {
+    elements.hideApiKeyBtn.addEventListener("click", () => {
+      if (elements.apiKeyPanel) {
+        elements.apiKeyPanel.classList.add("al-hidden");
+      }
+      if (elements.useApiKeyBtn) {
+        elements.useApiKeyBtn.classList.remove("al-hidden");
+      }
     });
   }
 
@@ -389,6 +413,16 @@ function handleLogin() {
     ? elements.apiUrlInput.value.trim()
     : DEFAULT_API_URL;
   const baseUrl = normalizeUrl(apiUrl || DEFAULT_API_URL);
+
+  // Show loading state while tab opens
+  if (elements.loginBtn) {
+    const defaultLabel = elements.loginBtn.querySelector(".al-auth-btn-default");
+    const loadingLabel = elements.loginBtn.querySelector(".al-auth-btn-loading");
+    if (defaultLabel) defaultLabel.classList.add("al-hidden");
+    if (loadingLabel) loadingLabel.classList.remove("al-hidden");
+    elements.loginBtn.disabled = true;
+  }
+
   browser.tabs.create({
     url: `${baseUrl}/signin?source=extension`,
     active: true,

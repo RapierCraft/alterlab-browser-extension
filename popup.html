@@ -192,6 +192,149 @@
         color: var(--al-accent);
       }
 
+      /* Auth gate — sign-in view */
+      .al-auth-gate {
+        text-align: center;
+        padding: var(--al-space-4) var(--al-space-3);
+      }
+
+      .al-auth-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--al-space-2);
+        margin-bottom: var(--al-space-3);
+      }
+
+      .al-auth-logo {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        flex-shrink: 0;
+      }
+
+      .al-auth-brand-name {
+        font-size: var(--al-text-lg);
+        font-weight: var(--al-weight-bold);
+        color: var(--al-text);
+        letter-spacing: var(--al-tracking-tight);
+      }
+
+      .al-auth-headline {
+        font-size: var(--al-text-md);
+        font-weight: var(--al-weight-semibold);
+        color: var(--al-text);
+        margin: 0 0 var(--al-space-1) 0;
+        letter-spacing: var(--al-tracking-tight);
+        line-height: var(--al-leading-tight);
+      }
+
+      .al-auth-sub {
+        font-size: var(--al-text-sm);
+        color: var(--al-text-muted);
+        margin: 0 0 var(--al-space-3) 0;
+        line-height: var(--al-leading-normal);
+      }
+
+      .al-auth-feature-list {
+        list-style: none;
+        margin: 0 0 var(--al-space-3) 0;
+        padding: 0;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: var(--al-space-1);
+        background: var(--al-accent-muted);
+        border: 1px solid oklch(0.55 0.18 265 / 0.25);
+        border-radius: var(--al-radius-md);
+        padding: var(--al-space-2) var(--al-space-2);
+      }
+
+      .al-auth-feature-list li {
+        display: flex;
+        align-items: center;
+        gap: var(--al-space-1);
+        font-size: var(--al-text-sm);
+        color: var(--al-text-secondary);
+      }
+
+      .al-auth-feature-list li svg {
+        width: 12px;
+        height: 12px;
+        color: var(--al-success);
+        flex-shrink: 0;
+      }
+
+      .al-auth-signin-btn {
+        margin-bottom: var(--al-space-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .al-auth-btn-default,
+      .al-auth-btn-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity var(--al-duration-fast) var(--al-ease-default);
+      }
+
+      .al-auth-footer-text {
+        font-size: var(--al-text-xs);
+        color: var(--al-text-muted);
+        margin: 0 0 var(--al-space-2) 0;
+      }
+
+      .al-auth-link {
+        color: var(--al-accent-text);
+        text-decoration: none;
+        font-weight: var(--al-weight-medium);
+      }
+
+      .al-auth-link:hover {
+        text-decoration: underline;
+      }
+
+      .al-auth-divider {
+        display: flex;
+        align-items: center;
+        gap: var(--al-space-2);
+        margin: var(--al-space-2) 0;
+        font-size: var(--al-text-xs);
+        color: var(--al-text-muted);
+      }
+
+      .al-auth-divider::before,
+      .al-auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--al-border-subtle);
+      }
+
+      .al-btn-ghost {
+        background: transparent;
+        border: 1px solid var(--al-border);
+        color: var(--al-text-secondary);
+        transition:
+          background var(--al-duration-fast) var(--al-ease-default),
+          border-color var(--al-duration-fast) var(--al-ease-default),
+          color var(--al-duration-fast) var(--al-ease-default);
+      }
+
+      .al-btn-ghost:hover:not(:disabled) {
+        background: var(--al-bg-hover);
+        border-color: var(--al-border);
+        color: var(--al-text);
+      }
+
+      .al-spinner-sm {
+        width: 12px;
+        height: 12px;
+        border-width: 1.5px;
+      }
+
       /* Version badge in header */
       .al-version-badge {
         margin-left: auto;
@@ -256,57 +399,91 @@
 
     <!-- Login View (shown when not logged in to AlterLab) -->
     <div id="loginView" class="al-section al-hidden">
-      <div class="al-card" style="text-align: center; padding: var(--al-space-4);">
-        <!-- User circle icon (Lucide) -->
-        <svg style="width: 40px; height: 40px; color: var(--al-accent); margin-bottom: var(--al-space-2);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="8" r="5"/>
-          <path d="M20 21a8 8 0 0 0-16 0"/>
-        </svg>
-        <h2 style="font-size: var(--al-text-base); font-weight: var(--al-weight-semibold); color: var(--al-text); margin: 0 0 var(--al-space-1) 0; letter-spacing: var(--al-tracking-tight);">Sign in to AlterLab</h2>
-        <p style="font-size: var(--al-text-sm); color: var(--al-text-muted); margin: 0 0 var(--al-space-3) 0; line-height: 1.5;">
-          Connect your account to capture cookies<br>and manage authenticated scraping sessions.
-        </p>
-        <button class="al-btn al-btn-gradient al-btn-full" id="loginBtn" style="margin-bottom: var(--al-space-2);">
-          <!-- LogIn icon (Lucide) -->
-          <svg style="width: 14px; height: 14px; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-          Sign in
+      <div class="al-auth-gate al-card">
+        <!-- Branding -->
+        <div class="al-auth-brand">
+          <svg class="al-auth-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="24" height="24" rx="6" fill="#6366f1"/>
+            <path d="M12 5.5L6.5 18h2.8l1-2.5h3.4l1 2.5h2.8L12 5.5zm-0.6 8L12 11l0.6 2.5h-1.2z" fill="white"/>
+          </svg>
+          <span class="al-auth-brand-name">AlterLab</span>
+        </div>
+
+        <!-- Value proposition -->
+        <h2 class="al-auth-headline">Unlock your scraping superpowers</h2>
+        <p class="al-auth-sub">Sign in to access the full feature set across all your authenticated sites.</p>
+
+        <!-- What you unlock -->
+        <ul class="al-auth-feature-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Cookie capture &amp; session management
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Submit &amp; track scrape jobs
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            API access &amp; credit balance
+          </li>
+        </ul>
+
+        <!-- Primary CTA -->
+        <button class="al-btn al-btn-gradient al-btn-full al-auth-signin-btn" id="loginBtn">
+          <span class="al-auth-btn-default">
+            <svg style="width: 14px; height: 14px; margin-right: 6px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Sign in with AlterLab
+          </span>
+          <span class="al-auth-btn-loading al-hidden">
+            <span class="al-spinner al-spinner-sm"></span>
+            <span style="margin-left: 6px;">Opening sign-in tab…</span>
+          </span>
         </button>
-        <p style="font-size: var(--al-text-xs); color: var(--al-text-muted); margin: 0;">
-          No account? <a href="#" id="signupLink" style="color: var(--al-accent-text);">Create one free</a>
+
+        <!-- Free account nudge -->
+        <p class="al-auth-footer-text">
+          No account? <a href="#" id="signupLink" class="al-auth-link">Create one free</a>
         </p>
+
+        <!-- Use API Key link -->
+        <div class="al-auth-divider">
+          <span>or</span>
+        </div>
+        <button class="al-btn al-btn-ghost al-btn-full al-btn-sm" id="useApiKeyBtn" type="button">
+          <svg style="width: 12px; height: 12px; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          Use API key directly
+        </button>
       </div>
 
-      <!-- Manual setup toggle -->
-      <details style="margin-top: var(--al-space-2);">
-        <summary style="font-size: var(--al-text-xs); color: var(--al-text-muted); cursor: pointer; user-select: none; padding: var(--al-space-1) 0;">
-          <!-- Settings icon -->
-          <svg style="display: inline; width: 10px; height: 10px; vertical-align: -1px; margin-right: 2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-          Advanced: Manual API key
-        </summary>
-        <div style="margin-top: var(--al-space-2);">
-          <div class="al-card" style="margin-bottom: var(--al-space-2);">
-            <label class="al-label" for="apiKeyInput">
-              <svg style="display: inline; width: 12px; height: 12px; vertical-align: -1px; margin-right: 2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-              API Key
-            </label>
-            <div class="al-row" style="margin-top: var(--al-space-1);">
-              <input class="al-input" type="password" id="apiKeyInput" placeholder="sk_live_..." spellcheck="false" autocomplete="off" />
-              <button class="al-btn al-btn-primary al-btn-sm" id="saveKeyBtn">Save</button>
-            </div>
-          </div>
-          <div>
-            <label class="al-label" for="apiUrlInput">
-              API URL
-              <span class="al-tooltip-trigger">
-                <span style="cursor: help; color: var(--al-text-muted); font-size: var(--al-text-xs);">(?)</span>
-                <span class="al-tooltip">Base URL of your AlterLab instance</span>
-              </span>
-            </label>
-            <input class="al-input" type="text" id="apiUrlInput" placeholder="https://alterlab.io" spellcheck="false" autocomplete="off" />
-          </div>
-          <div id="setupStatus" class="al-hidden" style="margin-top: var(--al-space-2);"></div>
+      <!-- Manual setup panel (shown when "Use API key directly" is clicked) -->
+      <div id="apiKeyPanel" class="al-card al-hidden" style="margin-top: var(--al-space-2);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--al-space-2);">
+          <span style="font-size: var(--al-text-sm); font-weight: var(--al-weight-semibold); color: var(--al-text);">API Key Setup</span>
+          <button class="al-btn al-btn-ghost al-btn-sm" id="hideApiKeyBtn" type="button" style="padding: 2px 6px; font-size: var(--al-text-xs); color: var(--al-text-muted);">Hide</button>
         </div>
-      </details>
+        <div>
+          <label class="al-label" for="apiKeyInput">
+            <svg style="display: inline; width: 12px; height: 12px; vertical-align: -1px; margin-right: 2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            API Key
+          </label>
+          <div class="al-row" style="margin-top: var(--al-space-1);">
+            <input class="al-input" type="password" id="apiKeyInput" placeholder="sk_live_..." spellcheck="false" autocomplete="off" />
+            <button class="al-btn al-btn-primary al-btn-sm" id="saveKeyBtn">Save</button>
+          </div>
+        </div>
+        <div style="margin-top: var(--al-space-2);">
+          <label class="al-label" for="apiUrlInput">
+            API URL
+            <span class="al-tooltip-trigger">
+              <span style="cursor: help; color: var(--al-text-muted); font-size: var(--al-text-xs);">(?)</span>
+              <span class="al-tooltip">Base URL of your AlterLab instance</span>
+            </span>
+          </label>
+          <input class="al-input" type="text" id="apiUrlInput" placeholder="https://alterlab.io" spellcheck="false" autocomplete="off" />
+        </div>
+        <div id="setupStatus" class="al-hidden" style="margin-top: var(--al-space-2);"></div>
+      </div>
     </div>
 
     <!-- Capture View (main view) -->
