@@ -447,8 +447,9 @@ async function handleDashboardRequest(message) {
       }
 
       case "GET_STATUS": {
-        // Return extension status, version, and active tab info
+        // Return extension status, version, active tab info, and config state
         const manifest = browser.runtime.getManifest();
+        const config = await loadConfig();
         const activeTabs = await browser.tabs.query({
           active: true,
           currentWindow: true,
@@ -457,6 +458,7 @@ async function handleDashboardRequest(message) {
         return {
           version: manifest.version,
           active: true,
+          configured: !!config.apiKey,
           activeTab: activeTab
             ? {
                 url: activeTab.url || null,
