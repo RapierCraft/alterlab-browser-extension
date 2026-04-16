@@ -4252,6 +4252,7 @@ function parseRobotsTxt(raw) {
   const groups = {}; // keyed by lowercase user-agent
   const sitemaps = [];
   let currentAgents = [];
+  let inAgentBlock = false; // true while accumulating consecutive User-agent lines
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
@@ -4264,23 +4265,28 @@ function parseRobotsTxt(raw) {
     const value = line.substring(colonIdx + 1).trim();
 
     if (directive === "user-agent") {
-      currentAgents = [value];
-      for (const agent of currentAgents) {
-        const key = agent.toLowerCase();
-        if (!groups[key]) {
-          groups[key] = {
-            name: agent,
-            allow: [],
-            disallow: [],
-            crawlDelay: null,
-          };
-        }
+      // Start a new block only when transitioning from rules back to agents
+      if (!inAgentBlock) {
+        currentAgents = [];
+        inAgentBlock = true;
+      }
+      currentAgents.push(value);
+      const key = value.toLowerCase();
+      if (!groups[key]) {
+        groups[key] = {
+          name: value,
+          allow: [],
+          disallow: [],
+          crawlDelay: null,
+        };
       }
     } else if (directive === "allow" && currentAgents.length > 0) {
+      inAgentBlock = false;
       for (const agent of currentAgents) {
         groups[agent.toLowerCase()].allow.push(value);
       }
     } else if (directive === "disallow" && currentAgents.length > 0) {
+      inAgentBlock = false;
       if (value) {
         // Empty Disallow means allow all — skip it
         for (const agent of currentAgents) {
@@ -4288,6 +4294,7 @@ function parseRobotsTxt(raw) {
         }
       }
     } else if (directive === "crawl-delay" && currentAgents.length > 0) {
+      inAgentBlock = false;
       for (const agent of currentAgents) {
         groups[agent.toLowerCase()].crawlDelay = parseFloat(value) || null;
       }
