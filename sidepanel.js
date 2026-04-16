@@ -3320,15 +3320,9 @@ async function fetchAccountInfo(config) {
 
     if (resp.ok) {
       const data = await resp.json();
-      const credits = data.credits_remaining ?? data.credits ?? "N/A";
+      const credits = data.credits_remaining ?? data.credits ?? null;
       els.accountCredits.textContent =
-        typeof credits === "number" ? `$${credits.toFixed(2)}` : String(credits);
-
-      // Credits bar (assume max $100 for visual)
-      if (typeof credits === "number") {
-        const pct = Math.min(100, (credits / 100) * 100);
-        els.creditsBarFill.style.width = `${pct}%`;
-      }
+        typeof credits === "number" ? `$${credits.toFixed(2)}` : "N/A";
     }
   } catch (err) {
     els.accountCredits.textContent = "Unavailable";
