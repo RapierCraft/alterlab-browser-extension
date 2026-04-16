@@ -753,7 +753,7 @@ function renderInspectTimeout() {
   els.scoreDifficulty.classList.remove("analyzing-pulse");
   els.scoreDescription.textContent =
     "Analysis timed out \u2014 try refreshing the page.";
-  els.antiBotTags.innerHTML =
+  els.antiBotStack.innerHTML =
     '<span class="antibot-tag none">Unknown</span>';
   els.signalList.innerHTML =
     '<li><span class="signal-dot yellow"></span>Analysis timed out \u2014 try refreshing</li>';
