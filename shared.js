@@ -132,15 +132,16 @@ function getBaseDomain(hostname) {
  * Show a status message in a status element.
  */
 function showStatus(el, type, html) {
-  el.className = `status visible ${type}`;
+  el.className = `al-status al-status-${type}`;
   el.innerHTML = html;
+  el.classList.remove("al-hidden");
 }
 
 /**
  * Hide a status message element.
  */
 function hideStatus(el) {
-  el.className = "status";
+  el.className = "al-hidden";
   el.innerHTML = "";
 }
 

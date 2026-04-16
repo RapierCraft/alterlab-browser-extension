@@ -5,44 +5,6 @@
  * sessions API for BYOS (Bring Your Own Session) scraping.
  */
 
-const DEFAULT_API_URL = "https://alterlab.io";
-
-/**
- * Cookie name patterns that commonly indicate authentication state.
- * Used for the "Auth only" selection shortcut.
- */
-const AUTH_COOKIE_PATTERNS = [
-  // Generic auth patterns
-  /^sess/i,
-  /session/i,
-  /^sid$/i,
-  /^auth/i,
-  /^token/i,
-  /^jwt/i,
-  /^access.?token/i,
-  /^refresh.?token/i,
-  /csrf/i,
-  /xsrf/i,
-  /^_csrf/i,
-  /^__cf_bm$/i,
-  /^cf_clearance$/i,
-
-  // Platform-specific auth cookies
-  /^session-id/i, // Amazon
-  /^ubid-/i, // Amazon
-  /^at-/i, // Amazon
-  /^x-/i, // Amazon
-  /^li_at$/i, // LinkedIn
-  /^JSESSIONID$/i, // Java apps
-  /^connect\.sid$/i, // Express.js
-  /^laravel_session$/i, // Laravel
-  /^PHPSESSID$/i, // PHP
-  /^ASP\.NET_SessionId$/i, // ASP.NET
-  /^wordpress_logged_in/i, // WordPress
-  /^__Secure-/i, // Secure prefixed cookies
-  /^__Host-/i, // Host prefixed cookies
-];
-
 // DOM references
 const elements = {
   authCheckView: document.getElementById("authCheckView"),
@@ -115,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const authResult = await browser.runtime.sendMessage({
         type: "CHECK_ALTERLAB_AUTH",
-        apiUrl: config.apiUrl || DEFAULT_API_URL,
+        apiUrl: config.apiUrl || ALTERLAB_DEFAULT_API_URL,
       });
 
       if (
@@ -125,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         authResult.keys
       ) {
         const keys = authResult.keys;
-        const apiUrl = config.apiUrl || DEFAULT_API_URL;
+        const apiUrl = config.apiUrl || ALTERLAB_DEFAULT_API_URL;
 
         if (keys.length === 1) {
           // Single key — auto-select, decrypt, and configure
@@ -221,22 +183,6 @@ function bindAuthMessageListener() {
 }
 
 // ---------------------------------------------------------------------------
-// Config (browser.storage.local)
-// ---------------------------------------------------------------------------
-
-async function loadConfig() {
-  const result = await browser.storage.local.get(["apiKey", "apiUrl"]);
-  return {
-    apiKey: result.apiKey || "",
-    apiUrl: result.apiUrl || DEFAULT_API_URL,
-  };
-}
-
-async function saveConfig(apiKey, apiUrl) {
-  await browser.storage.local.set({ apiKey, apiUrl });
-}
-
-// ---------------------------------------------------------------------------
 // Views
 // ---------------------------------------------------------------------------
 
@@ -261,7 +207,7 @@ function showLoginView() {
     if (config.apiKey) {
       elements.apiKeyInput.value = config.apiKey;
     }
-    elements.apiUrlInput.value = config.apiUrl || DEFAULT_API_URL;
+    elements.apiUrlInput.value = config.apiUrl || ALTERLAB_DEFAULT_API_URL;
   });
 }
 
@@ -410,8 +356,8 @@ async function handleKeySelect(keyInfo, apiUrl) {
 function handleLogin() {
   const apiUrl = elements.apiUrlInput
     ? elements.apiUrlInput.value.trim()
-    : DEFAULT_API_URL;
-  const baseUrl = normalizeUrl(apiUrl || DEFAULT_API_URL);
+    : ALTERLAB_DEFAULT_API_URL;
+  const baseUrl = normalizeUrl(apiUrl || ALTERLAB_DEFAULT_API_URL);
 
   // Show loading state while tab opens
   if (elements.loginBtn) {
@@ -433,8 +379,8 @@ function handleLogin() {
 function handleSignup() {
   const apiUrl = elements.apiUrlInput
     ? elements.apiUrlInput.value.trim()
-    : DEFAULT_API_URL;
-  const baseUrl = normalizeUrl(apiUrl || DEFAULT_API_URL);
+    : ALTERLAB_DEFAULT_API_URL;
+  const baseUrl = normalizeUrl(apiUrl || ALTERLAB_DEFAULT_API_URL);
   browser.tabs.create({
     url: `${baseUrl}/register?source=extension`,
     active: true,
@@ -477,7 +423,7 @@ async function handleOpenPanel() {
 
 async function handleSaveKey() {
   const apiKey = elements.apiKeyInput.value.trim();
-  const apiUrl = elements.apiUrlInput.value.trim() || DEFAULT_API_URL;
+  const apiUrl = elements.apiUrlInput.value.trim() || ALTERLAB_DEFAULT_API_URL;
 
   if (!apiKey) {
     showStatus(elements.setupStatus, "error", "Please enter your API key.");
@@ -942,84 +888,6 @@ async function handleCopyJson() {
     document.body.removeChild(ta);
     animateCopyCheck(elements.copyBtn);
   }
-}
-
-// ---------------------------------------------------------------------------
-// Auth Cookie Detection
-// ---------------------------------------------------------------------------
-
-/**
- * Check if a cookie name matches known auth cookie patterns.
- */
-function isAuthCookie(name) {
-  return AUTH_COOKIE_PATTERNS.some((pattern) => pattern.test(name));
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Unique key for a cookie (name + domain + path).
- */
-function cookieKey(cookie) {
-  return `${cookie.name}|${cookie.domain}|${cookie.path}`;
-}
-
-function showStatus(el, type, html) {
-  el.className = `al-status al-status-${type}`;
-  el.innerHTML = html;
-  el.classList.remove("al-hidden");
-}
-
-function hideStatus(el) {
-  el.className = "al-hidden";
-  el.innerHTML = "";
-}
-
-function normalizeUrl(url) {
-  // Strip trailing slash
-  url = url.replace(/\/+$/, "");
-  // Add https:// if missing
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    url = "https://" + url;
-  }
-  return url;
-}
-
-/**
- * Extract base domain from hostname.
- * e.g., "www.amazon.com" -> "amazon.com"
- *        "smile.amazon.co.uk" -> "amazon.co.uk"
- */
-function getBaseDomain(hostname) {
-  const parts = hostname.split(".");
-  // Handle two-part TLDs like co.uk, com.au
-  const twoPartTlds = [
-    "co.uk",
-    "co.jp",
-    "co.kr",
-    "co.in",
-    "co.za",
-    "com.au",
-    "com.br",
-    "com.cn",
-    "com.mx",
-    "com.tr",
-    "org.uk",
-    "net.au",
-    "ac.uk",
-  ];
-  if (parts.length >= 3) {
-    const lastTwo = parts.slice(-2).join(".");
-    if (twoPartTlds.includes(lastTwo)) {
-      return parts.slice(-3).join(".");
-    }
-  }
-  if (parts.length >= 2) {
-    return parts.slice(-2).join(".");
-  }
-  return hostname;
 }
 
 // ---------------------------------------------------------------------------
