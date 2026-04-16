@@ -794,35 +794,76 @@
   }
 
   /**
-   * Collect relevant meta tags.
+   * Collect relevant meta tags including OG, Twitter Cards, JSON-LD, and canonical.
+   * Returns a structured object with keys: basic, og, twitter, jsonLd, canonical, title.
    */
   function collectMeta() {
-    const meta = {};
-    const tags = document.querySelectorAll("meta");
-    const interesting = [
-      "description",
-      "author",
-      "generator",
-      "robots",
-      "viewport",
-    ];
+    const result = {
+      title: document.title || "",
+      canonical: "",
+      basic: {},
+      og: {},
+      twitter: {},
+      jsonLd: [],
+    };
 
+    // Canonical link
+    const canonicalEl = document.querySelector('link[rel="canonical"]');
+    if (canonicalEl) {
+      result.canonical = canonicalEl.getAttribute("href") || "";
+    }
+
+    // All meta tags — split into basic vs og vs twitter by name/property prefix
+    const tags = document.querySelectorAll("meta");
     for (const tag of tags) {
-      const name =
-        tag.getAttribute("name") || tag.getAttribute("property") || "";
+      const name = (tag.getAttribute("name") || "").toLowerCase();
+      const property = (tag.getAttribute("property") || "").toLowerCase();
       const content = tag.getAttribute("content") || "";
-      if (interesting.includes(name.toLowerCase()) && content) {
-        meta[name.toLowerCase()] = content.substring(0, 200);
+      if (!content) continue;
+
+      if (property.startsWith("og:")) {
+        result.og[property] = content.substring(0, 400);
+      } else if (name.startsWith("twitter:")) {
+        result.twitter[name] = content.substring(0, 400);
+      } else if (name) {
+        // Basic SEO tags
+        const basicKeys = [
+          "description",
+          "author",
+          "generator",
+          "robots",
+          "viewport",
+          "keywords",
+          "theme-color",
+          "application-name",
+          "referrer",
+        ];
+        if (basicKeys.includes(name)) {
+          result.basic[name] = content.substring(0, 400);
+        }
       }
     }
 
-    // OG tags
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    const ogDesc = document.querySelector('meta[property="og:description"]');
-    if (ogTitle) meta["og:title"] = ogTitle.getAttribute("content");
-    if (ogDesc) meta["og:description"] = ogDesc.getAttribute("content");
+    // JSON-LD structured data
+    const jsonLdScripts = document.querySelectorAll(
+      'script[type="application/ld+json"]',
+    );
+    for (const script of jsonLdScripts) {
+      try {
+        const parsed = JSON.parse(script.textContent || "");
+        result.jsonLd.push(parsed);
+      } catch {
+        // Skip malformed JSON-LD
+      }
+    }
 
-    return meta;
+    // Also expose flat keys for backward compatibility (share report uses meta.description etc.)
+    result["description"] = result.basic["description"] || "";
+    result["robots"] = result.basic["robots"] || "";
+    result["og:title"] = result.og["og:title"] || "";
+    result["og:description"] = result.og["og:description"] || "";
+
+    return result;
   }
 
   /**
