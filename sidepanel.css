@@ -1198,7 +1198,7 @@ label {
 
 .sp-auth-sub {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--al-text-muted);
   margin: 0 0 12px 0;
   text-align: center;
   line-height: 1.5;
@@ -1208,8 +1208,8 @@ label {
   list-style: none;
   margin: 0 0 14px 0;
   padding: 10px 12px;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: var(--al-accent-muted);
+  border: 1px solid color-mix(in oklch, var(--al-accent) 20%, transparent);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -1221,13 +1221,13 @@ label {
   align-items: center;
   gap: 7px;
   font-size: 12px;
-  color: var(--text-secondary, var(--text-muted));
+  color: var(--al-text-secondary);
 }
 
 .sp-auth-features li svg {
   width: 12px;
   height: 12px;
-  color: #22c55e;
+  color: var(--al-success);
   flex-shrink: 0;
 }
 
@@ -1244,7 +1244,7 @@ label {
 
 .sp-auth-signin-btn:hover:not(:disabled) {
   opacity: 0.92;
-  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 2px 12px color-mix(in oklch, var(--al-accent) 35%, transparent);
 }
 
 .sp-auth-btn-default,
@@ -1256,7 +1256,7 @@ label {
 
 .sp-auth-footer {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--al-text-muted);
   text-align: center;
   margin: 0 0 10px 0;
 }
@@ -1267,7 +1267,7 @@ label {
   gap: 8px;
   margin: 8px 0;
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--al-text-muted);
 }
 
 .sp-auth-divider::before,
@@ -1275,14 +1275,14 @@ label {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--border);
+  background: var(--al-border);
 }
 
 .sp-auth-apikey-panel {
   margin-top: 12px;
   padding: 12px;
-  background: var(--bg-raised, var(--bg-input));
-  border: 1px solid var(--border);
+  background: var(--al-bg-raised);
+  border: 1px solid var(--al-border);
   border-radius: 8px;
 }
 
@@ -1293,12 +1293,12 @@ label {
   margin-bottom: 10px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--al-text);
 }
 
 .sp-auth-apikey-hide {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--al-text-muted);
   padding: 2px 6px;
 }
 
@@ -1381,13 +1381,13 @@ label {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--al-text-muted);
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 .tour-link:hover {
-  color: var(--accent);
+  color: var(--al-accent);
 }
 
 .tour-link svg {
@@ -3143,8 +3143,8 @@ label {
 .scrape-run-btn .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border: 2px solid color-mix(in oklch, white 30%, transparent);
+  border-top-color: white;
   border-radius: 50%;
   animation: al-spin 0.6s linear infinite;
 }
@@ -3199,12 +3199,12 @@ label {
 
 /* Code block — syntax-highlighted robots.txt */
 .rt-code-block {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
+  background: var(--al-bg-input);
+  border: 1px solid var(--al-border);
   border-radius: 8px;
   padding: 12px;
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--al-font-mono);
   font-size: 11px;
   line-height: 1.6;
   overflow-x: auto;
@@ -3219,24 +3219,24 @@ label {
   display: block;
 }
 .rt-line-comment {
-  color: var(--text-muted);
+  color: var(--al-text-muted);
   font-style: italic;
 }
 .rt-line-useragent {
-  color: var(--accent);
+  color: var(--al-accent);
   font-weight: 600;
 }
 .rt-line-allow {
-  color: var(--success);
+  color: var(--al-success);
 }
 .rt-line-disallow {
-  color: var(--error);
+  color: var(--al-error);
 }
 .rt-line-sitemap {
-  color: oklch(0.75 0.15 200);
+  color: var(--al-info);
 }
 .rt-line-crawldelay {
-  color: oklch(0.75 0.15 60);
+  color: var(--al-warning);
 }
 
 /* Bot chips */
@@ -3254,19 +3254,19 @@ label {
   font-size: 11px;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--bg-input);
-  color: var(--text-secondary);
+  border: 1px solid var(--al-border);
+  background: var(--al-bg-input);
+  color: var(--al-text-secondary);
   transition: all 0.15s ease;
 }
 .rt-bot-chip:hover {
-  border-color: var(--accent);
-  color: var(--text);
+  border-color: var(--al-accent);
+  color: var(--al-text);
 }
 .rt-bot-chip.active {
-  background: var(--accent);
+  background: var(--al-accent);
   color: white;
-  border-color: var(--accent);
+  border-color: var(--al-accent);
 }
 
 /* Bot rules */
@@ -3278,7 +3278,7 @@ label {
   align-items: center;
   gap: 8px;
   padding: 6px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--al-border);
 }
 .rt-rule-item:last-child {
   border-bottom: none;
@@ -3298,17 +3298,17 @@ label {
   text-align: center;
 }
 .rt-rule-badge.allow {
-  background: rgba(34, 197, 94, 0.15);
-  color: var(--success);
+  background: var(--al-success-muted);
+  color: var(--al-success);
 }
 .rt-rule-badge.disallow {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--error);
+  background: var(--al-error-muted);
+  color: var(--al-error);
 }
 .rt-rule-path {
-  font-family: var(--font-mono);
+  font-family: var(--al-font-mono);
   font-size: 11px;
-  color: var(--text);
+  color: var(--al-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3319,14 +3319,14 @@ label {
   gap: 8px;
   padding: 8px 12px;
   margin-bottom: 8px;
-  background: rgba(234, 179, 8, 0.1);
+  background: var(--al-warning-muted);
   border-radius: 8px;
   font-size: 12px;
-  color: oklch(0.75 0.15 60);
+  color: var(--al-warning);
 }
 .rt-no-rules {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--al-text-muted);
   padding: 8px 0;
 }
 
@@ -3339,16 +3339,16 @@ label {
 .rt-crawl-input {
   flex: 1;
   padding: 6px 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--al-border);
   border-radius: 6px;
-  background: var(--bg-input);
-  color: var(--text);
-  font-family: var(--font-mono);
+  background: var(--al-bg-input);
+  color: var(--al-text);
+  font-family: var(--al-font-mono);
   font-size: 12px;
 }
 .rt-crawl-input:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--al-accent);
 }
 .rt-crawl-result {
   display: none;
@@ -3362,12 +3362,12 @@ label {
   display: block;
 }
 .rt-crawl-result.allowed {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--success);
+  background: var(--al-success-muted);
+  color: var(--al-success);
 }
 .rt-crawl-result.disallowed {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--error);
+  background: var(--al-error-muted);
+  color: var(--al-error);
 }
 
 /* Sitemap tree */
@@ -3386,15 +3386,15 @@ label {
   align-items: center;
   gap: 6px;
   padding: 4px 0;
-  color: var(--text-secondary);
-  font-family: var(--font-mono);
+  color: var(--al-text-secondary);
+  font-family: var(--al-font-mono);
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .rt-sitemap-url a {
-  color: var(--accent);
+  color: var(--al-accent);
   text-decoration: none;
 }
 .rt-sitemap-url a:hover {
@@ -3408,7 +3408,7 @@ label {
   cursor: pointer;
   font-size: 11px;
   font-weight: 500;
-  color: var(--accent);
+  color: var(--al-accent);
   background: none;
   border: none;
 }
@@ -3417,7 +3417,7 @@ label {
 }
 .rt-sitemap-children {
   padding-left: 16px;
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--al-border);
   margin-left: 8px;
 }
 .rt-sitemap-badge {
@@ -3427,8 +3427,8 @@ label {
   border-radius: 4px;
   font-size: 10px;
   font-weight: 500;
-  background: var(--bg-input);
-  color: var(--text-muted);
+  background: var(--al-bg-input);
+  color: var(--al-text-muted);
 }
 
 

@@ -612,7 +612,7 @@ function renderInspectTab(analysis) {
     if (analysis.pagination.pages) {
       const pagesSpan = document.createElement("span");
       pagesSpan.textContent = `~${analysis.pagination.pages} pages`;
-      pagesSpan.style.color = "var(--text-muted)";
+      pagesSpan.style.color = "var(--al-text-muted)";
       els.paginationInfo.appendChild(pagesSpan);
     }
   }
@@ -864,9 +864,9 @@ function renderMetaTab() {
   // ------------------------------------------------------------------
   const offset = circumference - (seoScore / 100) * circumference;
   let ringColor;
-  if (seoScore >= 80) ringColor = "var(--success, #22c55e)";
-  else if (seoScore >= 50) ringColor = "var(--warning, #f59e0b)";
-  else ringColor = "var(--error, #ef4444)";
+  if (seoScore >= 80) ringColor = "var(--al-success)";
+  else if (seoScore >= 50) ringColor = "var(--al-warning)";
+  else ringColor = "var(--al-error)";
 
   if (els.seoScoreRing) {
     els.seoScoreRing.style.stroke = ringColor;
@@ -901,9 +901,9 @@ function renderMetaTab() {
         const li = document.createElement("li");
         li.className = "seo-issue-item";
         const dotColor =
-          issue.severity === "error" ? "var(--error, #ef4444)"
-          : issue.severity === "warning" ? "var(--warning, #f59e0b)"
-          : "var(--text-muted)";
+          issue.severity === "error" ? "var(--al-error)"
+          : issue.severity === "warning" ? "var(--al-warning)"
+          : "var(--al-text-muted)";
         li.innerHTML = `<span class="signal-dot" style="background:${dotColor};flex-shrink:0;"></span><span>${escapeHtml(issue.text)}</span>`;
         els.seoIssueList.appendChild(li);
       }
@@ -1004,13 +1004,13 @@ function renderMetaTab() {
 
         const label = document.createElement("div");
         label.className = "json-ld-type-label";
-        label.style.cssText = "font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;";
+        label.style.cssText = "font-size:11px;font-weight:600;color:var(--al-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;";
         label.textContent = Array.isArray(schemaType) ? schemaType.join(", ") : String(schemaType);
         wrapper.appendChild(label);
 
         const pre = document.createElement("pre");
         pre.className = "json-ld-pre";
-        pre.style.cssText = "margin:0;padding:10px;background:var(--bg-input);border-radius:6px;font-size:11px;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--text-primary);";
+        pre.style.cssText = "margin:0;padding:10px;background:var(--al-bg-input);border-radius:6px;font-size:11px;line-height:1.5;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--al-text);";
         pre.textContent = JSON.stringify(schema, null, 2);
         wrapper.appendChild(pre);
         els.jsonLdContent.appendChild(wrapper);
@@ -1338,7 +1338,7 @@ async function loadCookies() {
   } catch (err) {
     els.cookieCountBadge.textContent = "0";
     els.cookieList.innerHTML =
-      '<div class="cookie-item" style="color: var(--text-muted)">Error loading cookies</div>';
+      '<div class="cookie-item" style="color: var(--al-text-muted)">Error loading cookies</div>';
     showToast("error", "Cookie loading failed", err.message || "Could not read cookies for this domain.");
   }
 }
@@ -2328,7 +2328,7 @@ function getStatusClass(code) {
 
 function renderHeaderGrid(headers, highlightSecurity) {
   if (headers.length === 0) {
-    return '<span style="color: var(--text-muted); font-size: 11px;">No headers</span>';
+    return '<span style="color: var(--al-text-muted); font-size: 11px;">No headers</span>';
   }
   return headers
     .map((h) => {
@@ -2494,15 +2494,15 @@ async function updateScrapeUsagePill() {
   const config = await loadConfig();
   if (config.apiKey) {
     els.scrapeUsagePill.textContent = "Connected";
-    els.scrapeUsagePill.style.borderColor = "var(--success)";
-    els.scrapeUsagePill.style.color = "var(--success)";
+    els.scrapeUsagePill.style.borderColor = "var(--al-success)";
+    els.scrapeUsagePill.style.color = "var(--al-success)";
   } else {
     const { used, limit } = await checkFreeScrapeAllowance();
     const remaining = limit - used;
     els.scrapeUsagePill.textContent = `${remaining}/${limit} free`;
     if (remaining <= 1) {
-      els.scrapeUsagePill.style.borderColor = "var(--warning)";
-      els.scrapeUsagePill.style.color = "var(--warning)";
+      els.scrapeUsagePill.style.borderColor = "var(--al-warning)";
+      els.scrapeUsagePill.style.color = "var(--al-warning)";
     }
   }
 }
@@ -3360,9 +3360,9 @@ async function fetchAccountInfo(config) {
         for (const session of sessions.slice(0, 10)) {
           const div = document.createElement("div");
           div.style.cssText =
-            "padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px;";
+            "padding: 6px 0; border-bottom: 1px solid var(--al-border); font-size: 12px;";
           div.innerHTML = `<strong>${session.name || session.domain || "Untitled"}</strong>
-            <span style="color: var(--text-muted); font-size: 11px;">${session.domain || ""}</span>`;
+            <span style="color: var(--al-text-muted); font-size: 11px;">${session.domain || ""}</span>`;
           els.savedSessionsList.appendChild(div);
         }
       } else {
@@ -3590,7 +3590,7 @@ function animateCopyButton(btn) {
   if (!check) {
     check = document.createElement("span");
     check.className = "al-copy-check";
-    check.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--success, #22c55e)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    check.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--al-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
     btn.appendChild(check);
   }
 
@@ -3612,8 +3612,8 @@ function animateCopyButtonText(btn) {
   if (!btn) return;
   const orig = btn.textContent;
   btn.textContent = "Copied!";
-  btn.style.color = "var(--success)";
-  btn.style.borderColor = "var(--success)";
+  btn.style.color = "var(--al-success)";
+  btn.style.borderColor = "var(--al-success)";
   setTimeout(() => {
     btn.textContent = orig;
     btn.style.color = "";
@@ -3851,7 +3851,7 @@ async function activateSelectorBuilder() {
     await browser.tabs.sendMessage(tab.id, { type: "SELECTOR_ACTIVATE" });
     selActive = true;
     els.selToggleBtn.textContent = "Stop Picking";
-    els.selToggleBtn.style.background = "var(--error)";
+    els.selToggleBtn.style.background = "var(--al-error)";
     els.selActiveIndicator.style.display = "block";
   } catch {
     showToast("error", "Cannot activate", "Content script not available on this page");
@@ -3877,17 +3877,17 @@ function renderSelectorList() {
   els.selExportCard.style.display = count > 0 ? "" : "none";
 
   if (count === 0) {
-    els.selSelectorList.innerHTML = '<span style="color: var(--text-muted);">No selectors captured yet. Start picking to add elements.</span>';
+    els.selSelectorList.innerHTML = '<span style="color: var(--al-text-muted);">No selectors captured yet. Start picking to add elements.</span>';
     return;
   }
 
   els.selSelectorList.innerHTML = selSelectors.map((s) => {
-    const relColor = s.reliability >= 85 ? "var(--success)" :
-                     s.reliability >= 65 ? "var(--accent)" :
-                     s.reliability >= 40 ? "var(--warning)" : "var(--error)";
-    const relBg = s.reliability >= 85 ? "rgba(34,197,94,0.12)" :
-                  s.reliability >= 65 ? "rgba(99,102,241,0.12)" :
-                  s.reliability >= 40 ? "rgba(245,158,11,0.12)" : "rgba(239,68,68,0.12)";
+    const relColor = s.reliability >= 85 ? "var(--al-success)" :
+                     s.reliability >= 65 ? "var(--al-accent)" :
+                     s.reliability >= 40 ? "var(--al-warning)" : "var(--al-error)";
+    const relBg = s.reliability >= 85 ? "var(--al-success-muted)" :
+                  s.reliability >= 65 ? "var(--al-accent-muted)" :
+                  s.reliability >= 40 ? "var(--al-warning-muted)" : "var(--al-error-muted)";
 
     return `<div class="sel-item" data-sel-id="${s.id}">
       <div class="sel-item-header">
@@ -3984,20 +3984,20 @@ async function testSelectorOnPage(selector, selectorType, itemEl) {
 
     resultEl.style.display = "block";
     if (result.error) {
-      resultEl.style.background = "rgba(239,68,68,0.12)";
-      resultEl.style.color = "var(--error)";
+      resultEl.style.background = "var(--al-error-muted)";
+      resultEl.style.color = "var(--al-error)";
       resultEl.textContent = `Error: ${result.error}`;
     } else if (result.count === 0) {
-      resultEl.style.background = "rgba(245,158,11,0.12)";
-      resultEl.style.color = "var(--warning)";
+      resultEl.style.background = "var(--al-warning-muted)";
+      resultEl.style.color = "var(--al-warning)";
       resultEl.textContent = "No matches found on current page";
     } else if (result.count === 1) {
-      resultEl.style.background = "rgba(34,197,94,0.12)";
-      resultEl.style.color = "var(--success)";
+      resultEl.style.background = "var(--al-success-muted)";
+      resultEl.style.color = "var(--al-success)";
       resultEl.textContent = `1 match (unique) — highlighted on page`;
     } else {
-      resultEl.style.background = "rgba(99,102,241,0.12)";
-      resultEl.style.color = "var(--accent)";
+      resultEl.style.background = "var(--al-accent-muted)";
+      resultEl.style.color = "var(--al-accent)";
       resultEl.textContent = `${result.count} matches — all highlighted on page`;
     }
 
@@ -4005,8 +4005,8 @@ async function testSelectorOnPage(selector, selectorType, itemEl) {
     setTimeout(() => { resultEl.style.display = "none"; }, 5000);
   } catch {
     resultEl.style.display = "block";
-    resultEl.style.background = "rgba(239,68,68,0.12)";
-    resultEl.style.color = "var(--error)";
+    resultEl.style.background = "var(--al-error-muted)";
+    resultEl.style.color = "var(--al-error)";
     resultEl.textContent = "Content script unavailable";
   }
 }
@@ -4396,7 +4396,7 @@ function renderBotRules() {
   const group = rtParsed.groups[rtSelectedBot.toLowerCase()];
   if (!group) {
     els.rtBotRules.innerHTML =
-      '<div style="font-size: 12px; color: var(--text-muted);">No specific rules for this bot.</div>';
+      '<div style="font-size: 12px; color: var(--al-text-muted);">No specific rules for this bot.</div>';
     return;
   }
 
@@ -4404,7 +4404,7 @@ function renderBotRules() {
   if (group.crawlDelay) {
     const delayEl = document.createElement("div");
     delayEl.style.cssText =
-      "font-size: 12px; color: var(--warning); margin-bottom: 8px;";
+      "font-size: 12px; color: var(--al-warning); margin-bottom: 8px;";
     delayEl.textContent = `Crawl-Delay: ${group.crawlDelay}s`;
     els.rtBotRules.appendChild(delayEl);
   }
@@ -4423,7 +4423,7 @@ function renderBotRules() {
 
   if (allRules.length === 0) {
     els.rtBotRules.innerHTML =
-      '<div style="font-size: 12px; color: var(--text-muted);">No rules defined (everything allowed).</div>';
+      '<div style="font-size: 12px; color: var(--al-text-muted);">No rules defined (everything allowed).</div>';
     return;
   }
 
@@ -4577,7 +4577,7 @@ function renderSitemaps() {
 
   if (rtParsed.sitemaps.length === 0) {
     els.rtSitemapContainer.innerHTML =
-      '<div style="font-size: 12px; color: var(--text-muted);">No sitemaps found in robots.txt</div>';
+      '<div style="font-size: 12px; color: var(--al-text-muted);">No sitemaps found in robots.txt</div>';
     els.rtExportUrls.disabled = true;
     els.rtSitemapTree.classList.add("hidden");
     return;
@@ -4591,7 +4591,7 @@ function renderSitemaps() {
     els.rtSitemapTree.appendChild(node);
   }
 
-  els.rtSitemapContainer.innerHTML = `<div style="font-size: 12px; color: var(--text-muted);">${rtParsed.sitemaps.length} sitemap${rtParsed.sitemaps.length !== 1 ? "s" : ""} discovered</div>`;
+  els.rtSitemapContainer.innerHTML = `<div style="font-size: 12px; color: var(--al-text-muted);">${rtParsed.sitemaps.length} sitemap${rtParsed.sitemaps.length !== 1 ? "s" : ""} discovered</div>`;
 }
 
 function createSitemapNode(url, depth) {
@@ -4666,7 +4666,7 @@ function createSitemapNode(url, depth) {
 
         if (result.error) {
           badge.textContent = "Error";
-          children.innerHTML = `<div class="rt-url-item" style="color: var(--error);">${escapeHtml(result.error)}</div>`;
+          children.innerHTML = `<div class="rt-url-item" style="color: var(--al-error);">${escapeHtml(result.error)}</div>`;
           return;
         }
 
@@ -4697,7 +4697,7 @@ function createSitemapNode(url, depth) {
           if (urls.length > maxShow) {
             const more = document.createElement("div");
             more.className = "rt-url-item";
-            more.style.color = "var(--accent)";
+            more.style.color = "var(--al-accent)";
             more.textContent = `... and ${urls.length - maxShow} more URLs`;
             children.appendChild(more);
           }
@@ -4705,7 +4705,7 @@ function createSitemapNode(url, depth) {
         }
       } catch (err) {
         badge.textContent = "Error";
-        children.innerHTML = `<div class="rt-url-item" style="color: var(--error);">${escapeHtml(err.message)}</div>`;
+        children.innerHTML = `<div class="rt-url-item" style="color: var(--al-error);">${escapeHtml(err.message)}</div>`;
       }
     }
   });
