@@ -766,8 +766,10 @@ browser.tabs.onActivated.addListener(async (activeInfo) => {
 });
 
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // Clear network requests on new navigation (before page loads)
+  // Clear per-tab state on new navigation (before page loads)
   if (changeInfo.status === "loading" && tab.url) {
+    tabHeaderSignals.delete(tabId);
+    tabResponseHeaders.delete(tabId);
     tabNetworkRequests.set(tabId, { requests: [], pending: new Map() });
   }
 
@@ -1123,6 +1125,10 @@ if (browser.webRequest) {
   browser.webRequest.onErrorOccurred.addListener(
     (details) => {
       if (details.tabId < 0) return;
+
+      // Always clean up the stashed body — entry may never have been created
+      // if onSendHeaders didn't fire before the error.
+      pendingBodies.delete(details.requestId);
 
       const tabData = tabNetworkRequests.get(details.tabId);
       if (!tabData) return;
