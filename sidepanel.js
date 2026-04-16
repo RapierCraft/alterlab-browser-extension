@@ -3802,6 +3802,12 @@ function bindSelectorEvents() {
       if (message.authenticated === false) {
         // User logged out — refresh account state (will show login prompt if config cleared)
         loadAccountState();
+      } else if (message.configured) {
+        // API key just set via dashboard handshake — reload to show connected state
+        loadAccountState().then(() => {
+          showToast("success", "Connected", "AlterLab API key received. Extension is ready.", { duration: 3000 });
+          updateScrapeUsagePill();
+        });
       } else if (message.authenticated && !message.hasApiKey) {
         // Logged in but no API keys — refresh to show appropriate state
         loadAccountState().then(() => {
