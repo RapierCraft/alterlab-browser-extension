@@ -2246,10 +2246,10 @@ function createRequestRow(req) {
     <svg class="hdr-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="9 18 15 12 9 6"/>
     </svg>
-    <span class="${methodClass}">${escHtml(req.method)}</span>
+    <span class="${methodClass}">${escapeHtml(req.method)}</span>
     <span class="hdr-status ${statusClass}">${req.statusCode || "ERR"}</span>
-    <span class="hdr-url" title="${escHtml(req.url)}">${escHtml(displayUrl)}</span>
-    <span class="hdr-type-badge">${escHtml(hdrTypeCategory(req.type))}</span>
+    <span class="hdr-url" title="${escapeHtml(req.url)}">${escapeHtml(displayUrl)}</span>
+    <span class="hdr-type-badge">${escapeHtml(hdrTypeCategory(req.type))}</span>
     <span class="hdr-duration">${durationText}</span>
   `;
 
@@ -2272,7 +2272,7 @@ function createRequestRow(req) {
           <button class="hdr-copy-btn" data-copy-type="node" title="Copy as Node.js fetch">Node</button>
         </div>
       </div>
-      <div class="hdr-header-value" style="margin-bottom: 8px; font-size: 10px;">${escHtml(req.url)}</div>
+      <div class="hdr-header-value" style="margin-bottom: 8px; font-size: 10px;">${escapeHtml(req.url)}</div>
     </div>
     <div class="hdr-detail-section">
       <div class="hdr-detail-title">Request Headers (${(req.requestHeaders || []).length})</div>
@@ -2331,15 +2331,9 @@ function renderHeaderGrid(headers, highlightSecurity) {
       const isSec =
         highlightSecurity &&
         SECURITY_HEADERS.has(h.name.toLowerCase());
-      return `<span class="hdr-header-name${isSec ? " security" : ""}">${escHtml(h.name)}</span><span class="hdr-header-value">${escHtml(h.value)}</span>`;
+      return `<span class="hdr-header-name${isSec ? " security" : ""}">${escapeHtml(h.name)}</span><span class="hdr-header-value">${escapeHtml(h.value)}</span>`;
     })
     .join("");
-}
-
-function escHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
 }
 
 // ---------------------------------------------------------------------------
@@ -4104,12 +4098,6 @@ function copyToClipboard(text) {
   });
 }
 
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
-
 // ---------------------------------------------------------------------------
 // Listen for tab changes (re-analyze when user switches tabs)
 // ---------------------------------------------------------------------------
@@ -4356,14 +4344,6 @@ function renderHighlightedRobotsTxt(raw) {
     }
   }
   els.rtCodeBlock.innerHTML = html;
-}
-
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function renderBotList() {

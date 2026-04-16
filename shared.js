@@ -8,6 +8,18 @@
 const ALTERLAB_DEFAULT_API_URL = "https://alterlab.io";
 
 /**
+ * Escape a string for safe insertion into HTML.
+ * Uses the DOM's built-in text-node serialisation so every character that
+ * the browser would treat as markup (including single-quotes in attribute
+ * values) is encoded correctly.
+ */
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/**
  * Cookie name patterns that commonly indicate authentication state.
  */
 const AUTH_COOKIE_PATTERNS = [
