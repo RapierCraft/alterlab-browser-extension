@@ -113,6 +113,28 @@ document.addEventListener("DOMContentLoaded", async () => {
           requestPageAnalysis(activeTab.id);
         }
       }
+
+      // Resume network polling if the Network tab is active (was paused on hide)
+      const activeTabName = document.querySelector(".tab-bar button.active")?.dataset.tab;
+      if (activeTabName === "network" && !hdrRefreshInterval) {
+        loadNetworkRequests();
+        hdrRefreshInterval = setInterval(loadNetworkRequests, 2000);
+      }
+    } else {
+      // Panel hidden — pause network polling to avoid firing on invisible document
+      if (hdrRefreshInterval) {
+        clearInterval(hdrRefreshInterval);
+        hdrRefreshInterval = null;
+      }
+    }
+  });
+
+  // Clear network polling interval when panel is closed so it never leaks
+  // into an unmounted document (critical for Firefox persistent popup windows)
+  window.addEventListener("beforeunload", () => {
+    if (hdrRefreshInterval) {
+      clearInterval(hdrRefreshInterval);
+      hdrRefreshInterval = null;
     }
   });
 
