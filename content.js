@@ -1188,10 +1188,12 @@
     }
 
     if (message.type === "GET_ELEMENT_SELECTOR") {
-      // Used by context menu "Copy selector" — returns a CSS selector for the
-      // element at the right-click position. The coordinates come from the
-      // background script's contextMenus.onClicked info.
-      sendResponse({ selector: null }); // placeholder — context menu coords are limited
+      // Returns a CSS selector for the last right-clicked element, captured via
+      // the contextmenu event listener registered at script init.
+      const selector = lastRightClickedElement
+        ? generateElementSelector(lastRightClickedElement)
+        : null;
+      sendResponse({ selector });
       return false;
     }
 
@@ -2170,6 +2172,123 @@
       },
     );
   });
+
+  // ---------------------------------------------------------------------------
+  // Context Menu Element Tracking
+  // ---------------------------------------------------------------------------
+
+  /**
+   * The last element the user right-clicked. Captured by the contextmenu
+   * event so the GET_ELEMENT_SELECTOR message handler can return a real
+   * selector instead of null.
+   * @type {Element|null}
+   */
+  let lastRightClickedElement = null;
+
+  document.addEventListener(
+    "contextmenu",
+    (event) => {
+      lastRightClickedElement = event.target;
+    },
+    true,
+  );
+
+  /**
+   * Generate a unique CSS selector for the given element.
+   *
+   * Priority:
+   *   1. `#id` — if the element has a non-empty id and it's unique in the document
+   *   2. Unique class path — tag + class combination that matches only this element
+   *   3. nth-child path — full ancestry path using :nth-child() indices
+   *
+   * @param {Element} el
+   * @returns {string}
+   */
+  function generateElementSelector(el) {
+    // 1. ID selector
+    if (el.id && document.querySelectorAll(`#${CSS.escape(el.id)}`).length === 1) {
+      return `#${CSS.escape(el.id)}`;
+    }
+
+    // 2. Try a short class-based selector walking up the tree
+    const classSelector = _buildClassSelector(el);
+    if (classSelector && document.querySelectorAll(classSelector).length === 1) {
+      return classSelector;
+    }
+
+    // 3. Fallback: full nth-child path from the document root
+    return _buildNthChildPath(el);
+  }
+
+  /**
+   * Build a selector using the element's tag and classes, optionally prepended
+   * with the parent's selector for uniqueness (up to 3 levels).
+   * @param {Element} el
+   * @returns {string|null}
+   */
+  function _buildClassSelector(el) {
+    const parts = [];
+    let current = el;
+    let depth = 0;
+
+    while (current && current !== document.documentElement && depth < 3) {
+      const tag = current.tagName.toLowerCase();
+      const classes = Array.from(current.classList)
+        .filter((c) => !/^js-|^is-|^has-/.test(c)) // skip dynamic state classes
+        .map((c) => `.${CSS.escape(c)}`)
+        .join("");
+
+      parts.unshift(classes ? `${tag}${classes}` : tag);
+
+      const candidate = parts.join(" > ");
+      if (document.querySelectorAll(candidate).length === 1) {
+        return candidate;
+      }
+
+      current = current.parentElement;
+      depth++;
+    }
+
+    return parts.length ? parts.join(" > ") : null;
+  }
+
+  /**
+   * Build an unambiguous selector using :nth-child() indices all the way to
+   * the document root. Always unique.
+   * @param {Element} el
+   * @returns {string}
+   */
+  function _buildNthChildPath(el) {
+    const segments = [];
+    let current = el;
+
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      const parent = current.parentElement;
+      if (!parent) break;
+
+      const tag = current.tagName.toLowerCase();
+      const siblings = Array.from(parent.children).filter(
+        (c) => c.tagName === current.tagName,
+      );
+
+      if (siblings.length === 1) {
+        segments.unshift(tag);
+      } else {
+        const index = siblings.indexOf(current) + 1;
+        segments.unshift(`${tag}:nth-of-type(${index})`);
+      }
+
+      // Stop once we have a unique selector
+      const candidate = segments.join(" > ");
+      if (document.querySelectorAll(candidate).length === 1) {
+        return candidate;
+      }
+
+      current = parent;
+    }
+
+    return segments.join(" > ");
+  }
 
   // Inject the interceptor early
   injectNetworkInterceptor();
