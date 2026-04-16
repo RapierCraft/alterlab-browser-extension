@@ -1,0 +1,41 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: xvfb-run --auto-servernum -- npm test
+
+      - name: Upload Chrome build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-build
+          path: dist/alterlab-connect-chrome.zip
+
+      - name: Upload Firefox build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-build
+          path: dist/alterlab-connect-firefox.zip
