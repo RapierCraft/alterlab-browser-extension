@@ -390,7 +390,7 @@ function handleLogin() {
     : DEFAULT_API_URL;
   const baseUrl = normalizeUrl(apiUrl || DEFAULT_API_URL);
   browser.tabs.create({
-    url: `${baseUrl}/login?source=extension`,
+    url: `${baseUrl}/signin?source=extension`,
     active: true,
   });
   // Close popup — when user comes back, the next popup open will re-check auth
