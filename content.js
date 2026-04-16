@@ -1607,9 +1607,9 @@
         highlight.setAttribute("data-alterlab-highlight", "test");
         const rect = m.getBoundingClientRect();
         Object.assign(highlight.style, {
-          position: "fixed",
-          left: rect.left + "px",
-          top: rect.top + "px",
+          position: "absolute",
+          left: rect.left + window.scrollX + "px",
+          top: rect.top + window.scrollY + "px",
           width: rect.width + "px",
           height: rect.height + "px",
           border: "2px solid #22c55e",
