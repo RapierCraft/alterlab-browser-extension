@@ -1989,13 +1989,93 @@
   });
 
   // --- Extension detection: respond to dashboard ping ---
-  // Only respond on AlterLab domains so arbitrary sites can't fingerprint the extension
-  const ALTERLAB_ORIGINS = [
-    "https://alterlab.io",
-    "https://www.alterlab.io",
-    "http://localhost:3000",
-    "http://localhost",
-  ];
+  // Only respond on AlterLab domains so arbitrary sites can't fingerprint the extension.
+  //
+  // Allowed origins (security model — prevents arbitrary sites from fingerprinting):
+  //   1. Production: https://alterlab.io, https://www.alterlab.io
+  //   2. Any *.alterlab.io subdomain (staging / Vercel preview / feature branches)
+  //   3. localhost on any port (local dev on 3000, 3001, 8080, etc.)
+  //   4. The origin derived from the user-configured apiUrl (self-hosted instances)
+  //
+  // Rule 4 is resolved from browser.storage.local on load and kept in
+  // _configuredOrigin. It refreshes whenever the storage key changes.
+
+  let _configuredOrigin = null;
+
+  (async () => {
+    try {
+      const result = await browser.storage.local.get(["apiUrl"]);
+      if (result.apiUrl) {
+        try {
+          _configuredOrigin = new URL(result.apiUrl).origin;
+        } catch {
+          // malformed apiUrl — ignore
+        }
+      }
+    } catch {
+      // storage unavailable — ignore
+    }
+  })();
+
+  // Keep _configuredOrigin fresh if the user changes their API URL in settings.
+  try {
+    browser.storage.onChanged.addListener((changes, area) => {
+      if (area !== "local" || !changes.apiUrl) return;
+      const newVal = changes.apiUrl.newValue;
+      if (newVal) {
+        try {
+          _configuredOrigin = new URL(newVal).origin;
+        } catch {
+          _configuredOrigin = null;
+        }
+      } else {
+        _configuredOrigin = null;
+      }
+    });
+  } catch {
+    // Ignore if storage.onChanged is unavailable (e.g., during tests)
+  }
+
+  /**
+   * Return true if `origin` is an allowed AlterLab dashboard origin.
+   *
+   * @param {string} origin - window.location.origin of the current page
+   * @returns {boolean}
+   */
+  function isAllowedOrigin(origin) {
+    // 1. Exact match on the two canonical production origins.
+    if (origin === "https://alterlab.io" || origin === "https://www.alterlab.io") {
+      return true;
+    }
+
+    // 2. Any *.alterlab.io subdomain (covers staging, preview, feature environments).
+    //    Must be HTTPS and the hostname must end with .alterlab.io.
+    try {
+      const u = new URL(origin);
+      if (u.protocol === "https:" && u.hostname.endsWith(".alterlab.io")) {
+        return true;
+      }
+    } catch {
+      // not a valid URL — fall through
+    }
+
+    // 3. localhost on any port (http only, no public exposure risk).
+    try {
+      const u = new URL(origin);
+      if (u.protocol === "http:" && u.hostname === "localhost") {
+        return true;
+      }
+    } catch {
+      // fall through
+    }
+
+    // 4. User-configured apiUrl origin (self-hosted / custom domain).
+    if (_configuredOrigin && origin === _configuredOrigin) {
+      return true;
+    }
+
+    return false;
+  }
 
   window.addEventListener("message", (event) => {
     if (event.source !== window || !event.data) return;
@@ -2003,7 +2083,7 @@
 
     // Verify the page origin is an AlterLab domain
     const pageOrigin = window.location.origin;
-    if (!ALTERLAB_ORIGINS.includes(pageOrigin)) return;
+    if (!isAllowedOrigin(pageOrigin)) return;
 
     // Respond with extension info
     const isFF =
@@ -2029,7 +2109,7 @@
 
     // Only respond on AlterLab domains
     const pageOrigin = window.location.origin;
-    if (!ALTERLAB_ORIGINS.includes(pageOrigin)) return;
+    if (!isAllowedOrigin(pageOrigin)) return;
 
     const domain = event.data.domain;
     const correlationId = event.data.correlationId || null;
@@ -2108,7 +2188,7 @@
 
     // Only respond on AlterLab domains
     const pageOrigin = window.location.origin;
-    if (!ALTERLAB_ORIGINS.includes(pageOrigin)) return;
+    if (!isAllowedOrigin(pageOrigin)) return;
 
     const { correlationId, action, payload } = event.data;
     if (!correlationId || !action) {
