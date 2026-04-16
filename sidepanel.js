@@ -2798,7 +2798,7 @@ function bindAccountEvents() {
         : ALTERLAB_DEFAULT_API_URL;
       const baseUrl = normalizeUrl(apiUrl || ALTERLAB_DEFAULT_API_URL);
       browser.tabs.create({
-        url: `${baseUrl}/login?source=extension`,
+        url: `${baseUrl}/signin?source=extension`,
         active: true,
       });
     });
