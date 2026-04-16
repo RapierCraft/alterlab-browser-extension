@@ -44,9 +44,16 @@ const HAS_SIDE_PANEL = typeof browser !== "undefined" && !!browser.sidePanel;
 // persist there too — the storage.session API is available in both MV3 runtimes.
 let panelWindowId = null;
 
+// Promise that resolves once the persisted panelWindowId has been loaded from
+// storage. openSidePanel() awaits this before acting so that a user click
+// immediately after script load does not race against the async restore and
+// incorrectly create a second window.
+let panelWindowIdReady;
+
 /**
  * Read persisted panelWindowId from session storage on startup.
  * Called once when the background script loads (or reloads after suspend).
+ * Returns a promise so callers can await full initialisation.
  */
 async function restorePanelWindowId() {
   try {
@@ -90,8 +97,9 @@ async function persistPanelWindowId(id) {
   }
 }
 
-// Restore panelWindowId immediately on script load
-restorePanelWindowId();
+// Restore panelWindowId immediately on script load and capture the promise so
+// openSidePanel() can wait for it to complete before checking panelWindowId.
+panelWindowIdReady = restorePanelWindowId();
 
 /**
  * Open the side panel UI.  On Chrome this uses the native sidePanel API.
@@ -107,8 +115,15 @@ async function openSidePanel(windowId) {
     return;
   }
 
-  // Fallback: reuse existing popup window if it's still open
-  if (panelWindowId !== null) {
+  // Wait for the async storage restore to finish before reading panelWindowId.
+  // Without this await a user action fired immediately after script load races
+  // against restorePanelWindowId() and always sees panelWindowId === null,
+  // causing a duplicate window to be created on every script wake-up.
+  await panelWindowIdReady;
+
+  // Fallback: reuse existing popup window if it's still open.
+  // Use typeof guard so that both null and undefined are treated as "no window".
+  if (typeof panelWindowId === "number") {
     try {
       const existing = await browser.windows.get(panelWindowId);
       if (existing) {
@@ -116,7 +131,7 @@ async function openSidePanel(windowId) {
         return;
       }
     } catch {
-      // Window was closed — create a new one
+      // Window was closed — fall through to create a new one
       await persistPanelWindowId(null);
     }
   }
@@ -130,9 +145,12 @@ async function openSidePanel(windowId) {
   await persistPanelWindowId(win.id);
 }
 
-// Clean up tracked window ID when the popup panel is closed
+// Clean up tracked window ID when the popup panel is closed.
+// Using typeof guard: panelWindowId is only ever set to a number or null,
+// but the guard makes the intent explicit and prevents a stale null from
+// accidentally matching if the comparison semantics ever change.
 browser.windows.onRemoved.addListener((closedWindowId) => {
-  if (closedWindowId === panelWindowId) {
+  if (typeof panelWindowId === "number" && closedWindowId === panelWindowId) {
     persistPanelWindowId(null);
   }
 });
