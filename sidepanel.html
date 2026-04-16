@@ -113,36 +113,36 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </span>
       </button>
-      <span class="domain-pill" id="domainPill">---</span>
+      <span class="domain-pill" id="domainPill" aria-label="Current domain">---</span>
     </div>
 
     <!-- Tab Bar -->
-    <div class="tab-bar">
+    <div class="tab-bar" role="tablist" aria-label="Sidepanel navigation">
       <div class="tab-bar-indicator" id="tabBarIndicator"></div>
-      <button data-tab="inspect">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button role="tab" aria-selected="false" aria-controls="panel-inspect" id="tab-inspect" data-tab="inspect">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
         Inspect
       </button>
-      <button class="active" data-tab="scrape">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="active" role="tab" aria-selected="true" aria-controls="panel-scrape" id="tab-scrape" data-tab="scrape">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="4 17 10 11 4 5"/>
           <line x1="12" y1="19" x2="20" y2="19"/>
         </svg>
         Scrape
       </button>
-      <button data-tab="meta">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button role="tab" aria-selected="false" aria-controls="panel-meta" id="tab-meta" data-tab="meta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 7V4h16v3"/>
           <path d="M9 20h6"/>
           <path d="M12 4v16"/>
         </svg>
         Meta
       </button>
-      <button data-tab="robots">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button role="tab" aria-selected="false" aria-controls="panel-robots" id="tab-robots" data-tab="robots">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
           <line x1="16" y1="13" x2="8" y2="13"/>
@@ -151,8 +151,8 @@
         </svg>
         Robots
       </button>
-      <button data-tab="cookies">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button role="tab" aria-selected="false" aria-controls="panel-cookies" id="tab-cookies" data-tab="cookies">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/>
           <path d="M8.5 8.5v.01"/>
           <path d="M16 15.5v.01"/>
@@ -162,21 +162,21 @@
         </svg>
         Cookies
       </button>
-      <button data-tab="network">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button role="tab" aria-selected="false" aria-controls="panel-network" id="tab-network" data-tab="network">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
         </svg>
         Network
       </button>
-      <button data-tab="selector">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button role="tab" aria-selected="false" aria-controls="panel-selector" id="tab-selector" data-tab="selector">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
           <path d="M13 13l6 6"/>
         </svg>
         Selector
       </button>
-      <button data-tab="account">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button role="tab" aria-selected="false" aria-controls="panel-account" id="tab-account" data-tab="account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
@@ -185,7 +185,7 @@
     </div>
 
     <!-- ============ INSPECT TAB ============ -->
-    <div class="tab-panel" id="panel-inspect">
+    <div class="tab-panel" role="tabpanel" id="panel-inspect" aria-labelledby="tab-inspect">
       <!-- Score -->
       <div class="card" id="scoreCard">
         <div class="score-ring">
@@ -331,7 +331,7 @@
     </div>
 
     <!-- ============ SCRAPE TAB ============ -->
-    <div class="tab-panel active" id="panel-scrape">
+    <div class="tab-panel active" role="tabpanel" id="panel-scrape" aria-labelledby="tab-scrape">
       <!-- Format Picker -->
       <div class="card">
         <div class="card-header">
@@ -509,7 +509,7 @@
     </div>
 
     <!-- ============ META TAB (SEO Analyzer) ============ -->
-    <div class="tab-panel" id="panel-meta">
+    <div class="tab-panel" role="tabpanel" id="panel-meta" aria-labelledby="tab-meta">
       <!-- SEO Score -->
       <div class="card" id="seoScoreCard">
         <div class="score-ring">
@@ -605,7 +605,7 @@
     </div>
 
     <!-- ============ ROBOTS TAB ============ -->
-    <div class="tab-panel" id="panel-robots">
+    <div class="tab-panel" role="tabpanel" id="panel-robots" aria-labelledby="tab-robots">
       <!-- Fetch action -->
       <div class="card">
         <div class="card-header">
@@ -670,7 +670,7 @@
     </div>
 
     <!-- ============ COOKIES TAB (Inspector) ============ -->
-    <div class="tab-panel" id="panel-cookies">
+    <div class="tab-panel" role="tabpanel" id="panel-cookies" aria-labelledby="tab-cookies">
       <!-- Stats summary -->
       <div class="ci-stats">
         <div class="ci-stat">
@@ -815,7 +815,7 @@
     </div>
 
     <!-- ============ NETWORK TAB ============ -->
-    <div class="tab-panel" id="panel-network">
+    <div class="tab-panel" role="tabpanel" id="panel-network" aria-labelledby="tab-network">
       <!-- Controls -->
       <div class="card" style="padding: 10px 14px;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -927,7 +927,7 @@
     </div>
 
     <!-- ============ SELECTOR TAB ============ -->
-    <div class="tab-panel" id="panel-selector">
+    <div class="tab-panel" role="tabpanel" id="panel-selector" aria-labelledby="tab-selector">
       <!-- Activation card -->
       <div class="card">
         <div class="card-header">
@@ -974,7 +974,7 @@
     </div>
 
     <!-- ============ ACCOUNT TAB ============ -->
-    <div class="tab-panel" id="panel-account">
+    <div class="tab-panel" role="tabpanel" id="panel-account" aria-labelledby="tab-account">
       <!-- Auth checking state -->
       <div id="accountAuthCheck" class="card hidden">
         <div style="text-align: center; padding: 24px 0;">

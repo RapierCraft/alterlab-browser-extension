@@ -358,9 +358,13 @@ function bindTabNavigation() {
       const prevIndex = currentTabIndex;
       currentTabIndex = index;
 
-      // Update button states
-      buttons.forEach((b) => b.classList.remove("active"));
+      // Update button states and ARIA selected
+      buttons.forEach((b) => {
+        b.classList.remove("active");
+        b.setAttribute("aria-selected", "false");
+      });
       btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
 
       // Scroll the active tab into view
       btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
