@@ -471,20 +471,37 @@ async function handleDashboardRequest(message) {
         };
       }
 
+      case "GET_CONFIG": {
+        // Return current auth/config status WITHOUT exposing the actual API key.
+        // Dashboard can poll this to know whether the extension is configured.
+        const cfg = await loadConfig();
+        return {
+          configured: !!cfg.apiKey,
+          apiUrl: cfg.apiUrl || ALTERLAB_DEFAULT_API_URL,
+          // keyPrefix lets the dashboard show which key is active (e.g. "sk_live_abc...")
+          // without revealing the full secret.
+          keyPrefix: cfg.apiKey ? cfg.apiKey.slice(0, 20) + "..." : null,
+        };
+      }
+
       case "SEND_API_KEY": {
-        // Welcome page sends the user's API key after sign-in
+        // Dashboard/welcome page sends the user's API key after sign-in.
+        // Stores it, then broadcasts AUTH_STATUS_CHANGED so all open views
+        // (side panel, popup) pick up the new state immediately.
         const { apiKey, apiUrl } = payload || {};
         if (!apiKey || typeof apiKey !== "string" || !apiKey.startsWith("sk_live_")) {
           return { error: "Invalid API key format" };
         }
         await saveConfig(apiKey, apiUrl || null);
-        // Notify any open side panels / popups
-        try {
-          await browser.runtime.sendMessage({ type: "CONFIG_UPDATED" });
-        } catch (_) {
-          // No listeners — fine
-        }
-        return { success: true };
+        // Broadcast to all open extension views
+        notifySidePanels({
+          type: "AUTH_STATUS_CHANGED",
+          authenticated: true,
+          configured: true,
+        });
+        // Also send CONFIG_UPDATED for backward compat with views that listen to it
+        notifySidePanels({ type: "CONFIG_UPDATED" });
+        return { success: true, configured: true };
       }
 
       default:
