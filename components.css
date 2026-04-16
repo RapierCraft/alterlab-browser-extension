@@ -684,7 +684,7 @@
 
 /* White spinner variant (for use on accent backgrounds) */
 .al-spinner-white {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: color-mix(in oklch, white 25%, transparent);
   border-top-color: white;
 }
 

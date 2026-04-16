@@ -233,7 +233,7 @@
       <div class="card" id="antiBotCard">
         <div class="card-header">
           <span class="card-title">Anti-Bot Stack</span>
-          <span class="card-badge" id="antiBotCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="antiBotCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
         <div class="antibot-stack" id="antiBotStack">
           <div class="antibot-stack-empty">Scanning...</div>
@@ -244,7 +244,7 @@
       <div class="card" id="techStackCard" style="display: none;">
         <div class="card-header">
           <span class="card-title">Tech Stack</span>
-          <span class="card-badge" id="techStackCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="techStackCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
         <div id="techStackBody"></div>
       </div>
@@ -253,7 +253,7 @@
       <div class="card" id="signalsCard">
         <div class="card-header">
           <span class="card-title">Signals</span>
-          <span class="card-badge" id="signalCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="signalCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
         <ul class="signal-list" id="signalList">
           <li class="skel-signal"><span class="skel skel-dot"></span><span class="skel skel-signal-text"></span></li>
@@ -274,7 +274,7 @@
       <div class="card" id="apiCard" style="display: none;">
         <div class="card-header">
           <span class="card-title">Detected API Endpoints</span>
-          <span class="card-badge" id="apiCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="apiCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
         <ul class="endpoint-list" id="apiEndpointList"></ul>
       </div>
@@ -284,7 +284,7 @@
         <div class="card-header">
           <span class="card-title">Export</span>
         </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+        <p style="font-size: 12px; color: var(--al-text-muted); margin-bottom: 10px;">
           Scrape config for this page as ready-to-use code.
         </p>
         <div class="export-btn-row" id="exportBtnRow">
@@ -306,7 +306,7 @@
         <div class="card-header">
           <span class="card-title">Share Report</span>
         </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        <p style="font-size: 12px; color: var(--al-text-muted); margin-bottom: 12px;">
           Generate a shareable scrapability report for this site.
         </p>
         <button class="btn btn-primary btn-full" id="shareReportBtn">
@@ -322,7 +322,7 @@
         <div id="shareReportResult" style="display: none; margin-top: 10px;">
           <div style="display: flex; gap: 8px; align-items: center;">
             <input type="text" id="shareReportUrl" readonly
-              style="flex: 1; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 12px; font-family: 'JetBrains Mono', monospace;" />
+              style="flex: 1; background: var(--al-bg-input); border: 1px solid var(--al-border); border-radius: 6px; padding: 6px 10px; color: var(--al-text); font-size: 12px; font-family: 'JetBrains Mono', monospace;" />
             <button class="btn btn-secondary btn-sm" id="shareReportCopyBtn">Copy</button>
           </div>
         </div>
@@ -338,7 +338,7 @@
           <span class="card-title">Scrape This Page</span>
           <span class="scrape-usage-pill" id="scrapeUsagePill" title="Free scrapes remaining">3 free</span>
         </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        <p style="font-size: 12px; color: var(--al-text-muted); margin-bottom: 12px;">
           Extract content from the current page in your preferred format.
         </p>
 
@@ -443,7 +443,7 @@
         </summary>
 
         <div style="padding-top: 8px;">
-          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          <p style="font-size: 12px; color: var(--al-text-muted); margin-bottom: 12px;">
             Pre-filled from the current page analysis. Edit and submit to AlterLab.
           </p>
 
@@ -539,7 +539,7 @@
       <div class="card" id="seoIssuesCard" style="display: none;">
         <div class="card-header">
           <span class="card-title">Issues</span>
-          <span class="card-badge" id="seoIssueCount" style="background: rgba(239, 68, 68, 0.15); color: var(--error);">0</span>
+          <span class="card-badge" id="seoIssueCount" style="background: var(--al-error-muted); color: var(--al-error);">0</span>
         </div>
         <ul class="seo-issue-list" id="seoIssueList"></ul>
       </div>
@@ -560,7 +560,7 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Open Graph</span>
-          <span class="card-badge" id="ogTagCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="ogTagCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
         <div id="ogImagePreview" class="og-image-preview" style="display: none;">
           <img id="ogImageEl" alt="OG Image preview" />
@@ -576,7 +576,7 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Twitter Cards</span>
-          <span class="card-badge" id="twitterTagCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="twitterTagCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
         <div class="meta-table" id="twitterTable">
           <div class="meta-row placeholder">
@@ -589,7 +589,7 @@
       <div class="card" id="jsonLdCard">
         <div class="card-header">
           <span class="card-title">JSON-LD Structured Data</span>
-          <span class="card-badge" id="jsonLdCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="jsonLdCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
         <div id="jsonLdContent" class="json-ld-content">
           <div class="meta-row placeholder">
@@ -615,11 +615,11 @@
         <div class="status hidden" id="rtStatus"></div>
         <div class="rt-loading hidden" id="rtLoading">
           <span class="spinner"></span>
-          <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">Fetching robots.txt...</span>
+          <span style="font-size: 12px; color: var(--al-text-muted); margin-left: 8px;">Fetching robots.txt...</span>
         </div>
         <!-- Upsell / not-connected hint -->
         <div class="rt-upsell" id="rtUpsell">
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">
+          <p style="font-size: 12px; color: var(--al-text-muted); margin: 0; line-height: 1.5;">
             Fetches and analyzes the <code>robots.txt</code> file for the current domain.
           </p>
         </div>
@@ -742,7 +742,7 @@
       <details class="card" id="captureSectionCard">
         <summary class="card-header" style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center;">
           <span class="card-title">Send to AlterLab</span>
-          <span class="card-badge" id="cookieCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="cookieCountBadge" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
           <svg class="details-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-left: auto; transition: transform 0.2s;">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -820,36 +820,36 @@
       <div class="card" style="padding: 10px 14px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <input type="text" id="netSearchInput" placeholder="Filter by URL or method..." style="
-            flex: 1; background: var(--bg-input); border: 1px solid var(--border);
-            border-radius: 6px; padding: 6px 10px; color: var(--text);
+            flex: 1; background: var(--al-bg-input); border: 1px solid var(--al-border);
+            border-radius: 6px; padding: 6px 10px; color: var(--al-text);
             font-size: 12px; font-family: inherit; outline: none;
           " />
-          <span id="netRequestCount" style="font-size: 11px; color: var(--text-muted); white-space: nowrap;">0 requests</span>
+          <span id="netRequestCount" style="font-size: 11px; color: var(--al-text-muted); white-space: nowrap;">0 requests</span>
           <button id="netClearBtn" class="btn btn-secondary btn-sm" style="padding: 5px 8px; font-size: 11px;">Clear</button>
         </div>
         <div id="netFilterBar" style="display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;">
           <button class="net-filter-btn active" data-filter="all" style="
-            background: var(--accent); color: white; border: none; border-radius: 4px;
+            background: var(--al-accent); color: white; border: none; border-radius: 4px;
             padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
           ">All</button>
           <button class="net-filter-btn" data-filter="products" style="
-            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            background: var(--al-bg-input); color: var(--al-text-muted); border: 1px solid var(--al-border);
             border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
           ">Products</button>
           <button class="net-filter-btn" data-filter="listings" style="
-            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            background: var(--al-bg-input); color: var(--al-text-muted); border: 1px solid var(--al-border);
             border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
           ">Listings</button>
           <button class="net-filter-btn" data-filter="articles" style="
-            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            background: var(--al-bg-input); color: var(--al-text-muted); border: 1px solid var(--al-border);
             border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
           ">Articles</button>
           <button class="net-filter-btn" data-filter="reviews" style="
-            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            background: var(--al-bg-input); color: var(--al-text-muted); border: 1px solid var(--al-border);
             border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
           ">Reviews</button>
           <button class="net-filter-btn" data-filter="graphql" style="
-            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            background: var(--al-bg-input); color: var(--al-text-muted); border: 1px solid var(--al-border);
             border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
           ">GraphQL</button>
         </div>
@@ -857,11 +857,11 @@
 
       <!-- Empty state -->
       <div id="netEmptyState" class="card" style="text-align: center; padding: 32px 14px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="width: 40px; height: 40px; margin: 0 auto 12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--al-text-muted)" stroke-width="1.5" style="width: 40px; height: 40px; margin: 0 auto 12px;">
           <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">No API requests captured yet</div>
-        <div style="font-size: 12px; color: var(--text-muted);">
+        <div style="font-size: 12px; color: var(--al-text-muted);">
           Browse the page to capture XHR and fetch requests.<br/>
           Only JSON and API responses are shown.
         </div>
@@ -874,7 +874,7 @@
       <details class="card" id="headersSectionCard" style="margin-top: 8px;">
         <summary class="card-header" style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center;">
           <span class="card-title">Request Headers</span>
-          <span class="card-badge" id="hdrRequestCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="hdrRequestCount" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
           <svg class="details-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-left: auto; transition: transform 0.2s;">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -934,7 +934,7 @@
           <span class="card-title">Selector Builder</span>
           <button class="btn btn-primary btn-sm" id="selToggleBtn">Start Picking</button>
         </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+        <p style="font-size: 12px; color: var(--al-text-muted); margin-top: 4px;">
           Hover elements to preview selectors. Click to capture. Press Esc to stop.
         </p>
         <div id="selActiveIndicator" class="status" style="display:none;">
@@ -947,9 +947,9 @@
       <div class="card">
         <div class="card-header">
           <span class="card-title">Captured Selectors</span>
-          <span class="card-badge" id="selCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="selCountBadge" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
-        <div id="selSelectorList" style="font-size: 12px; color: var(--text-muted);">
+        <div id="selSelectorList" style="font-size: 12px; color: var(--al-text-muted);">
           No selectors captured yet. Start picking to add elements.
         </div>
       </div>
@@ -979,7 +979,7 @@
       <div id="accountAuthCheck" class="card hidden">
         <div style="text-align: center; padding: 24px 0;">
           <span class="spinner"></span>
-          <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Checking login status...</p>
+          <p style="color: var(--al-text-muted); font-size: 12px; margin-top: 8px;">Checking login status...</p>
         </div>
       </div>
 
@@ -1026,7 +1026,7 @@
         </button>
 
         <p class="sp-auth-footer">
-          No account? <a href="#" id="accountSignupLink" style="color: var(--accent); font-weight: 500; text-decoration: none;">Create one free</a>
+          No account? <a href="#" id="accountSignupLink" style="color: var(--al-accent); font-weight: 500; text-decoration: none;">Create one free</a>
         </p>
 
         <!-- API key divider -->
@@ -1072,7 +1072,7 @@
       <div id="accountConnected" class="card hidden">
         <div class="card-header">
           <span class="card-title">Account</span>
-          <span class="card-badge" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">Connected</span>
+          <span class="card-badge" style="background: var(--al-success-muted); color: var(--al-success);">Connected</span>
         </div>
 
         <div class="account-info">
@@ -1113,9 +1113,9 @@
       <div class="card" id="savedSessionsCard" style="display: none;">
         <div class="card-header">
           <span class="card-title">Saved Sessions</span>
-          <span class="card-badge" id="sessionCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+          <span class="card-badge" id="sessionCountBadge" style="background: var(--al-bg-input); color: var(--al-text-muted);">0</span>
         </div>
-        <div id="savedSessionsList" style="font-size: 12px; color: var(--text-muted);">
+        <div id="savedSessionsList" style="font-size: 12px; color: var(--al-text-muted);">
           Loading sessions...
         </div>
       </div>
