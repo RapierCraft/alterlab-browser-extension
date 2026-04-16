@@ -165,6 +165,12 @@ const tabResponseHeaders = new Map();
 const MAX_REQUESTS_PER_TAB = 200;
 const tabNetworkRequests = new Map(); // tabId -> { requests: [], pending: Map }
 
+// Per-tab generation counter for requestAnalysisWithRetry deduplication.
+// Incrementing the counter for a tab cancels any in-flight retry chain for
+// that tab — each chain captures its generation at call time and aborts if
+// the current counter has advanced past it.
+const tabAnalysisGeneration = new Map(); // tabId -> number
+
 // ---------------------------------------------------------------------------
 // Cross-browser helpers
 // ---------------------------------------------------------------------------
@@ -803,6 +809,7 @@ browser.tabs.onRemoved.addListener((tabId) => {
   tabHeaderSignals.delete(tabId);
   tabResponseHeaders.delete(tabId);
   tabNetworkRequests.delete(tabId);
+  tabAnalysisGeneration.delete(tabId);
 });
 
 // ---------------------------------------------------------------------------
@@ -837,20 +844,39 @@ function updateBadgeWithScore(score) {
  * Request page analysis from content script with retry logic.
  * The content script may not be ready immediately after navigation,
  * so we retry up to 3 times with exponential backoff.
+ *
+ * Per-tab deduplication: each call increments the tab's generation counter
+ * (on attempt === 0) and captures the current generation. Retries are
+ * silently dropped if the generation has advanced, ensuring that only the
+ * most-recent chain for a given tab can update the badge and send messages.
+ * This prevents overlapping chains from tab.onActivated / tab.onUpdated
+ * (which fires for both "loading" and "complete") racing each other.
  */
-function requestAnalysisWithRetry(tabId, updateBadge, attempt = 0) {
+function requestAnalysisWithRetry(tabId, updateBadge, attempt = 0, generation = null) {
   const MAX_ATTEMPTS = 3;
   const DELAY_MS = [200, 500, 1000]; // exponential backoff
 
-  // Show "..." on first attempt (loading indicator)
-  if (attempt === 0 && updateBadge) {
-    browser.action.setBadgeText({ text: "..." });
-    browser.action.setBadgeBackgroundColor({ color: "#44403c" });
+  // On the first attempt, bump the generation counter and capture it.
+  // Any prior retry chain for this tab will see its captured generation is
+  // stale and will abort silently.
+  if (attempt === 0) {
+    const next = (tabAnalysisGeneration.get(tabId) || 0) + 1;
+    tabAnalysisGeneration.set(tabId, next);
+    generation = next;
+
+    // Show "..." on first attempt (loading indicator)
+    if (updateBadge) {
+      browser.action.setBadgeText({ text: "..." });
+      browser.action.setBadgeBackgroundColor({ color: "#44403c" });
+    }
   }
 
   browser.tabs
     .sendMessage(tabId, { type: "ANALYZE_PAGE" })
     .then((analysis) => {
+      // Abort if a newer chain has started for this tab
+      if (tabAnalysisGeneration.get(tabId) !== generation) return;
+
       if (analysis && typeof analysis.score === "number") {
         // Merge header signals from webRequest into analysis
         const headerSignals = tabHeaderSignals.get(tabId) || [];
@@ -878,10 +904,13 @@ function requestAnalysisWithRetry(tabId, updateBadge, attempt = 0) {
       }
     })
     .catch(() => {
+      // Abort if a newer chain has started for this tab
+      if (tabAnalysisGeneration.get(tabId) !== generation) return;
+
       // Content script not ready yet — retry with backoff
       if (attempt < MAX_ATTEMPTS) {
         setTimeout(() => {
-          requestAnalysisWithRetry(tabId, updateBadge, attempt + 1);
+          requestAnalysisWithRetry(tabId, updateBadge, attempt + 1, generation);
         }, DELAY_MS[attempt] || 1000);
       } else if (updateBadge) {
         // All retries exhausted — show error state
