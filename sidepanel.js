@@ -3346,9 +3346,18 @@ async function fetchAccountInfo(config) {
 
     if (resp.ok) {
       const data = await resp.json();
-      const credits = data.credits_remaining ?? data.credits ?? null;
+      const rawCredits = data.credits_remaining ?? data.credits ?? null;
+      // API returns microcents (1,000,000 = $1.00) — convert before display
+      const dollars =
+        typeof rawCredits === "number" ? rawCredits / 1_000_000 : null;
       els.accountCredits.textContent =
-        typeof credits === "number" ? `$${credits.toFixed(2)}` : "N/A";
+        typeof dollars === "number" ? `$${dollars.toFixed(2)}` : "N/A";
+
+      // Credits bar — visual scale: 0–$100 = 0–100%
+      if (typeof dollars === "number" && els.creditsBarFill) {
+        const pct = Math.min(100, (dollars / 100) * 100);
+        els.creditsBarFill.style.width = `${pct}%`;
+      }
     }
   } catch (err) {
     els.accountCredits.textContent = "Unavailable";
