@@ -1050,6 +1050,12 @@ label {
   color: var(--al-error);
 }
 
+.status.info {
+  background: var(--al-bg-input);
+  border: 1px solid var(--al-border);
+  color: var(--al-text-muted);
+}
+
 .status code {
   font-family: var(--al-font-mono);
   background: var(--al-bg-input);

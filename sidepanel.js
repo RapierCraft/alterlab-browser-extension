@@ -2535,6 +2535,19 @@ async function handleScrapeRun() {
   els.scrapeResultsCard.classList.add("hidden");
   els.scrapeUpsell.classList.add("hidden");
 
+  // Show a "processing" hint after 3 seconds in case the job is async-queued
+  let processingHintTimer = setTimeout(() => {
+    if (els.scrapeRunBtn.disabled) {
+      els.scrapeRunBtn.innerHTML =
+        '<span class="spinner"></span> Processing...';
+      showStatus(
+        els.scrapeStatus,
+        "info",
+        "Job queued — waiting for results\u2026",
+      );
+    }
+  }, 3000);
+
   try {
     const deviceId = await getDeviceId();
 
@@ -2546,6 +2559,9 @@ async function handleScrapeRun() {
       apiUrl: config.apiUrl,
       deviceId,
     });
+
+    clearTimeout(processingHintTimer);
+    hideStatus(els.scrapeStatus);
 
     if (response && response.error) {
       showStatus(els.scrapeStatus, "error", escapeHtml(response.error));
@@ -2574,6 +2590,7 @@ async function handleScrapeRun() {
       showStatus(els.scrapeStatus, "error", "No content returned from scrape.");
     }
   } catch (err) {
+    clearTimeout(processingHintTimer);
     showStatus(
       els.scrapeStatus,
       "error",

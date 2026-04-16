@@ -1426,13 +1426,17 @@ async function handleCaptureScreenshot() {
  * Handle a SCRAPE_PAGE request from the side panel.
  * Uses the AlterLab API to scrape the given URL and return formatted content.
  *
+ * If the API returns an async job response (job_id + status "queued" or
+ * "processing"), this function polls GET /api/v1/jobs/{job_id} at 2-second
+ * intervals until the job completes, fails, or the 90-second timeout elapses.
+ *
  * @param {Object} message
  * @param {string} message.url - URL to scrape
  * @param {string} message.format - "markdown" | "html" | "json"
  * @param {string} message.apiKey - API key (empty for anonymous)
  * @param {string} message.apiUrl - Base API URL
  * @param {string} message.deviceId - Device UUID for anonymous tracking
- * @returns {Promise<{error: string|null, content: string|null, jobId: string|null}>}
+ * @returns {Promise<{error: string|null, content: string|null, jobId: string|null, polling?: boolean}>}
  */
 async function handleScrapePage(message) {
   const { url, format, apiKey, apiUrl, deviceId } = message;
@@ -1474,26 +1478,13 @@ async function handleScrapePage(message) {
     const result = await resp.json();
     const jobId = result.job_id || result.id || null;
 
-    // Extract the content in the requested format
-    let content = null;
-    if (result.content) {
-      content =
-        typeof result.content === "string"
-          ? result.content
-          : JSON.stringify(result.content, null, 2);
-    } else if (result.text) {
-      content = result.text;
-    } else if (result.markdown) {
-      content = result.markdown;
-    } else if (result.html) {
-      content = result.html;
-    } else if (result.data) {
-      content = JSON.stringify(result.data, null, 2);
-    } else {
-      content = JSON.stringify(result, null, 2);
+    // Detect async job response — API returns 202 with job_id and a pending status
+    const asyncStatuses = ["queued", "pending", "processing", "running"];
+    if (jobId && result.status && asyncStatuses.includes(result.status)) {
+      return await _pollJobUntilComplete(baseUrl, jobId, headers);
     }
 
-    return { error: null, content, jobId };
+    return { error: null, content: _extractContent(result), jobId };
   } catch (err) {
     return {
       error: err.message || "Network error — check your connection",
@@ -1501,6 +1492,100 @@ async function handleScrapePage(message) {
       jobId: null,
     };
   }
+}
+
+/**
+ * Poll GET /api/v1/jobs/{jobId} until the job reaches a terminal state.
+ * Polls every 2 seconds and gives up after 90 seconds.
+ *
+ * @param {string} baseUrl - API base URL
+ * @param {string} jobId - Job ID to poll
+ * @param {Object} headers - Request headers (includes auth)
+ * @returns {Promise<{error: string|null, content: string|null, jobId: string}>}
+ */
+async function _pollJobUntilComplete(baseUrl, jobId, headers) {
+  const POLL_INTERVAL_MS = 2000;
+  const TIMEOUT_MS = 90000;
+  const pollHeaders = { ...headers };
+  // Polling endpoint does not need Content-Type
+  delete pollHeaders["Content-Type"];
+
+  const deadline = Date.now() + TIMEOUT_MS;
+
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+
+    let pollResp;
+    try {
+      pollResp = await fetch(`${baseUrl}/api/v1/jobs/${jobId}`, {
+        method: "GET",
+        headers: pollHeaders,
+      });
+    } catch (networkErr) {
+      return {
+        error: networkErr.message || "Network error while polling job status",
+        content: null,
+        jobId,
+      };
+    }
+
+    if (!pollResp.ok) {
+      // 404 means job not found or auth mismatch — surface the error
+      const errBody = await pollResp.json().catch(() => ({}));
+      return {
+        error:
+          errBody.detail ||
+          `Job polling failed: HTTP ${pollResp.status}`,
+        content: null,
+        jobId,
+      };
+    }
+
+    const job = await pollResp.json();
+    const status = job.status || "";
+
+    if (status === "succeeded" || status === "completed") {
+      const content = _extractContent(job.result || job);
+      return { error: null, content, jobId };
+    }
+
+    if (status === "failed" || status === "error") {
+      const reason =
+        (job.result && job.result.error) ||
+        job.error ||
+        "Scrape job failed on the server.";
+      return { error: reason, content: null, jobId };
+    }
+
+    // Still queued/processing — continue polling
+  }
+
+  // Timeout
+  return {
+    error: `Scrape timed out after ${TIMEOUT_MS / 1000}s — job ${jobId} is still processing. Check your dashboard for results.`,
+    content: null,
+    jobId,
+  };
+}
+
+/**
+ * Extract displayable content from a scrape result or job result object.
+ *
+ * @param {Object} result - Scrape or job result payload
+ * @returns {string} Extracted content string
+ */
+function _extractContent(result) {
+  if (!result) return "";
+  if (result.content) {
+    return typeof result.content === "string"
+      ? result.content
+      : JSON.stringify(result.content, null, 2);
+  }
+  if (result.text) return result.text;
+  if (result.markdown) return result.markdown;
+  if (result.html) return result.html;
+  if (result.data) return JSON.stringify(result.data, null, 2);
+  return JSON.stringify(result, null, 2);
 }
 
 // ---------------------------------------------------------------------------
