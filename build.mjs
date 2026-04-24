@@ -4,21 +4,26 @@
  * AlterLab Connect — Multi-Browser Build Script
  *
  * Produces browser-specific extension builds by merging a base manifest
- * with browser-specific overrides, copying all shared files, and creating
- * distributable zip archives.
+ * with browser-specific overrides, processing JS files through esbuild
+ * (minification + dead-code elimination), and creating distributable zips.
  *
  * Usage:
  *   node build.mjs chrome       # Build Chrome only
  *   node build.mjs firefox      # Build Firefox only
  *   node build.mjs              # Build both (default)
+ *
+ * Environment:
+ *   BUILD_MINIFY=false          # Disable minification (useful for debugging)
  */
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, cpSync, rmSync, existsSync } from "node:fs";
 import { join, extname, dirname } from "node:path";
 import { execSync } from "node:child_process";
+import { build as esbuild } from "esbuild";
 
 const ROOT = dirname(new URL(import.meta.url).pathname);
 const DIST = join(ROOT, "dist");
+const MINIFY = process.env.BUILD_MINIFY !== "false";
 
 // Files that are part of the build system or store assets — not extension source
 const EXCLUDED = new Set([
@@ -27,16 +32,29 @@ const EXCLUDED = new Set([
   "build.mjs",
   "package.json",
   "package-lock.json",
+  "tsconfig.json",
+  "eslint.config.mjs",
+  ".prettierrc",
   "node_modules",
   ".gitignore",
   ".git",
+  ".github",
   "dist",
   "store-assets",
   "tests",
   "playwright.config.mjs",
   "test-results",
   "playwright-report",
+  "vitest.config.mjs",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "LICENSE",
+  "STORE_PUBLISHING_SETUP.md",
 ]);
+
+// JS files that should be processed through esbuild (minified + dead-code stripped)
+// browser-polyfill.min.js is already minified — copy as-is
+const JS_PASSTHROUGH = new Set(["browser-polyfill.min.js"]);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -93,9 +111,43 @@ function collectSourceFiles() {
 }
 
 /**
+ * Process a JS file through esbuild for minification.
+ * Extension content scripts run in a global scope — use IIFE format to avoid
+ * polluting globals while still being accessible via importScripts().
+ *
+ * background.js uses importScripts() to load shared.js, so shared functions
+ * must remain accessible at global scope. We use the 'global-name' trick:
+ * esbuild bundles as IIFE but assigns exports to a global so importScripts
+ * consumers can still call them.
+ *
+ * For scripts loaded via <script> tags (popup.js, sidepanel.js, theme.js),
+ * the global scope is the page — no special handling needed.
+ */
+async function processJsFile(src, dest) {
+  if (!MINIFY) {
+    cpSync(src, dest);
+    return;
+  }
+
+  await esbuild({
+    entryPoints: [src],
+    outfile: dest,
+    bundle: false,        // Files are not ES modules — globals are shared via script tags
+    minify: true,
+    target: ["chrome120", "firefox128"],
+    format: "iife",       // Wrap in IIFE to avoid polluting global scope with esbuild internals
+    globalName: undefined,// No export needed — functions declared with function/var hoist out of IIFE
+    // Keep function declarations accessible from other scripts loaded in same scope:
+    // IIFE wraps esbuild's own bookkeeping, but named function declarations still hoist.
+    // This is safe because our source files use function declarations, not module exports.
+    logLevel: "warning",
+  });
+}
+
+/**
  * Build a single browser variant.
  */
-function buildVariant(browser) {
+async function buildVariant(browser) {
   const overridePath = join(ROOT, `manifest.${browser}.json`);
   if (!existsSync(overridePath)) {
     console.error(`ERROR: manifest.${browser}.json not found`);
@@ -114,20 +166,49 @@ function buildVariant(browser) {
   }
   mkdirSync(outDir, { recursive: true });
 
-  // Copy shared source files (excluding manifest.json — we write the merged one)
+  // Copy / process shared source files (excluding manifest.json — we write the merged one)
   const sources = collectSourceFiles().filter((f) => f !== "manifest.json");
+  const jsFiles = [];
+  const otherFiles = [];
+
   for (const relPath of sources) {
+    if (extname(relPath) === ".js" && !JS_PASSTHROUGH.has(relPath.split("/").pop())) {
+      jsFiles.push(relPath);
+    } else {
+      otherFiles.push(relPath);
+    }
+  }
+
+  // Copy non-JS files as-is
+  for (const relPath of otherFiles) {
     const src = join(ROOT, relPath);
     const dest = join(outDir, relPath);
     mkdirSync(dirname(dest), { recursive: true });
     cpSync(src, dest);
   }
 
+  // Process JS files through esbuild in parallel
+  await Promise.all(
+    jsFiles.map(async (relPath) => {
+      const src = join(ROOT, relPath);
+      const dest = join(outDir, relPath);
+      mkdirSync(dirname(dest), { recursive: true });
+      await processJsFile(src, dest);
+    })
+  );
+
   // Write merged manifest
   writeFileSync(join(outDir, "manifest.json"), JSON.stringify(merged, null, 2) + "\n");
 
   console.log(`  Built ${browser} → dist/${browser}/`);
   console.log(`    manifest keys: ${Object.keys(merged).join(", ")}`);
+  if (MINIFY) {
+    // Report size savings
+    const totalSrc = jsFiles.reduce((sum, f) => sum + statSync(join(ROOT, f)).size, 0);
+    const totalDest = jsFiles.reduce((sum, f) => sum + statSync(join(outDir, f)).size, 0);
+    const pct = (((totalSrc - totalDest) / totalSrc) * 100).toFixed(0);
+    console.log(`    JS minification: ${(totalSrc / 1024).toFixed(1)} KB → ${(totalDest / 1024).toFixed(1)} KB (${pct}% reduction)`);
+  }
 
   // Create zip archive
   const zipName = `alterlab-connect-${browser}.zip`;
@@ -158,14 +239,14 @@ for (const t of targets) {
   }
 }
 
-console.log(`AlterLab Connect — Building: ${targets.join(", ")}\n`);
+console.log(`AlterLab Connect — Building: ${targets.join(", ")} (minify=${MINIFY})\n`);
 
 // Ensure dist/ exists
 mkdirSync(DIST, { recursive: true });
 
 const results = {};
 for (const target of targets) {
-  results[target] = buildVariant(target);
+  results[target] = await buildVariant(target);
 }
 
 // Verification: compare file lists (excluding manifest.json which intentionally differs)
