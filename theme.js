@@ -13,6 +13,7 @@
  *   or by clicking any element with id="themeToggle".
  */
 
+// eslint-disable-next-line no-unused-vars
 const AlterLabTheme = (() => {
   const STORAGE_KEY = "alterlab-theme";
   const DARK = "dark";

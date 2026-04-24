@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "milestone/**"]
+  pull_request:
+    branches: [main, "milestone/**"]
+
+jobs:
+  lint-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Format check
+        run: npm run format:check
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+  build-and-e2e:
+    name: Build & E2E Tests
+    runs-on: ubuntu-latest
+    needs: [lint-typecheck, unit-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (both browsers)
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: xvfb-run --auto-servernum -- npm test
+
+      - name: Upload Chrome build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-build
+          path: dist/alterlab-connect-chrome.zip
+
+      - name: Upload Firefox build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-build
+          path: dist/alterlab-connect-firefox.zip

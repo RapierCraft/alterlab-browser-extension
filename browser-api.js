@@ -33,6 +33,7 @@
  * @param {string} namespace - dot-separated path, e.g. "sidePanel"
  * @returns {boolean}
  */
+// eslint-disable-next-line no-unused-vars
 function hasBrowserAPI(namespace) {
   const parts = namespace.split(".");
   let obj = typeof browser !== "undefined" ? browser : chrome;

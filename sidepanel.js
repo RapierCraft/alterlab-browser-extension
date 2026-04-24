@@ -355,6 +355,7 @@ function bindTabNavigation() {
 
       const tabName = btn.dataset.tab;
       const direction = index > currentTabIndex ? "slide-left" : "slide-right";
+      // eslint-disable-next-line no-unused-vars
       const prevIndex = currentTabIndex;
       currentTabIndex = index;
 
@@ -4035,6 +4036,7 @@ function exportSelectors(format) {
   if (format === "json") {
     output = JSON.stringify({ url: currentUrl, selectors: fields }, null, 2);
   } else if (format === "curl") {
+    // eslint-disable-next-line no-unused-vars
     const selectorParam = fields.map(f => f.css).join(", ");
     output = `curl -X POST https://alterlab.io/api/v1/scrape \\
   -H "X-API-Key: YOUR_API_KEY" \\

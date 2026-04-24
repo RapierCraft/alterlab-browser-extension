@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // Allow JS files in the project — enables gradual TypeScript adoption.
+    // checkJs is intentionally false for now: the codebase is ~6000 lines of
+    // existing JS written before types. Enabling strict checkJs would produce
+    // hundreds of errors that obscure real new issues. Enable it file-by-file
+    // by adding @ts-check at the top of each file as it gets refactored.
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+
+    // Browser extension environment
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "target": "ES2022",
+
+    // No output — type-check only (esbuild handles transpilation)
+    "noEmit": true,
+
+    // Module resolution
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+
+    // Interop
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Quality
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "*.js",
+    "tests/**/*.mjs",
+    "tests/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "browser-polyfill.min.js"
+  ]
+}
