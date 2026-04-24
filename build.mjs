@@ -132,14 +132,13 @@ async function processJsFile(src, dest) {
   await esbuild({
     entryPoints: [src],
     outfile: dest,
-    bundle: false,        // Files are not ES modules — globals are shared via script tags
-    minify: true,
+    bundle: false,             // Files are not ES modules — globals shared via script tags
+    minifySyntax: true,        // Simplify expressions, fold constants, etc.
+    minifyWhitespace: true,    // Remove whitespace and comments
+    minifyIdentifiers: false,  // MUST be false: other scripts call functions by name
+    //                         // (popup.js calls loadConfig(), background.js calls isAuthCookie()
+    //                         // etc.) — renaming would break all cross-file calls
     target: ["chrome120", "firefox128"],
-    format: "iife",       // Wrap in IIFE to avoid polluting global scope with esbuild internals
-    globalName: undefined,// No export needed — functions declared with function/var hoist out of IIFE
-    // Keep function declarations accessible from other scripts loaded in same scope:
-    // IIFE wraps esbuild's own bookkeeping, but named function declarations still hoist.
-    // This is safe because our source files use function declarations, not module exports.
     logLevel: "warning",
   });
 }
