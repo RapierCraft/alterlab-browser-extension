@@ -882,13 +882,16 @@
 
     const scripts = document.querySelectorAll("script[src]");
     const scriptSrcs = Array.from(scripts).map((s) => (s.src || "").toLowerCase());
+    // eslint-disable-next-line no-unused-vars
     const allScriptText = scriptSrcs.join(" ");
     const linkHrefs = Array.from(document.querySelectorAll("link[href]"))
       .map((l) => (l.href || "").toLowerCase());
     const metaGenerator = (
       document.querySelector('meta[name="generator"]')?.getAttribute("content") || ""
     ).toLowerCase();
+    // eslint-disable-next-line no-unused-vars
     const cookies = document.cookie;
+    // eslint-disable-next-line no-unused-vars
     const html = document.documentElement.innerHTML;
 
     // --- Frameworks ---
@@ -1435,6 +1438,7 @@
       return "Fragile";
     }
 
+    // eslint-disable-next-line no-unused-vars
     function reliabilityColor(score) {
       if (score >= 85) return "#22c55e";
       if (score >= 65) return "#6366f1";
