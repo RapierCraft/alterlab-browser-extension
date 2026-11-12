@@ -13,8 +13,13 @@
     "contextMenus",
     "scripting"
   ],
-  "optional_permissions": ["webRequest"],
-  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "optional_permissions": [
+    "webRequest"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "action": {
     "default_icon": {
       "16": "icons/icon16.png",

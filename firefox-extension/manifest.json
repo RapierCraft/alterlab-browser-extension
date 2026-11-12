@@ -12,8 +12,13 @@
     "contextMenus",
     "scripting"
   ],
-  "optional_permissions": ["webRequest"],
-  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "optional_permissions": [
+    "webRequest"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -31,7 +36,19 @@
     }
   },
   "background": {
-    "scripts": ["shared.js", "consent.js", "privacy.js", "connect.js", "getapi.js", "hands-approvals.js", "hands-credentials.js", "hands-local.js", "recorder.js", "byos-refresh.js", "background.js"]
+    "scripts": [
+      "shared.js",
+      "consent.js",
+      "privacy.js",
+      "connect.js",
+      "getapi.js",
+      "hands-approvals.js",
+      "hands-credentials.js",
+      "hands-local.js",
+      "recorder.js",
+      "byos-refresh.js",
+      "background.js"
+    ]
   },
   "icons": {
     "16": "icons/icon16.png",
