@@ -50,7 +50,14 @@ npm install
 
 The project has no bundler — the source files are plain JavaScript and are copied directly into the build output by `build.mjs`. There is no transpilation step.
 
-The build script (`build.mjs`) reads `manifest.json` (base), merges it with `manifest.chrome.json` or `manifest.firefox.json` (browser-specific overrides), copies all source files, and writes the merged build into `dist/chrome/` or `dist/firefox/`.
+Source layout:
+
+- `chrome-extension/` and `firefox-extension/` — the two browser trees (they differ on purpose: the Chrome side panel and the Firefox sidebar are separate UIs).
+- `extension-tests/`, `chrome-extension/tests/` — Node unit and parity tests (`npm run test:unit`).
+- `e2e/` — Playwright smoke tests that load the unpacked Chrome tree (`npm run test:e2e`, needs a display: use `xvfb-run` on Linux).
+- `build.mjs` and `build/firefox-overlay.json` — packaging; the overlay adds the Firefox Add-ons data-collection declaration.
+
+These trees are mirrored from AlterLab's private monorepo after each production deploy (`scripts/sync-extension-satellite.sh` in that repo), so a pull request here that changes them is applied to the monorepo by the maintainers; build, test and packaging changes (`build.mjs`, workflows, `scripts/`) live only here.
 
 ---
 
@@ -105,7 +112,7 @@ The extension will appear in your toolbar. After making source changes, run `npm
 The codebase is plain JavaScript (ES modules where applicable). Please follow these conventions when contributing:
 
 - **No build tools or transpilers.** Do not introduce Webpack, Rollup, Babel, TypeScript, or similar tools. The project is intentionally dependency-light.
-- **JSDoc comments** for all exported functions and non-obvious logic. See existing files (`popup.js`, `shared.js`, `background.js`) for examples.
+- **JSDoc comments** for all exported functions and non-obvious logic. See existing files (`chrome-extension/popup.js`, `chrome-extension/shared.js`, `chrome-extension/background.js`) for examples.
 - **`const` by default.** Use `let` only when reassignment is required. Never use `var`.
 - **Async/await** for all asynchronous code. Do not use raw `.then()` chains.
 - **Descriptive names.** Prefer `isAuthenticated` over `auth`, `cookieList` over `cl`.

@@ -1,0 +1,151 @@
+{
+  "vendors": {
+    "akamai": {
+      "cookies": [
+        {
+          "mode": "exact",
+          "name": "_abck"
+        },
+        {
+          "mode": "exact",
+          "name": "abck"
+        },
+        {
+          "mode": "exact",
+          "name": "ak_bmsc"
+        },
+        {
+          "mode": "exact",
+          "name": "bm_sz"
+        },
+        {
+          "mode": "exact",
+          "name": "bm_sv"
+        },
+        {
+          "mode": "exact",
+          "name": "bm_mi"
+        }
+      ],
+      "label": "Akamai",
+      "markers": [
+        "/akam/"
+      ],
+      "scripts": [
+        "/akam/"
+      ]
+    },
+    "cloudflare": {
+      "cookies": [
+        {
+          "mode": "exact",
+          "name": "__cf_bm"
+        },
+        {
+          "mode": "exact",
+          "name": "cf_clearance"
+        },
+        {
+          "mode": "prefix",
+          "name": "_cf_chl"
+        }
+      ],
+      "label": "Cloudflare",
+      "markers": [
+        "challenge-platform/h/g/orchestrate",
+        "challenges.cloudflare.com/turnstile"
+      ],
+      "scripts": [
+        "challenges.cloudflare.com/turnstile",
+        "turnstile.cloudflare.com",
+        "/cdn-cgi/challenge-platform/"
+      ]
+    },
+    "datadome": {
+      "cookies": [
+        {
+          "mode": "exact",
+          "name": "datadome"
+        }
+      ],
+      "label": "DataDome",
+      "markers": [
+        "datadome.co"
+      ],
+      "scripts": [
+        "api-js.datadome.co",
+        "js.datadome.co",
+        "captcha-delivery.com",
+        "geo.captcha-delivery",
+        "ct.captcha-delivery",
+        "datadome.co/captcha",
+        "device-verify.datadome.co"
+      ]
+    },
+    "imperva": {
+      "cookies": [
+        {
+          "mode": "exact",
+          "name": "reese84"
+        },
+        {
+          "mode": "exact",
+          "name": "___utmvc"
+        },
+        {
+          "mode": "exact",
+          "name": "utmvc"
+        },
+        {
+          "mode": "prefix",
+          "name": "_incap_"
+        },
+        {
+          "mode": "prefix",
+          "name": "visid_incap"
+        },
+        {
+          "mode": "prefix",
+          "name": "nlbi_"
+        }
+      ],
+      "label": "Imperva",
+      "markers": [],
+      "scripts": []
+    },
+    "kasada": {
+      "cookies": [],
+      "label": "Kasada",
+      "markers": [
+        "/ips.js"
+      ],
+      "scripts": [
+        "cd.kasada.io",
+        "/ips.js"
+      ]
+    },
+    "perimeterx": {
+      "cookies": [
+        {
+          "mode": "prefix",
+          "name": "_px"
+        }
+      ],
+      "label": "PerimeterX / HUMAN",
+      "markers": [
+        "px-cdn.net"
+      ],
+      "scripts": [
+        "px.human.com/px/client",
+        "human.com/px",
+        "pxcel.net",
+        "client.perimeterx.net",
+        "captcha.px-cdn.net",
+        "enforcer.human.security",
+        "px.human.security",
+        "client.px-cdn.net"
+      ]
+    }
+  },
+  "version": 1
+}

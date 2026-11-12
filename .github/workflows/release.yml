@@ -1,88 +1,62 @@
 name: Release
 
+# Builds both browser packages, tags and releases them, then submits them to the
+# Chrome Web Store and Firefox Add-ons. Every store step fails the run when the
+# store does not accept the upload: a green run means the stores accepted it.
+# Dispatched by hand or by the AlterLab monorepo's ecosystem release after a
+# production deploy (it mirrors the extension source into this repo first).
+
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number (e.g., 2.1.0)'
+        description: 'Version number (e.g., 2.2.0)'
         required: true
         type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
-  staging-check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check AlterLab staging for undeployed extension changes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "## AlterLab Staging Check" >> "$GITHUB_STEP_SUMMARY"
-
-          # Compare staging to main in AlterLab repo
-          DIFF=$(gh api repos/RapierCraftStudios/AlterLab/compare/main...staging \
-            --jq '.files[].filename' 2>/dev/null || echo "")
-
-          if [ -z "$DIFF" ]; then
-            echo "✅ AlterLab staging is up to date with main (or unable to check)" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-
-          # Check for extension-related files
-          EXT_FILES=$(echo "$DIFF" | grep -iE "extension|bridge|welcome|useExtensionBridge" || true)
-
-          if [ -n "$EXT_FILES" ]; then
-            echo "⚠️ **WARNING**: AlterLab staging has undeployed extension-related changes:" >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            echo "$EXT_FILES" >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "**Deploy AlterLab first** (merge staging → main) before publishing the extension." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "✅ No extension-related changes pending on AlterLab staging" >> "$GITHUB_STEP_SUMMARY"
-          fi
-
   build:
     runs-on: ubuntu-latest
-    outputs:
-      chrome-zip: ${{ steps.build.outputs.chrome-zip }}
-      firefox-zip: ${{ steps.build.outputs.firefox-zip }}
     steps:
+      - name: Validate version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::version must be MAJOR.MINOR.PATCH"; exit 1; }
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci
 
-      - name: Bump version in manifest.json
-        run: |
-          node -e "
-            const fs = require('fs');
-            const m = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-            m.version = '${{ inputs.version }}';
-            fs.writeFileSync('manifest.json', JSON.stringify(m, null, 2) + '\n');
-          "
+      - name: Unit and parity tests
+        run: npm run test:unit
+
+      - name: Stamp version
+        run: node scripts/set-version.mjs "${{ inputs.version }}"
 
       - name: Build both browsers
-        id: build
-        run: |
-          npm run build
-          echo "chrome-zip=dist/alterlab-connect-chrome.zip" >> "$GITHUB_OUTPUT"
-          echo "firefox-zip=dist/alterlab-connect-firefox.zip" >> "$GITHUB_OUTPUT"
+        run: npm run build
 
       - name: Commit version bump and tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add manifest.json
-          git commit -m "release: v${{ inputs.version }} [skip ci]"
+          git add chrome-extension/manifest.json firefox-extension/manifest.json package.json
+          git diff --cached --quiet || git commit -m "release: v${{ inputs.version }} [skip ci]"
           git tag "v${{ inputs.version }}"
-          git push origin main --tags
+          git push origin HEAD:main --tags
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -117,6 +91,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ vars.CWS_ENABLED == 'true' }}
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           name: extension-builds
@@ -124,18 +100,32 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Upload to Chrome Web Store
+      - name: Check Chrome Web Store credentials
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+        run: node scripts/cws-preflight.mjs
+
+      # chrome-webstore-upload-cli 4.x talks to the Chrome Web Store v2 API and exits
+      # non-zero when the upload or the publish request is not accepted.
+      - name: Upload and publish to the Chrome Web Store
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
         run: |
-          npx chrome-webstore-upload-cli upload \
+          npx --yes chrome-webstore-upload-cli@4.0.2 \
             --source dist/alterlab-connect-chrome.zip \
-            --extension-id ${{ secrets.CWS_EXTENSION_ID }} \
-            --client-id ${{ secrets.CWS_CLIENT_ID }} \
-            --client-secret ${{ secrets.CWS_CLIENT_SECRET }} \
-            --refresh-token ${{ secrets.CWS_REFRESH_TOKEN }} \
-            --auto-publish
-        continue-on-error: true
+            --extension-id "$EXTENSION_ID"
+          echo "Chrome Web Store accepted v${{ inputs.version }} (publish requested; Google review follows)." | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "Listing: https://chromewebstore.google.com/detail/$EXTENSION_ID" >> "$GITHUB_STEP_SUMMARY"
 
   publish-firefox:
     needs: build
@@ -149,13 +139,17 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Sign and submit to Firefox AMO
+      - name: Submit to Firefox Add-ons (listed channel)
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
         run: |
-          npx web-ext sign \
+          npx --yes web-ext@10.8.0 sign \
             --source-dir dist/firefox/ \
-            --api-key ${{ secrets.AMO_JWT_ISSUER }} \
-            --api-secret ${{ secrets.AMO_JWT_SECRET }} \
-            --channel listed
-        continue-on-error: true
+            --artifacts-dir dist/signed \
+            --api-key "$AMO_JWT_ISSUER" \
+            --api-secret "$AMO_JWT_SECRET" \
+            --channel listed \
+            --approval-timeout 0

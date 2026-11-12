@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AlterLab - Connected sites</title>
+    <style>
+      body { font: 13px/1.5 system-ui, sans-serif; margin: 16px; background: #1c1917; color: #fafaf9; }
+      table { border-collapse: collapse; width: 100%; }
+      td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid #292524; }
+      button { padding: 4px 10px; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <h3>Connected sites</h3>
+    <table><tbody id="sites"></tbody></table>
+    <p id="sitesEmpty" hidden>No sites connected.</p>
+    <p id="alertBanner" hidden></p>
+    <h3>Agent actions</h3>
+    <table>
+      <thead><tr><th>Time</th><th>Site</th><th>Action</th><th>Outcome</th><th>Approval ref</th></tr></thead>
+      <tbody id="agentActions"></tbody>
+    </table>
+    <p id="agentActionsEmpty" hidden>No agent actions yet.</p>
+    <h3>Recent activity (last 50)</h3>
+    <table>
+      <thead><tr><th>Time</th><th>Site</th><th>Agent</th><th>Task</th><th>Action</th><th>Outcome</th></tr></thead>
+      <tbody id="events"></tbody>
+    </table>
+    <p id="error" hidden></p>
+    <script src="shared.js"></script>
+    <script src="consent.js"></script>
+    <script src="connect.js"></script>
+    <script src="hands-audit.js"></script>
+    <script src="activity.js"></script>
+  </body>
+</html>

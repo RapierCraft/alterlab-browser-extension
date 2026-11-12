@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlterLab Cookie Capture</title>
+    <link rel="stylesheet" href="design-tokens.css" />
+    <link rel="stylesheet" href="components.css" />
+    <script src="theme.js"></script>
+    <style>
+      /* Popup-specific layout — only what isn't covered by the design system */
+      body {
+        width: 380px;
+        min-height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <div class="al-header">
+      <svg class="al-header-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="24" height="24" rx="6" fill="#6366f1" />
+        <text
+          x="12"
+          y="16.5"
+          text-anchor="middle"
+          fill="white"
+          font-size="13"
+          font-weight="700"
+          font-family="Inter, sans-serif"
+        >
+          A
+        </text>
+      </svg>
+      <h1 class="al-header-title">AlterLab Cookie Capture</h1>
+      <span class="al-header-meta">v1.0.0</span>
+    </div>
+
+    <!-- Setup View (shown when no API key) -->
+    <div id="setupView" class="al-section al-hidden">
+      <label class="al-label" for="apiKeyInput">API Key</label>
+      <div class="al-row">
+        <input
+          class="al-input"
+          type="password"
+          id="apiKeyInput"
+          placeholder="sk_live_..."
+          spellcheck="false"
+          autocomplete="off"
+        />
+        <button class="al-btn al-btn-primary al-btn-sm" id="saveKeyBtn">Save</button>
+      </div>
+      <div style="margin-top: var(--al-space-2);">
+        <label class="al-label" for="apiUrlInput">
+          API URL
+          <span class="al-tooltip-trigger">
+            <span style="cursor: help; color: var(--al-text-muted); font-size: var(--al-text-xs);">(?)</span>
+            <span class="al-tooltip">Base URL of your AlterLab instance</span>
+          </span>
+        </label>
+        <input
+          class="al-input"
+          type="text"
+          id="apiUrlInput"
+          placeholder="https://alterlab.io"
+          spellcheck="false"
+          autocomplete="off"
+        />
+      </div>
+      <div id="setupStatus" class="al-hidden" style="margin-top: var(--al-space-2);"></div>
+    </div>
+
+    <!-- Capture View (main view) -->
+    <div id="captureView" class="al-hidden">
+      <div class="al-section">
+        <div class="al-row" style="margin-bottom: var(--al-space-3);">
+          <span class="al-domain" id="domainBadge">loading...</span>
+          <span style="color: var(--al-text-muted); font-size: var(--al-text-sm);" id="cookieCount"></span>
+        </div>
+
+        <div class="al-row" style="margin-bottom: var(--al-space-2);">
+          <button class="al-link" id="selectAllBtn">Select all</button>
+          <span class="al-separator-vertical"></span>
+          <button class="al-link" id="selectNoneBtn">None</button>
+          <span class="al-separator-vertical"></span>
+          <button class="al-link" id="selectAuthBtn">Auth only</button>
+          <span style="margin-left: auto; color: var(--al-text-muted); font-size: var(--al-text-xs);" id="selectedCount">0 selected</span>
+        </div>
+
+        <div class="al-list al-list-scrollable" id="cookieList"></div>
+
+        <div style="margin: var(--al-space-3) 0;">
+          <label class="al-label" for="sessionName">Session name</label>
+          <input
+            class="al-input"
+            type="text"
+            id="sessionName"
+            placeholder="Amazon Prime - Mar 2026"
+          />
+        </div>
+
+        <div class="al-row">
+          <button class="al-btn al-btn-primary al-btn-full" id="saveBtn">
+            Capture &amp; Send
+          </button>
+          <button
+            class="al-btn al-btn-secondary al-btn-sm al-tooltip-trigger"
+            id="copyBtn"
+            aria-label="Copy selected cookies as JSON"
+          >
+            Copy
+            <span class="al-tooltip al-tooltip-bottom">Copy as JSON</span>
+          </button>
+        </div>
+
+        <div id="captureStatus" class="al-hidden" style="margin-top: var(--al-space-2);"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="al-footer">
+      <button class="al-link al-link-muted" id="revokeConsentBtn" title="Revoke consent to upload cookies to AlterLab">Revoke upload consent</button>
+      <button class="al-link al-link-muted" id="settingsBtn">Settings</button>
+      <button
+        class="al-theme-toggle"
+        id="themeToggle"
+        role="switch"
+        aria-checked="false"
+        aria-label="Toggle light mode"
+        tabindex="0"
+      ></button>
+      <span>Cookies sent only to your AlterLab instance.</span>
+    </div>
+
+    <script src="consent.js"></script>
+    <script src="connect.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

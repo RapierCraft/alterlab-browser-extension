@@ -1,0 +1,3794 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlterLab Connect</title>
+    <style>
+      :root {
+        --bg: #0c0a09;
+        --bg-card: #1c1917;
+        --bg-input: #292524;
+        --border: #44403c;
+        --text: #fafaf9;
+        --text-muted: #a8a29e;
+        --accent: #6366f1;
+        --accent-hover: #818cf8;
+        --success: #22c55e;
+        --error: #ef4444;
+        --warning: #f59e0b;
+        --radius: 8px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.5;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* ---- Header ---- */
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      .header svg {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+      }
+
+      .header h1 {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .header .domain-pill {
+        margin-left: auto;
+        font-size: 11px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text-muted);
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 2px 8px;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ---- Tab Bar ---- */
+      .tab-bar {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+        background: var(--bg);
+      }
+
+      .tab-bar button {
+        flex: 1;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 10px 4px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+      }
+
+      .tab-bar button:hover {
+        color: var(--text);
+        background: var(--bg-card);
+      }
+
+      .tab-bar button.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+
+      .tab-bar button svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      /* ---- Tab Panels ---- */
+      .tab-panel {
+        display: none;
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      .tab-panel::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .tab-panel::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .tab-panel::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      /* ---- Common card/section ---- */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .card-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+
+      .card-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      /* ---- Network Monitor ---- */
+      .net-request-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition: border-color 0.15s;
+      }
+
+      .net-request-card:hover {
+        border-color: var(--text-muted);
+      }
+
+      .net-request-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .net-method {
+        font-size: 10px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        padding: 2px 6px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        text-transform: uppercase;
+      }
+
+      .net-method.get { background: rgba(34,197,94,0.15); color: #22c55e; }
+      .net-method.post { background: rgba(99,102,241,0.15); color: #818cf8; }
+      .net-method.put { background: rgba(245,158,11,0.15); color: #f59e0b; }
+      .net-method.patch { background: rgba(245,158,11,0.15); color: #f59e0b; }
+      .net-method.delete { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+      .net-url {
+        flex: 1;
+        min-width: 0;
+        font-size: 12px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .net-status {
+        font-size: 11px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .net-status.ok { color: var(--success); }
+      .net-status.redirect { color: var(--warning); }
+      .net-status.error { color: var(--error); }
+
+      .net-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px 8px;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .net-meta .net-tag {
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 3px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        text-transform: capitalize;
+      }
+
+      .net-meta .net-tag.products { color: #22c55e; border-color: #22c55e; }
+      .net-meta .net-tag.pricing { color: #6366f1; border-color: #6366f1; }
+      .net-meta .net-tag.listings { color: #f59e0b; border-color: #f59e0b; }
+      .net-meta .net-tag.articles { color: #3b82f6; border-color: #3b82f6; }
+      .net-meta .net-tag.reviews { color: #ec4899; border-color: #ec4899; }
+      .net-meta .net-tag.users { color: #8b5cf6; border-color: #8b5cf6; }
+      .net-meta .net-tag.graphql { color: #e535ab; border-color: #e535ab; }
+
+      .net-body-preview {
+        display: none;
+        padding: 8px 12px;
+        border-top: 1px solid var(--border);
+        background: var(--bg);
+        max-height: 200px;
+        overflow: auto;
+      }
+
+      .net-body-preview.visible {
+        display: block;
+      }
+
+      .net-body-preview pre {
+        font-size: 11px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text-muted);
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin: 0;
+      }
+
+      .net-body-preview::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      .net-body-preview::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .net-actions {
+        display: flex;
+        gap: 6px;
+        padding: 8px 12px;
+        border-top: 1px solid var(--border);
+        background: var(--bg);
+      }
+
+      .net-actions button {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 500;
+        transition: all 0.15s;
+      }
+
+      .net-actions .net-build-job {
+        background: var(--accent);
+        color: white;
+      }
+
+      .net-actions .net-build-job:hover {
+        background: var(--accent-hover);
+      }
+
+      .net-actions .net-copy-url {
+        background: var(--bg-input);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .net-actions .net-copy-url:hover {
+        background: var(--border);
+      }
+
+      .net-filter-btn.active {
+        background: var(--accent) !important;
+        color: white !important;
+        border-color: var(--accent) !important;
+      }
+
+      /* ---- Score display ---- */
+      .score-ring {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      .score-circle {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        flex-shrink: 0;
+      }
+
+      .score-circle svg {
+        width: 64px;
+        height: 64px;
+        transform: rotate(-90deg);
+      }
+
+      .score-circle .bg-ring {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 5;
+      }
+
+      .score-circle .fg-ring {
+        fill: none;
+        stroke-width: 5;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.6s ease;
+      }
+
+      .score-value {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+      }
+
+      .score-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.4;
+      }
+
+      .score-label strong {
+        display: block;
+        font-size: 14px;
+        color: var(--text);
+        margin-bottom: 2px;
+      }
+
+      /* ---- Signal list ---- */
+      .signal-list {
+        list-style: none;
+      }
+
+      .signal-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: 12px;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .signal-list li:last-child {
+        border-bottom: none;
+      }
+
+      .signal-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-top: 5px;
+        flex-shrink: 0;
+      }
+
+      .signal-dot.red {
+        background: var(--error);
+      }
+
+      .signal-dot.yellow {
+        background: var(--warning);
+      }
+
+      .signal-dot.green {
+        background: var(--success);
+      }
+
+      /* ---- Anti-bot stack (categorized) ---- */
+      .antibot-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .antibot-stack-empty {
+        font-size: 12px;
+        color: var(--success);
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .antibot-category {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .antibot-category-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 2px;
+      }
+
+      .antibot-category-label svg {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+      }
+
+      .antibot-category-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .antibot-badge {
+        position: relative;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: default;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: transform 0.1s;
+      }
+
+      .antibot-badge:hover {
+        transform: translateY(-1px);
+      }
+
+      .antibot-badge .tier-pip {
+        font-size: 9px;
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-weight: 600;
+        opacity: 0.9;
+      }
+
+      /* Category-specific colors */
+      .antibot-badge.cat-bot-management {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: #f87171;
+      }
+      .antibot-badge.cat-bot-management .tier-pip {
+        background: rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+      }
+
+      .antibot-badge.cat-captcha {
+        background: rgba(249, 115, 22, 0.12);
+        border: 1px solid rgba(249, 115, 22, 0.35);
+        color: #fb923c;
+      }
+      .antibot-badge.cat-captcha .tier-pip {
+        background: rgba(249, 115, 22, 0.25);
+        color: #fdba74;
+      }
+
+      .antibot-badge.cat-fingerprinting {
+        background: rgba(168, 85, 247, 0.12);
+        border: 1px solid rgba(168, 85, 247, 0.35);
+        color: #c084fc;
+      }
+      .antibot-badge.cat-fingerprinting .tier-pip {
+        background: rgba(168, 85, 247, 0.25);
+        color: #d8b4fe;
+      }
+
+      .antibot-badge.cat-waf {
+        background: rgba(59, 130, 246, 0.12);
+        border: 1px solid rgba(59, 130, 246, 0.35);
+        color: #60a5fa;
+      }
+      .antibot-badge.cat-waf .tier-pip {
+        background: rgba(59, 130, 246, 0.25);
+        color: #93c5fd;
+      }
+
+      .antibot-badge.cat-js-challenge {
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        color: #fbbf24;
+      }
+      .antibot-badge.cat-js-challenge .tier-pip {
+        background: rgba(245, 158, 11, 0.25);
+        color: #fcd34d;
+      }
+
+      /* Tooltip on hover */
+      .antibot-tooltip {
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1c1917;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 11px;
+        color: var(--text);
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s;
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        line-height: 1.4;
+      }
+
+      .antibot-tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: var(--border);
+      }
+
+      .antibot-badge:hover .antibot-tooltip {
+        opacity: 1;
+      }
+
+      .antibot-tooltip .tooltip-technique {
+        color: var(--text-muted);
+        font-size: 10px;
+      }
+
+      .antibot-tooltip .tooltip-tier {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      /* Legacy flat tags (backward compat for signals list) */
+      .antibot-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .antibot-tag {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 4px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--error);
+        font-weight: 500;
+      }
+
+      .antibot-tag.none {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: var(--success);
+      }
+
+      /* ---- Selector Builder ---- */
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.4; }
+      }
+
+      .sel-item {
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        position: relative;
+      }
+
+      .sel-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .sel-item-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .sel-item-tag {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--accent);
+      }
+
+      .sel-item-badge {
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-weight: 600;
+      }
+
+      .sel-item-remove {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 2px;
+        font-size: 14px;
+        line-height: 1;
+        opacity: 0.6;
+      }
+
+      .sel-item-remove:hover {
+        color: var(--error);
+        opacity: 1;
+      }
+
+      .sel-selector-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 4px;
+      }
+
+      .sel-selector-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        min-width: 36px;
+      }
+
+      .sel-selector-value {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        color: var(--text);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 2px 6px;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      .sel-selector-value:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .sel-field-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+      }
+
+      .sel-field-input {
+        font-size: 11px;
+        padding: 3px 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        flex: 1;
+      }
+
+      .sel-field-input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .sel-field-input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      .sel-actions {
+        display: flex;
+        gap: 4px;
+        margin-top: 6px;
+      }
+
+      .sel-actions button {
+        font-size: 10px;
+        padding: 2px 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+
+      .sel-actions button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .sel-test-result {
+        font-size: 11px;
+        margin-top: 4px;
+        padding: 3px 8px;
+        border-radius: 3px;
+        display: none;
+      }
+
+      .sel-text-preview {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-style: italic;
+      }
+
+      /* ---- Loading / Skeleton States ---- */
+      @keyframes inspect-shimmer {
+        0%   { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      @keyframes inspect-pulse {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.5; }
+      }
+
+      @keyframes score-scale-in {
+        from { opacity: 0; transform: scale(0.6); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+
+      @keyframes score-ring-fill {
+        from { stroke-dashoffset: 175.93; }
+      }
+
+      .skel {
+        background: linear-gradient(
+          90deg,
+          var(--bg-input) 25%,
+          var(--bg-card) 50%,
+          var(--bg-input) 75%
+        );
+        background-size: 200% 100%;
+        animation: inspect-shimmer 1.5s infinite;
+        border-radius: 4px;
+      }
+
+      .skel-circle {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .skel-text {
+        height: 13px;
+        width: 100%;
+      }
+
+      .skel-text-sm {
+        height: 11px;
+        width: 70%;
+      }
+
+      .skel-heading {
+        height: 15px;
+        width: 45%;
+      }
+
+      .skel-badge {
+        height: 22px;
+        width: 72px;
+        border-radius: 4px;
+      }
+
+      .skel-signal {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .skel-signal:last-child {
+        border-bottom: none;
+      }
+
+      .skel-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .skel-signal-text {
+        height: 12px;
+        flex: 1;
+      }
+
+      /* Analyzing... pulse on difficulty text */
+      .analyzing-pulse {
+        animation: inspect-pulse 1.5s infinite;
+      }
+
+      /* Score value scale-in when data arrives */
+      .score-value.score-revealed {
+        animation: score-scale-in 0.35s ease-out;
+      }
+
+      /* Score ring animation when data arrives */
+      .score-circle .fg-ring.ring-revealed {
+        animation: score-ring-fill 0.6s ease-out;
+      }
+
+      /* Progressive reveal — cards fade in with slight upward motion */
+      .card.card-revealed {
+        animation: al-slide-up 0.3s ease-out;
+      }
+
+      @keyframes al-slide-up {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      /* ---- Cookie list (Capture tab) ---- */
+      .cookie-list {
+        max-height: 280px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg-input);
+      }
+
+      .cookie-list::-webkit-scrollbar {
+        width: 5px;
+      }
+
+      .cookie-list::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .cookie-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.1s;
+      }
+
+      .cookie-item:last-child {
+        border-bottom: none;
+      }
+
+      .cookie-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .cookie-item input[type="checkbox"] {
+        accent-color: var(--accent);
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+
+      .cookie-name {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .cookie-name.auth-cookie {
+        color: var(--success);
+      }
+
+      .cookie-flags {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+
+      .cookie-flag {
+        font-size: 10px;
+        padding: 1px 5px;
+        border-radius: 3px;
+        background: var(--bg-card);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+      }
+
+      .cookie-flag.secure {
+        color: var(--success);
+        border-color: var(--success);
+      }
+
+      .cookie-flag.httponly {
+        color: var(--warning);
+        border-color: var(--warning);
+      }
+
+      .cookie-flag.auth {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .selection-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .selection-controls button {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 12px;
+        font-family: inherit;
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 3px;
+      }
+
+      .selection-controls button:hover {
+        color: var(--accent-hover);
+      }
+
+      .selection-controls .separator {
+        color: var(--border);
+        font-size: 12px;
+      }
+
+      .selected-count {
+        margin-left: auto;
+        color: var(--text-muted);
+        font-size: 11px;
+      }
+
+      /* ---- Buttons ---- */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: var(--accent-hover);
+      }
+
+      .btn-secondary {
+        background: var(--bg-input);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        background: var(--border);
+      }
+
+      .btn-sm {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .btn-full {
+        width: 100%;
+      }
+
+      /* ---- Inputs ---- */
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+        color: var(--text);
+        font-size: 13px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+
+      input:focus {
+        border-color: var(--accent);
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      /* ---- Status ---- */
+      .status {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-top: 10px;
+      }
+
+      .status.visible {
+        display: flex;
+      }
+
+      .status.success {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: var(--success);
+      }
+
+      .status.info {
+        background: rgba(168, 162, 158, 0.1);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+      }
+
+      .status.error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--error);
+      }
+
+      .status code {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        background: var(--bg-input);
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        user-select: all;
+      }
+
+      /* ---- API endpoints list ---- */
+      .endpoint-list {
+        list-style: none;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+
+      .endpoint-list li {
+        padding: 4px 0;
+        font-size: 11px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .endpoint-list li:last-child {
+        border-bottom: none;
+      }
+
+      /* ---- Empty state ---- */
+      .empty-state {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--text-muted);
+      }
+
+      .empty-state svg {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+      }
+
+      .empty-state p {
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+
+      /* ---- Job builder ---- */
+      .job-preview {
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      /* ---- Account ---- */
+      .account-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .account-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+      }
+
+      .account-row .label {
+        color: var(--text-muted);
+      }
+
+      .account-row .value {
+        font-weight: 500;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+      }
+
+      .credits-bar {
+        height: 6px;
+        background: var(--bg-input);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 4px;
+      }
+
+      .credits-bar-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+
+      /* ---- Spinner ---- */
+      .spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* ---- First-run overlay ---- */
+      .first-run-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(12, 10, 9, 0.88);
+        backdrop-filter: blur(6px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 24px;
+        text-align: center;
+        animation: overlayFadeIn 0.3s ease;
+      }
+
+      .first-run-overlay.dismissing {
+        animation: overlayFadeOut 0.3s ease forwards;
+      }
+
+      @keyframes overlayFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes overlayFadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+
+      .first-run-overlay .overlay-icon {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 20px;
+        border-radius: 14px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: overlayPulse 2s ease-in-out infinite;
+      }
+
+      @keyframes overlayPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+        50% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+      }
+
+      .first-run-overlay .overlay-icon svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .first-run-overlay h2 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.02em;
+      }
+
+      .first-run-overlay p {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        max-width: 260px;
+        margin-bottom: 20px;
+      }
+
+      .first-run-overlay .overlay-score-preview {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 18px;
+        margin-bottom: 24px;
+      }
+
+      .first-run-overlay .overlay-score-num {
+        font-size: 28px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--accent);
+      }
+
+      .first-run-overlay .overlay-score-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-align: left;
+        line-height: 1.4;
+      }
+
+      .first-run-overlay .overlay-score-label strong {
+        color: var(--text);
+        display: block;
+      }
+
+      .first-run-overlay .overlay-dismiss {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 12px;
+        padding: 6px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.15s;
+      }
+
+      .first-run-overlay .overlay-dismiss:hover {
+        border-color: var(--accent);
+        color: var(--text);
+      }
+
+      .first-run-overlay .overlay-progress {
+        width: 80px;
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        margin-top: 16px;
+        overflow: hidden;
+      }
+
+      .first-run-overlay .overlay-progress-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 2px;
+        width: 100%;
+        animation: overlayCountdown 10s linear forwards;
+      }
+
+      @keyframes overlayCountdown {
+        from { width: 100%; }
+        to { width: 0%; }
+      }
+
+      /* ---- Inline auth prompt ---- */
+      .inline-auth-prompt {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+        margin-top: 12px;
+        animation: slideDown 0.2s ease;
+      }
+
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .inline-auth-prompt .auth-prompt-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--text);
+      }
+
+      .inline-auth-prompt .auth-prompt-desc {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+
+      .inline-auth-prompt .auth-prompt-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      /* ---- Pagination info ---- */
+      .pagination-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--text);
+        padding: 8px 0;
+      }
+
+      .pagination-type {
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      /* ---- Actions row ---- */
+      .actions-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      /* ---- Session name ---- */
+      .session-name-row {
+        margin-bottom: 12px;
+      }
+
+      /* ---- Conversion hook ---- */
+      .conversion-hook {
+        display: none;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--text);
+      }
+
+      .conversion-hook.visible {
+        display: block;
+      }
+
+      .conversion-hook .hook-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: var(--accent-hover);
+      }
+
+      .conversion-hook .hook-title svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .conversion-hook .hook-stack {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 6px;
+      }
+
+      .conversion-hook .tier-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        margin-left: 4px;
+      }
+
+      .tier-badge.tier-3 {
+        background: rgba(249, 115, 22, 0.15);
+        color: #fb923c;
+        border: 1px solid rgba(249, 115, 22, 0.3);
+      }
+
+      .tier-badge.tier-4 {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+      /* ---- Meta Tag Analyzer ---- */
+      .meta-table {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .meta-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+      }
+
+      .meta-row:last-child {
+        border-bottom: none;
+      }
+
+      .meta-row.placeholder {
+        color: var(--text-muted);
+        font-style: italic;
+      }
+
+      .meta-key {
+        flex-shrink: 0;
+        width: 110px;
+        font-weight: 500;
+        color: var(--text-muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding-top: 1px;
+      }
+
+      .meta-value {
+        flex: 1;
+        min-width: 0;
+        word-break: break-word;
+        color: var(--text);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .meta-value.missing {
+        color: var(--text-muted);
+        font-style: italic;
+        font-family: inherit;
+      }
+
+      .meta-value.truncated {
+        color: var(--warning);
+      }
+
+      .meta-status {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 10px;
+      }
+
+      .meta-status.pass {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+      }
+
+      .meta-status.fail {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--error);
+      }
+
+      .meta-status.warn {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning);
+      }
+
+      .og-image-preview {
+        margin-bottom: 10px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: var(--bg-input);
+      }
+
+      .og-image-preview img {
+        width: 100%;
+        height: auto;
+        max-height: 180px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .og-image-preview img.broken {
+        display: none;
+      }
+
+      .og-image-preview.broken::after {
+        content: "Image failed to load";
+        display: block;
+        padding: 20px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 11px;
+      }
+
+      .seo-issue-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .seo-issue-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--text);
+      }
+
+      .seo-issue-list li:last-child {
+        border-bottom: none;
+      }
+
+      .seo-issue-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 5px;
+      }
+
+      .seo-issue-dot.error {
+        background: var(--error);
+      }
+
+      .seo-issue-dot.warning {
+        background: var(--warning);
+      }
+
+      .json-ld-content {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .json-ld-block {
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 8px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: var(--text);
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .json-ld-block:last-child {
+        margin-bottom: 0;
+      }
+
+      .json-ld-type {
+        display: inline-block;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        background: rgba(99, 102, 241, 0.15);
+        color: var(--accent);
+        font-weight: 500;
+        margin-bottom: 6px;
+      }
+
+      .json-ld-error {
+        color: var(--error);
+        font-style: italic;
+      }
+
+      .meta-export-row {
+        margin-top: 4px;
+      }
+
+      /* ---- Cookie Inspector ---- */
+      .ci-toolbar {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      .ci-search {
+        flex: 1;
+      }
+
+      .ci-search input[type="search"] {
+        width: 100%;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 7px 10px;
+        color: var(--text);
+        font-size: 12px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+
+      .ci-search input[type="search"]:focus {
+        border-color: var(--accent);
+      }
+
+      .ci-search input[type="search"]::placeholder {
+        color: var(--text-muted);
+      }
+
+      .ci-search input[type="search"]::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        height: 12px;
+        width: 12px;
+        cursor: pointer;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'%3E%3Cpath d='M18 6L6 18M6 6l12 12' stroke='%23a8a29e' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;
+      }
+
+      .ci-sort-btn {
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        color: var(--text-muted);
+        font-size: 11px;
+        font-family: inherit;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s;
+      }
+
+      .ci-sort-btn:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .ci-sort-btn.active {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .ci-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        gap: 6px;
+      }
+
+      .ci-toggle-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .ci-toggle-row input[type="checkbox"] {
+        accent-color: var(--accent);
+        width: 13px;
+        height: 13px;
+        cursor: pointer;
+      }
+
+      .ci-stats {
+        display: flex;
+        gap: 12px;
+        padding: 10px 14px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 10px;
+      }
+
+      .ci-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+
+      .ci-stat-value {
+        font-size: 16px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text);
+      }
+
+      .ci-stat-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+
+      .ci-cookie-list {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg-input);
+        overflow: hidden;
+      }
+
+      .ci-cookie-row {
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        transition: background 0.1s;
+      }
+
+      .ci-cookie-row:last-child {
+        border-bottom: none;
+      }
+
+      .ci-cookie-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .ci-cookie-summary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .ci-cookie-expand {
+        width: 14px;
+        height: 14px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        transition: transform 0.15s;
+      }
+
+      .ci-cookie-row.expanded .ci-cookie-expand {
+        transform: rotate(90deg);
+      }
+
+      .ci-cookie-name {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .ci-cookie-name.auth {
+        color: var(--success);
+      }
+
+      .ci-cookie-name.expired {
+        color: var(--text-muted);
+        text-decoration: line-through;
+      }
+
+      .ci-cookie-size {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        flex-shrink: 0;
+      }
+
+      .ci-cookie-flags {
+        display: flex;
+        gap: 3px;
+        flex-shrink: 0;
+      }
+
+      .ci-flag {
+        font-size: 9px;
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-weight: 500;
+        border: 1px solid;
+      }
+
+      .ci-flag-secure {
+        color: var(--success);
+        border-color: var(--success);
+        background: rgba(34, 197, 94, 0.08);
+      }
+
+      .ci-flag-httponly {
+        color: var(--warning);
+        border-color: var(--warning);
+        background: rgba(245, 158, 11, 0.08);
+      }
+
+      .ci-flag-samesite {
+        color: #3b82f6;
+        border-color: #3b82f6;
+        background: rgba(59, 130, 246, 0.08);
+      }
+
+      .ci-flag-expired {
+        color: var(--error);
+        border-color: var(--error);
+        background: rgba(239, 68, 68, 0.08);
+      }
+
+      .ci-flag-auth {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: rgba(99, 102, 241, 0.08);
+      }
+
+      .ci-flag-session {
+        color: var(--text-muted);
+        border-color: var(--border);
+        background: transparent;
+      }
+
+      .ci-cookie-detail {
+        display: none;
+        padding: 0 10px 10px 32px;
+        font-size: 11px;
+      }
+
+      .ci-cookie-row.expanded .ci-cookie-detail {
+        display: block;
+      }
+
+      .ci-detail-grid {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: 4px 8px;
+      }
+
+      .ci-detail-label {
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      .ci-detail-value {
+        color: var(--text);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        word-break: break-all;
+        max-height: 60px;
+        overflow-y: auto;
+      }
+
+      .ci-detail-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+      }
+
+      .ci-btn-delete {
+        background: none;
+        border: 1px solid var(--error);
+        color: var(--error);
+        font-size: 11px;
+        font-family: inherit;
+        padding: 3px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .ci-btn-delete:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      .ci-btn-copy-value {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 11px;
+        font-family: inherit;
+        padding: 3px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .ci-btn-copy-value:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .ci-export-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .ci-bulk-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+
+      .ci-bulk-delete {
+        background: none;
+        border: 1px solid var(--error);
+        color: var(--error);
+        font-size: 11px;
+        font-family: inherit;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .ci-bulk-delete:hover {
+        background: rgba(239, 68, 68, 0.15);
+      }
+
+      .ci-filter-row {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+
+      .ci-filter-chip {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+      }
+
+      .ci-filter-chip:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .ci-filter-chip.active {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: rgba(99, 102, 241, 0.08);
+      }
+
+      .ci-empty {
+        text-align: center;
+        padding: 24px 16px;
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+
+      .ci-result-count {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      /* ---- Tech Stack ---- */
+      .tech-stack-category {
+        margin-bottom: 10px;
+      }
+
+      .tech-stack-category:last-child {
+        margin-bottom: 0;
+      }
+
+      .tech-stack-category-header {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .tech-stack-category-header svg {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+      }
+
+      .tech-stack-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .tech-pill {
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-weight: 500;
+        border: 1px solid;
+      }
+
+      .tech-pill.cat-frameworks {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: rgba(99, 102, 241, 0.3);
+        color: #818cf8;
+      }
+
+      .tech-pill.cat-cdns {
+        background: rgba(14, 165, 233, 0.1);
+        border-color: rgba(14, 165, 233, 0.3);
+        color: #38bdf8;
+      }
+
+      .tech-pill.cat-antiBot {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: var(--error);
+      }
+
+      .tech-pill.cat-analytics {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: var(--success);
+      }
+
+      .tech-pill.cat-hosting {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: var(--warning);
+      }
+
+      .tech-stack-empty {
+        font-size: 12px;
+        color: var(--text-muted);
+        padding: 8px 0;
+      }
+
+      /* ---- Headers tab ---- */
+      .hdr-toolbar {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      .hdr-search {
+        flex: 1;
+      }
+
+      .hdr-search input[type="search"] {
+        width: 100%;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 7px 10px;
+        color: var(--text);
+        font-size: 12px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+
+      .hdr-search input[type="search"]:focus {
+        border-color: var(--accent);
+      }
+
+      .hdr-search input[type="search"]::placeholder {
+        color: var(--text-muted);
+      }
+
+      .hdr-search input[type="search"]::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        height: 12px;
+        width: 12px;
+        cursor: pointer;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8a29e'%3E%3Cpath d='M18 6L6 18M6 6l12 12' stroke='%23a8a29e' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;
+      }
+
+      .hdr-filter-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        gap: 6px;
+      }
+
+      .hdr-filters {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+
+      .hdr-filter-chip {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+      }
+
+      .hdr-filter-chip:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .hdr-filter-chip.active {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: rgba(99, 102, 241, 0.08);
+      }
+
+      .hdr-stats {
+        display: flex;
+        gap: 12px;
+        padding: 8px 14px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .hdr-stat-count {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .hdr-stat-count strong {
+        color: var(--text);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+      }
+
+      .hdr-clear-btn {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 11px;
+        font-family: inherit;
+        padding: 3px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .hdr-clear-btn:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .hdr-request-list {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg-input);
+        overflow: hidden;
+        max-height: calc(100vh - 280px);
+        overflow-y: auto;
+      }
+
+      .hdr-request-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .hdr-request-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .hdr-request-list::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .hdr-request-row {
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        transition: background 0.1s;
+      }
+
+      .hdr-request-row:last-child {
+        border-bottom: none;
+      }
+
+      .hdr-request-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .hdr-request-summary {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .hdr-expand {
+        width: 14px;
+        height: 14px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        transition: transform 0.15s;
+      }
+
+      .hdr-request-row.expanded .hdr-expand {
+        transform: rotate(90deg);
+      }
+
+      .hdr-method {
+        font-size: 10px;
+        font-weight: 600;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        padding: 1px 5px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        text-transform: uppercase;
+      }
+
+      .hdr-method-get {
+        color: var(--success);
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+      }
+
+      .hdr-method-post {
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.25);
+      }
+
+      .hdr-method-put, .hdr-method-patch {
+        color: var(--warning);
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+      }
+
+      .hdr-method-delete {
+        color: var(--error);
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+      }
+
+      .hdr-method-options, .hdr-method-head {
+        color: var(--text-muted);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+      }
+
+      .hdr-status {
+        font-size: 10px;
+        font-weight: 600;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        flex-shrink: 0;
+      }
+
+      .hdr-status-2xx { color: var(--success); }
+      .hdr-status-3xx { color: #3b82f6; }
+      .hdr-status-4xx { color: var(--warning); }
+      .hdr-status-5xx { color: var(--error); }
+      .hdr-status-0 { color: var(--text-muted); }
+
+      .hdr-url {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .hdr-type-badge {
+        font-size: 9px;
+        padding: 1px 5px;
+        border-radius: 3px;
+        background: var(--bg-card);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+        text-transform: lowercase;
+      }
+
+      .hdr-duration {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        flex-shrink: 0;
+        min-width: 40px;
+        text-align: right;
+      }
+
+      .hdr-request-detail {
+        display: none;
+        padding: 0 10px 10px 10px;
+        font-size: 11px;
+      }
+
+      .hdr-request-row.expanded .hdr-request-detail {
+        display: block;
+      }
+
+      .hdr-detail-section {
+        margin-bottom: 10px;
+      }
+
+      .hdr-detail-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .hdr-detail-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .hdr-detail-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      .hdr-copy-btn {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 10px;
+        font-family: inherit;
+        padding: 2px 6px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .hdr-copy-btn:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .hdr-header-grid {
+        display: grid;
+        grid-template-columns: minmax(100px, auto) 1fr;
+        gap: 2px 8px;
+      }
+
+      .hdr-header-name {
+        color: var(--text-muted);
+        font-weight: 500;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        padding: 2px 0;
+        word-break: break-all;
+      }
+
+      .hdr-header-name.security {
+        color: var(--warning);
+      }
+
+      .hdr-header-value {
+        color: var(--text);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        word-break: break-all;
+        padding: 2px 0;
+        max-height: 80px;
+        overflow-y: auto;
+      }
+
+      .hdr-empty {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+
+      .hdr-empty svg {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 10px;
+        opacity: 0.4;
+      /* ---- Offline Banner ---- */
+      .offline-banner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: var(--warning);
+        color: #0c0a09;
+        font-size: 12px;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+      .offline-banner.hidden {
+        display: none;
+      }
+
+      /* ---- Toast Action Button ---- */
+      .al-toast-action {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 3px 10px;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--accent);
+        background: none;
+        border: 1px solid var(--accent);
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .al-toast-action:hover {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      /* ---- Export Snippet Dropdown ---- */
+      .export-card {
+        position: relative;
+      }
+
+      .export-btn-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .export-fmt-btn {
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-family: inherit;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .export-fmt-btn:hover {
+        color: var(--text);
+        border-color: var(--text-muted);
+      }
+
+      .export-fmt-btn.active {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: rgba(99, 102, 241, 0.08);
+      }
+
+      .export-snippet-box {
+        margin-top: 10px;
+        display: none;
+      }
+
+      .export-snippet-box.visible {
+        display: block;
+      }
+
+      .export-snippet-pre {
+        background: #0a0a0a;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        line-height: 1.6;
+        color: var(--text);
+        overflow-x: auto;
+        white-space: pre;
+        max-height: 240px;
+        overflow-y: auto;
+      }
+
+      .export-snippet-pre::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      .export-snippet-pre::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .export-copy-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 6px;
+      }
+
+      .export-attribution {
+        font-size: 10px;
+        color: var(--text-muted);
+        margin-top: 6px;
+        text-align: center;
+      }
+
+      /* ---- Scrape Tab ---- */
+      .scrape-format-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .scrape-format-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 12px 8px;
+        background: var(--bg-input);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-size: 12px;
+        font-family: inherit;
+      }
+
+      .scrape-format-btn:hover {
+        border-color: var(--text-muted);
+        color: var(--text);
+      }
+
+      .scrape-format-btn.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(99, 102, 241, 0.08);
+      }
+
+      .scrape-format-btn span:first-of-type {
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .format-hint {
+        font-size: 10px !important;
+        font-weight: 400 !important;
+        opacity: 0.7;
+      }
+
+      .scrape-run-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 4px;
+      }
+
+      .scrape-run-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .scrape-usage-pill {
+        font-size: 10px;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: var(--text-muted);
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 2px 6px;
+      }
+
+      .scrape-results-card .card-header {
+        position: sticky;
+        top: 0;
+        background: var(--bg-card);
+        z-index: 1;
+      }
+
+      .scrape-results-content {
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 11px;
+        line-height: 1.6;
+        color: var(--text);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        max-height: 400px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .scrape-results-content img.scrape-screenshot {
+        max-width: 100%;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+
+      /* Upsell card */
+      .scrape-upsell {
+        text-align: center;
+        padding: 24px 16px !important;
+      }
+
+      .upsell-icon {
+        margin-bottom: 12px;
+        color: var(--accent);
+      }
+
+      .upsell-title {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+
+      .upsell-desc {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .upsell-cta {
+        text-decoration: none;
+        display: inline-flex;
+        margin-bottom: 12px;
+      }
+
+      .upsell-alt {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .upsell-alt a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .upsell-alt a:hover {
+        text-decoration: underline;
+      }
+
+      /* Loading state for scrape button */
+      .scrape-run-btn .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- First-run overlay — shown once, auto-dismisses after 10s -->
+    <div class="first-run-overlay hidden" id="firstRunOverlay">
+      <div class="overlay-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+      <h2>Your Scrape Score</h2>
+      <p>Every page gets a complexity score. It updates automatically as you browse — no setup needed.</p>
+      <div class="overlay-score-preview">
+        <span class="overlay-score-num" id="overlayScoreNum">--</span>
+        <span class="overlay-score-label">
+          <strong>Scrape Complexity</strong>
+          Higher = harder to scrape
+        </span>
+      </div>
+      <button class="overlay-dismiss" id="overlayDismissBtn">Got it</button>
+      <div class="overlay-progress">
+        <div class="overlay-progress-fill" id="overlayProgressFill"></div>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="24" height="24" rx="6" fill="#6366f1" />
+        <text
+          x="12"
+          y="16.5"
+          text-anchor="middle"
+          fill="white"
+          font-size="13"
+          font-weight="700"
+          font-family="Inter, sans-serif"
+        >
+          A
+        </text>
+      </svg>
+      <h1>AlterLab Connect</h1>
+      <span class="domain-pill" id="domainPill">---</span>
+    </div>
+
+    <!-- BYOS session freshness bar (hidden until BYOS_COOKIE_CHANGED) -->
+    <div id="byosBar" class="hidden" role="status" style="display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:12px;border-bottom:1px solid var(--border);">
+      <span id="byosBarText" style="flex:1;"></span>
+      <button class="btn btn-primary btn-sm" id="byosUpdateBtn">Update</button>
+      <button class="btn btn-secondary btn-sm" id="byosDismissBtn">Dismiss</button>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar" role="tablist" aria-label="Side panel navigation">
+      <button class="active" data-tab="inspect" role="tab" aria-selected="true" aria-controls="panel-inspect" id="tab-inspect">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Inspect
+      </button>
+      <button data-tab="scrape" role="tab" aria-selected="false" aria-controls="panel-scrape" id="tab-scrape">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 17 10 11 4 5"/>
+          <line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+        Scrape
+      </button>
+      <button data-tab="meta" role="tab" aria-selected="false" aria-controls="panel-meta" id="tab-meta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7V4h16v3"/>
+          <path d="M9 20h6"/>
+          <path d="M12 4v16"/>
+        </svg>
+        Meta
+      </button>
+      <button data-tab="cookies" role="tab" aria-selected="false" aria-controls="panel-cookies" id="tab-cookies">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/>
+          <path d="M8.5 8.5v.01"/>
+          <path d="M16 15.5v.01"/>
+          <path d="M12 12v.01"/>
+          <path d="M11 17v.01"/>
+          <path d="M7 14v.01"/>
+        </svg>
+        Cookies
+      </button>
+      <button data-tab="headers" role="tab" aria-selected="false" aria-controls="panel-headers" id="tab-headers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12h16"/>
+          <path d="M4 6h16"/>
+          <path d="M4 18h12"/>
+          <circle cx="20" cy="18" r="2"/>
+        </svg>
+        Headers
+      </button>
+      <button data-tab="network" role="tab" aria-selected="false" aria-controls="panel-network" id="tab-network">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        Network
+      </button>
+      <button data-tab="selector" role="tab" aria-selected="false" aria-controls="panel-selector" id="tab-selector">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+          <path d="M13 13l6 6"/>
+        </svg>
+        Selector
+      </button>
+      <button data-tab="capture" role="tab" aria-selected="false" aria-controls="panel-capture" id="tab-capture">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+          <path d="M21.18 8.02c-1-2.3-2.85-4.17-5.18-5.18"/>
+        </svg>
+        Capture
+      </button>
+      <button data-tab="job" role="tab" aria-selected="false" aria-controls="panel-job" id="tab-job">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        Job
+      </button>
+      <button data-tab="account" role="tab" aria-selected="false" aria-controls="panel-account" id="tab-account">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Account
+      </button>
+      <button data-tab="tools" role="tab" aria-selected="false" aria-controls="panel-tools" id="tab-tools">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+        Tools
+      </button>
+    </div>
+
+    <!-- ============ INSPECT TAB ============ -->
+    <div class="tab-panel active" role="tabpanel" id="panel-inspect" aria-labelledby="tab-inspect">
+      <!-- Score -->
+      <div class="card" id="scoreCard">
+        <div class="score-ring">
+          <div class="score-circle">
+            <svg viewBox="0 0 64 64">
+              <circle class="bg-ring" cx="32" cy="32" r="28" />
+              <circle
+                class="fg-ring"
+                id="scoreRing"
+                cx="32"
+                cy="32"
+                r="28"
+                stroke-dasharray="175.93"
+                stroke-dashoffset="175.93"
+              />
+            </svg>
+            <!-- Skeleton circle overlay — visible until score arrives -->
+            <div class="skel skel-circle" id="scoreSkeleton" style="position:absolute;inset:0;"></div>
+            <span class="score-value" id="scoreValue" style="opacity:0;">--</span>
+          </div>
+          <div class="score-label">
+            <strong id="scoreDifficulty" class="analyzing-pulse">Analyzing...</strong>
+            <span id="scoreDescription">
+              <span class="skel skel-text" style="margin-bottom:4px;"></span>
+              <span class="skel skel-text-sm"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversion hook (shown when score > 60) -->
+      <div class="conversion-hook" id="conversionHook">
+        <div class="hook-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          <span id="hookTitle">AlterLab can bypass this</span>
+        </div>
+        <span id="hookBody">This site uses active anti-bot protection.</span>
+        <span class="tier-badge" id="hookTierBadge">Tier 3</span>
+        <div class="hook-stack" id="hookStack"></div>
+      </div>
+
+      <!-- Anti-bot Stack (categorized) -->
+      <div class="card" id="antiBotCard">
+        <div class="card-header">
+          <span class="card-title">Anti-Bot Stack</span>
+          <span class="card-badge" id="antiBotCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div class="antibot-stack" id="antiBotStack">
+          <div class="antibot-stack-empty">Scanning...</div>
+        </div>
+      </div>
+
+      <!-- Tech Stack -->
+      <div class="card" id="techStackCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Tech Stack</span>
+          <span class="card-badge" id="techStackCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="techStackBody"></div>
+      </div>
+
+      <!-- Signals -->
+      <div class="card" id="signalsCard">
+        <div class="card-header">
+          <span class="card-title">Signals</span>
+          <span class="card-badge" id="signalCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <ul class="signal-list" id="signalList">
+          <li class="skel-signal"><span class="skel skel-dot"></span><span class="skel skel-signal-text"></span></li>
+          <li class="skel-signal"><span class="skel skel-dot"></span><span class="skel skel-signal-text" style="width:85%;"></span></li>
+          <li class="skel-signal"><span class="skel skel-dot"></span><span class="skel skel-signal-text" style="width:60%;"></span></li>
+        </ul>
+      </div>
+
+      <!-- Pagination -->
+      <div class="card" id="paginationCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Pagination</span>
+        </div>
+        <div class="pagination-info" id="paginationInfo"></div>
+      </div>
+
+      <!-- API Endpoints -->
+      <div class="card" id="apiCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Detected API Endpoints</span>
+          <span class="card-badge" id="apiCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <ul class="endpoint-list" id="apiEndpointList"></ul>
+      </div>
+
+      <!-- Export Snippets -->
+      <div class="card export-card" id="exportCard">
+        <div class="card-header">
+          <span class="card-title">Export</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Scrape config for this page as ready-to-use code.
+        </p>
+        <div class="export-btn-row" id="getApiRow">
+          <button class="btn btn-primary btn-sm" id="getApiBtn">Get API for this page</button>
+        </div>
+        <div class="export-snippet-box" id="getApiBox">
+          <div class="export-btn-row" id="getApiTabs">
+            <button class="export-fmt-btn" data-getapi-fmt="curl">cURL</button>
+            <button class="export-fmt-btn" data-getapi-fmt="python">Python</button>
+            <button class="export-fmt-btn" data-getapi-fmt="node">Node.js</button>
+            <button class="export-fmt-btn" data-getapi-fmt="mcp">MCP</button>
+          </div>
+          <pre class="export-snippet-pre" id="getApiPre"></pre>
+          <div class="export-copy-row">
+            <button class="btn btn-secondary btn-sm" id="getApiPublishBtn">Publish as data page</button>
+            <button class="btn btn-secondary btn-sm" id="getApiScheduleBtn">Schedule daily</button>
+          </div>
+          <p id="getApiStatus"></p>
+        </div>
+        <div class="export-btn-row" id="exportBtnRow">
+          <button class="export-fmt-btn" data-export-fmt="curl">cURL</button>
+          <button class="export-fmt-btn" data-export-fmt="python">Python</button>
+          <button class="export-fmt-btn" data-export-fmt="node">Node.js</button>
+          <button class="export-fmt-btn" data-export-fmt="alterlab">AlterLab API</button>
+        </div>
+        <div class="export-snippet-box" id="exportSnippetBox">
+          <pre class="export-snippet-pre" id="exportSnippetPre"></pre>
+          <div class="export-copy-row">
+            <button class="btn btn-secondary btn-sm" id="exportCopyBtn">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SCRAPE TAB ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-scrape" aria-labelledby="tab-scrape">
+      <!-- Format Picker -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Scrape This Page</span>
+          <span class="scrape-usage-pill" id="scrapeUsagePill" title="Free scrapes remaining"></span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Extract content from the current page in your preferred format.
+        </p>
+
+        <!-- Format selector -->
+        <div class="scrape-format-grid" id="scrapeFormatGrid">
+          <button class="scrape-format-btn active" data-format="markdown">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+              <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/>
+              <path d="M9 15l2-2 2 2"/>
+              <path d="M9 11h6"/>
+            </svg>
+            <span>Markdown</span>
+            <span class="format-hint">LLM-ready</span>
+          </button>
+          <button class="scrape-format-btn" data-format="html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+            <span>HTML</span>
+            <span class="format-hint">Clean markup</span>
+          </button>
+          <button class="scrape-format-btn" data-format="json">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+            <span>JSON</span>
+            <span class="format-hint">Structured data</span>
+          </button>
+          <button class="scrape-format-btn" data-format="screenshot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span>Screenshot</span>
+            <span class="format-hint">Full page</span>
+          </button>
+        </div>
+
+        <!-- Run button -->
+        <button class="btn btn-primary btn-full scrape-run-btn" id="scrapeRunBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Scrape This Page
+        </button>
+
+        <div id="scrapeStatus" class="status"></div>
+      </div>
+
+      <!-- Results area -->
+      <div class="card scrape-results-card hidden" id="scrapeResultsCard">
+        <div class="card-header">
+          <span class="card-title">Results</span>
+          <div style="display: flex; gap: 6px; margin-left: auto;">
+            <button class="btn btn-secondary btn-sm" id="scrapeCopyBtn" title="Copy to clipboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              Copy
+            </button>
+            <button class="btn btn-secondary btn-sm" id="scrapeDownloadBtn" title="Download">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="scrape-results-content" id="scrapeResultsContent"></div>
+      </div>
+
+      <!-- Free tier upsell (hidden until limit hit) -->
+      <div class="card scrape-upsell hidden" id="scrapeUpsell">
+        <div class="upsell-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+        </div>
+        <h3 class="upsell-title">You've used your 3 free scrapes</h3>
+        <p class="upsell-desc">Create a free AlterLab account for <strong>1,000 monthly scrapes</strong> plus API access, scheduling, and more.</p>
+        <a href="https://alterlab.io/signup?utm_source=extension&utm_medium=upsell&utm_campaign=free_limit" target="_blank" class="btn btn-primary btn-full upsell-cta">
+          Create Free Account
+        </a>
+        <p class="upsell-alt">Already have an account? <a href="#" id="upsellConnectLink">Connect your API key</a></p>
+      </div>
+    </div>
+
+    <!-- ============ META TAB (SEO Analyzer) ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-meta" aria-labelledby="tab-meta">
+      <!-- SEO Score -->
+      <div class="card" id="seoScoreCard">
+        <div class="score-ring">
+          <div class="score-circle">
+            <svg viewBox="0 0 64 64">
+              <circle class="bg-ring" cx="32" cy="32" r="28" />
+              <circle
+                class="fg-ring"
+                id="seoScoreRing"
+                cx="32"
+                cy="32"
+                r="28"
+                stroke-dasharray="175.93"
+                stroke-dashoffset="175.93"
+              />
+            </svg>
+            <span class="score-value" id="seoScoreValue">--</span>
+          </div>
+          <div class="score-label">
+            <strong id="seoScoreLabel">Analyzing...</strong>
+            <span id="seoScoreDesc">Scanning page for SEO metadata.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validation Issues -->
+      <div class="card" id="seoIssuesCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Issues</span>
+          <span class="card-badge" id="seoIssueCount" style="background: rgba(239, 68, 68, 0.15); color: var(--error);">0</span>
+        </div>
+        <ul class="seo-issue-list" id="seoIssueList"></ul>
+      </div>
+
+      <!-- Basic SEO Tags -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">SEO Tags</span>
+        </div>
+        <div class="meta-table" id="seoBasicTable">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Open Graph -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Open Graph</span>
+          <span class="card-badge" id="ogTagCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="ogImagePreview" class="og-image-preview" style="display: none;">
+          <img id="ogImageEl" alt="OG Image preview" />
+        </div>
+        <div class="meta-table" id="ogTable">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Twitter Cards -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Twitter Cards</span>
+          <span class="card-badge" id="twitterTagCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div class="meta-table" id="twitterTable">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- JSON-LD -->
+      <div class="card" id="jsonLdCard">
+        <div class="card-header">
+          <span class="card-title">JSON-LD Structured Data</span>
+          <span class="card-badge" id="jsonLdCount" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="jsonLdContent" class="json-ld-content">
+          <div class="meta-row placeholder">
+            <span class="meta-key">Scanning...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="meta-export-row">
+        <button class="btn btn-secondary btn-sm btn-full" id="metaCopyAllBtn">Copy All as JSON</button>
+      </div>
+    </div>
+
+    <!-- ============ COOKIES TAB (Inspector) ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-cookies" aria-labelledby="tab-cookies">
+      <!-- Stats summary -->
+      <div class="ci-stats">
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciTotalCount">0</span>
+          <span class="ci-stat-label">Total</span>
+        </div>
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciAuthCount">0</span>
+          <span class="ci-stat-label">Auth</span>
+        </div>
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciExpiredCount">0</span>
+          <span class="ci-stat-label">Expired</span>
+        </div>
+        <div class="ci-stat">
+          <span class="ci-stat-value" id="ciTotalSize">0 B</span>
+          <span class="ci-stat-label">Size</span>
+        </div>
+      </div>
+
+      <!-- Search + Sort -->
+      <div class="ci-toolbar">
+        <div class="ci-search">
+          <input type="search" id="ciSearchInput" placeholder="Search cookies..." autocomplete="off" spellcheck="false" />
+        </div>
+        <button class="ci-sort-btn active" id="ciSortBtn" title="Sort cookies">Name</button>
+      </div>
+
+      <!-- Filter chips + subdomains toggle -->
+      <div class="ci-controls">
+        <div class="ci-filter-row">
+          <button class="ci-filter-chip active" data-filter="all">All</button>
+          <button class="ci-filter-chip" data-filter="auth">Auth</button>
+          <button class="ci-filter-chip" data-filter="secure">Secure</button>
+          <button class="ci-filter-chip" data-filter="httponly">HttpOnly</button>
+          <button class="ci-filter-chip" data-filter="expired">Expired</button>
+          <button class="ci-filter-chip" data-filter="session">Session</button>
+        </div>
+        <span class="ci-result-count" id="ciResultCount">0</span>
+      </div>
+
+      <div class="ci-controls">
+        <label class="ci-toggle-row">
+          <input type="checkbox" id="ciSubdomains" checked />
+          Include subdomains
+        </label>
+      </div>
+
+      <!-- Cookie list -->
+      <div class="ci-cookie-list" id="ciCookieList">
+        <div class="ci-empty">Loading cookies...</div>
+      </div>
+
+      <!-- Export + Bulk actions -->
+      <div class="ci-export-row">
+        <button class="btn btn-secondary btn-sm" id="ciExportJson" title="Export all as JSON">JSON</button>
+        <button class="btn btn-secondary btn-sm" id="ciExportNetscape" title="Export all as Netscape/curl format">Netscape</button>
+        <button class="btn btn-secondary btn-sm" id="ciExportKV" title="Export all as key=value (Cookie header)">key=value</button>
+      </div>
+
+      <div class="ci-bulk-row">
+        <span class="ci-result-count" id="ciFilteredInfo"></span>
+        <button class="ci-bulk-delete" id="ciBulkDelete">Clear all cookies</button>
+      </div>
+
+      <div id="ciStatus" class="status"></div>
+    </div>
+
+    <!-- ============ NETWORK TAB ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-network" aria-labelledby="tab-network">
+      <!-- Controls -->
+      <div class="card" style="padding: 10px 14px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="text" id="netSearchInput" placeholder="Filter by URL or method..." style="
+            flex: 1; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 6px; padding: 6px 10px; color: var(--text);
+            font-size: 12px; font-family: inherit; outline: none;
+          " />
+          <span id="netRequestCount" style="font-size: 11px; color: var(--text-muted); white-space: nowrap;">0 requests</span>
+          <button id="netClearBtn" class="btn btn-secondary btn-sm" style="padding: 5px 8px; font-size: 11px;">Clear</button>
+        </div>
+        <div id="netFilterBar" style="display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;">
+          <button class="net-filter-btn active" data-filter="all" style="
+            background: var(--accent); color: white; border: none; border-radius: 4px;
+            padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">All</button>
+          <button class="net-filter-btn" data-filter="products" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Products</button>
+          <button class="net-filter-btn" data-filter="listings" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Listings</button>
+          <button class="net-filter-btn" data-filter="articles" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Articles</button>
+          <button class="net-filter-btn" data-filter="reviews" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">Reviews</button>
+          <button class="net-filter-btn" data-filter="graphql" style="
+            background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border);
+            border-radius: 4px; padding: 3px 8px; font-size: 11px; font-family: inherit; cursor: pointer;
+          ">GraphQL</button>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="netEmptyState" class="card" style="text-align: center; padding: 32px 14px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="width: 40px; height: 40px; margin: 0 auto 12px;">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">No API requests captured yet</div>
+        <div style="font-size: 12px; color: var(--text-muted);">
+          Browse the page to capture XHR and fetch requests.<br/>
+          Only JSON and API responses are shown.
+        </div>
+      </div>
+
+      <!-- Request list -->
+      <div id="netRequestList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+    </div>
+
+    <!-- ============ HEADERS TAB ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-headers" aria-labelledby="tab-headers">
+      <!-- Stats bar -->
+      <div class="hdr-stats">
+        <span class="hdr-stat-count"><strong id="hdrRequestCount">0</strong> requests</span>
+        <button class="hdr-clear-btn" id="hdrClearBtn">Clear</button>
+      </div>
+
+      <!-- Search -->
+      <div class="hdr-toolbar">
+        <div class="hdr-search">
+          <input type="search" id="hdrSearchInput" placeholder="Search URL or header..." autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
+
+      <!-- Type filters -->
+      <div class="hdr-filter-row">
+        <div class="hdr-filters" id="hdrFilters">
+          <button class="hdr-filter-chip active" data-hdr-filter="all">All</button>
+          <button class="hdr-filter-chip" data-hdr-filter="xhr">XHR</button>
+          <button class="hdr-filter-chip" data-hdr-filter="document">Doc</button>
+          <button class="hdr-filter-chip" data-hdr-filter="script">Script</button>
+          <button class="hdr-filter-chip" data-hdr-filter="stylesheet">CSS</button>
+          <button class="hdr-filter-chip" data-hdr-filter="image">Image</button>
+          <button class="hdr-filter-chip" data-hdr-filter="font">Font</button>
+          <button class="hdr-filter-chip" data-hdr-filter="other">Other</button>
+        </div>
+        <span class="ci-result-count" id="hdrFilteredCount">0</span>
+      </div>
+
+      <!-- Request list -->
+      <div class="hdr-request-list" id="hdrRequestList">
+        <div class="hdr-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12h16"/>
+            <path d="M4 6h16"/>
+            <path d="M4 18h12"/>
+          </svg>
+          <p>Navigate to a page to capture network requests.</p>
+        </div>
+      </div>
+
+      <div id="hdrStatus" class="status"></div>
+    </div>
+
+    <!-- ============ SELECTOR TAB ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-selector" aria-labelledby="tab-selector">
+      <!-- Activation card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Selector Builder</span>
+          <button class="btn btn-primary btn-sm" id="selToggleBtn">Start Picking</button>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+          Hover elements to preview selectors. Click to capture. Press Esc to stop.
+        </p>
+        <div id="selActiveIndicator" class="status" style="display:none;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:6px;animation:pulse 1.5s infinite;"></span>
+          Picking mode active — click any element on the page
+        </div>
+      </div>
+
+      <!-- Selector list -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Captured Selectors</span>
+          <span class="card-badge" id="selCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="selSelectorList" style="font-size: 12px; color: var(--text-muted);">
+          No selectors captured yet. Start picking to add elements.
+        </div>
+      </div>
+
+      <!-- Test & export -->
+      <div class="card" id="selExportCard" style="display:none;">
+        <div class="card-header">
+          <span class="card-title">Export</span>
+        </div>
+        <div class="actions-row" style="margin-bottom:8px;">
+          <button class="btn btn-secondary btn-sm" id="selCopyCurl">Copy as cURL</button>
+          <button class="btn btn-secondary btn-sm" id="selCopyPython">Copy as Python</button>
+          <button class="btn btn-secondary btn-sm" id="selCopyNode">Copy as Node.js</button>
+        </div>
+        <div class="actions-row">
+          <button class="btn btn-secondary btn-sm" id="selCopyJson">Copy as JSON</button>
+          <button class="btn btn-secondary btn-sm" id="selClearAll">Clear All</button>
+        </div>
+      </div>
+
+      <div id="selStatus" class="status"></div>
+    </div>
+
+    <!-- ============ CAPTURE TAB ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-capture" aria-labelledby="tab-capture">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Cookies</span>
+          <span class="card-badge" id="cookieCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+
+        <div class="selection-controls">
+          <button id="selectAllBtn">Select all</button>
+          <span class="separator">|</span>
+          <button id="selectNoneBtn">None</button>
+          <span class="separator">|</span>
+          <button id="selectAuthBtn">Auth only</button>
+          <span class="selected-count" id="selectedCount">0 selected</span>
+        </div>
+
+        <div class="cookie-list" id="cookieList"></div>
+
+        <div class="session-name-row">
+          <label for="sessionName">Session name</label>
+          <input
+            type="text"
+            id="sessionName"
+            placeholder="Amazon Prime - Mar 2026"
+          />
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-primary btn-full" id="captureBtn" disabled>
+            Capture & Send
+          </button>
+          <button
+            class="btn btn-secondary btn-sm"
+            id="copyBtn"
+            title="Copy selected cookies as JSON"
+            disabled
+          >
+            Copy
+          </button>
+        </div>
+
+        <div id="captureStatus" class="status"></div>
+
+        <!-- Inline auth prompt — appears when user tries to capture without API key -->
+        <div class="inline-auth-prompt hidden" id="captureAuthPrompt">
+          <div class="auth-prompt-title">Connect your AlterLab account</div>
+          <div class="auth-prompt-desc">An API key is needed to sync cookies to your AlterLab instance. You can still copy cookies as JSON without connecting.</div>
+          <input
+            type="password"
+            id="captureAuthKey"
+            placeholder="sk_live_..."
+            spellcheck="false"
+            autocomplete="off"
+            style="margin-bottom: 0;"
+          />
+          <div class="auth-prompt-row">
+            <button class="btn btn-primary btn-full btn-sm" id="captureAuthConnect">Connect & Capture</button>
+          </div>
+          <div id="captureAuthStatus" class="status"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ JOB TAB ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-job" aria-labelledby="tab-job">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Scrape Job Builder</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Pre-filled from the current page analysis. Edit and submit to AlterLab.
+        </p>
+
+        <div class="form-group">
+          <label for="jobUrl">URL</label>
+          <input type="text" id="jobUrl" placeholder="https://..." readonly />
+        </div>
+
+        <div class="form-group">
+          <label>Job Preview</label>
+          <div class="job-preview" id="jobPreview">Loading...</div>
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-primary btn-full" id="submitJobBtn" disabled>
+            Submit Scrape Job
+          </button>
+          <button class="btn btn-secondary btn-sm" id="copyJobBtn" title="Copy job JSON">
+            Copy
+          </button>
+        </div>
+
+        <div id="jobStatus" class="status"></div>
+
+        <!-- Post-submit export -->
+        <div class="export-card" id="jobExportCard" style="display: none; margin-top: 12px;">
+          <div class="card-header" style="margin-bottom: 8px;">
+            <span class="card-title">Export as Code</span>
+          </div>
+          <div class="export-btn-row" id="jobExportBtnRow">
+            <button class="export-fmt-btn" data-job-export-fmt="curl">cURL</button>
+            <button class="export-fmt-btn" data-job-export-fmt="python">Python</button>
+            <button class="export-fmt-btn" data-job-export-fmt="node">Node.js</button>
+            <button class="export-fmt-btn" data-job-export-fmt="alterlab">AlterLab API</button>
+          </div>
+          <div class="export-snippet-box" id="jobExportSnippetBox">
+            <pre class="export-snippet-pre" id="jobExportSnippetPre"></pre>
+            <div class="export-copy-row">
+              <button class="btn btn-secondary btn-sm" id="jobExportCopyBtn">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inline auth prompt — appears when user tries to submit without API key -->
+        <div class="inline-auth-prompt hidden" id="jobAuthPrompt">
+          <div class="auth-prompt-title">Connect your AlterLab account</div>
+          <div class="auth-prompt-desc">An API key is needed to submit scrape jobs. You can still copy the job JSON without connecting.</div>
+          <input
+            type="password"
+            id="jobAuthKey"
+            placeholder="sk_live_..."
+            spellcheck="false"
+            autocomplete="off"
+            style="margin-bottom: 0;"
+          />
+          <div class="auth-prompt-row">
+            <button class="btn btn-primary btn-full btn-sm" id="jobAuthConnect">Connect & Submit</button>
+          </div>
+          <div id="jobAuthStatus" class="status"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TOOLS TAB (free, run locally) ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-tools" aria-labelledby="tab-tools">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Free local tools</span>
+        </div>
+        <p class="muted" style="font-size:12px;margin:0 0 8px">These run on this page in your browser. Nothing is sent to AlterLab except the one check marked below.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button class="btn btn-primary btn-sm" data-lt="trackers">Trackers &amp; cookies</button>
+          <button class="btn btn-primary btn-sm" data-lt="protection">Protection</button>
+          <button class="btn btn-primary btn-sm" data-lt="markdown">Page to markdown</button>
+          <button class="btn btn-primary btn-sm" data-lt="schema">Structured data</button>
+          <button class="btn btn-primary btn-sm" data-lt="tables">Tables &amp; lists</button>
+          <button class="btn btn-primary btn-sm" data-lt="endpoints">API endpoints</button>
+          <button class="btn btn-primary btn-sm" data-lt="ai">AI readiness</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="ltTitle">Results</span>
+          <button class="btn btn-sm" id="ltCopyBtn">Copy</button>
+        </div>
+        <div id="ltTableTools" style="display:none;gap:6px;margin-bottom:6px">
+          <select id="ltTableSelect" class="input"></select>
+          <button class="btn btn-sm" id="ltCsvBtn">Copy CSV</button>
+          <button class="btn btn-sm" id="ltJsonBtn">Copy JSON</button>
+        </div>
+        <pre id="ltOut" style="white-space:pre-wrap;word-break:break-word;max-height:360px;overflow:auto;font-size:12px;margin:0">Pick a tool above.</pre>
+        <div id="ltLinks"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Can AlterLab get it?</span>
+        </div>
+        <p class="muted" style="font-size:12px;margin:0 0 8px">Sends this page's URL to AlterLab and uses one request from your trial quota.</p>
+        <button class="btn btn-primary btn-sm" id="ltCheckBtn">Run one check (uses trial quota)</button>
+        <div id="ltCheckOut" style="font-size:12px;margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- ============ ACCOUNT TAB ============ -->
+    <div class="tab-panel" role="tabpanel" id="panel-account" aria-labelledby="tab-account">
+      <a href="activity.html" target="_blank" rel="noopener" class="btn" id="connectActivityLink">Connected sites and activity</a>
+      <!-- Not connected state -->
+      <!-- BYOS automatic session refresh (off by default) -->
+      <div class="card" id="byosSettings">
+        <label class="card-title" style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="autoRefreshToggle" />
+          Keep my sessions fresh automatically
+        </label>
+        <p class="hint">Automatically keep your scraping sessions fresh by updating cookies when you browse. Off by default; turning it on asks for consent and site access. Untick a site below, or turn the toggle off, to stop.</p>
+        <div id="byosDomainList"></div>
+      </div>
+
+      <div id="accountSetup" class="card">
+        <div class="card-header">
+          <span class="card-title">Connect to AlterLab</span>
+        </div>
+
+        <div class="form-group">
+          <label for="apiKeyInput">API Key</label>
+          <input
+            type="password"
+            id="apiKeyInput"
+            placeholder="sk_live_..."
+            spellcheck="false"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="apiUrlInput">API URL</label>
+          <input
+            type="text"
+            id="apiUrlInput"
+            placeholder="https://alterlab.io"
+            spellcheck="false"
+            autocomplete="off"
+          />
+        </div>
+
+        <button class="btn btn-primary btn-full" id="connectBtn">
+          Connect
+        </button>
+
+        <div id="accountStatus" class="status"></div>
+      </div>
+
+      <!-- Connected state -->
+      <div id="accountConnected" class="card hidden">
+        <div class="card-header">
+          <span class="card-title">Account</span>
+          <span class="card-badge" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">Connected</span>
+        </div>
+
+        <div class="account-info">
+          <div class="account-row">
+            <span class="label">Instance</span>
+            <span class="value" id="accountInstance">---</span>
+          </div>
+          <div class="account-row">
+            <span class="label">Credits</span>
+            <span class="value" id="accountCredits">---</span>
+          </div>
+          <div class="credits-bar" style="display: none">
+            <div class="credits-bar-fill" id="creditsBarFill" style="width: 0%"></div>
+          </div>
+          <div class="account-row">
+            <span class="label">Sessions</span>
+            <span class="value" id="accountSessions">---</span>
+          </div>
+        </div>
+
+        <div class="actions-row" style="margin-top: 16px;">
+          <button class="btn btn-secondary btn-full btn-sm" id="disconnectBtn">
+            Disconnect
+          </button>
+        </div>
+        <div class="actions-row" style="margin-top: 8px;">
+          <button class="btn btn-secondary btn-full btn-sm" id="revokeConsentBtn" title="Revoke consent to upload cookies to AlterLab">
+            Revoke cookie upload consent
+          </button>
+        </div>
+        <div class="actions-row" style="margin-top: 12px; flex-direction: column; align-items: flex-start;">
+          <label style="display:flex;gap:8px;align-items:center;font-size:12px;">
+            <input type="checkbox" id="autoRefreshToggle">
+            Keep my sessions fresh automatically
+          </label>
+          <span style="font-size:11px;color:var(--text-muted);margin-top:4px;">
+            Off by default. When on, after cookies change on a site you have a saved session for (and have granted site access to), the site's current cookie names and values and its domain are sent to your AlterLab account over HTTPS to update that session. Nothing is sent while this is off.
+          </span>
+        </div>
+
+        <details id="privacyDetails" style="margin-top: 8px;">
+          <summary style="cursor: pointer; font-size: 12px;">Data and privacy controls</summary>
+          <div id="privacyPanel"></div>
+        </details>
+      </div>
+
+      <!-- Saved sessions -->
+      <div class="card" id="savedSessionsCard" style="display: none;">
+        <div class="card-header">
+          <span class="card-title">Saved Sessions</span>
+          <span class="card-badge" id="sessionCountBadge" style="background: var(--bg-input); color: var(--text-muted);">0</span>
+        </div>
+        <div id="savedSessionsList" style="font-size: 12px; color: var(--text-muted);">
+          Loading sessions...
+        </div>
+      </div>
+    </div>
+
+    <!-- Offline banner — persistent, shown/hidden by JS -->
+    <div id="offlineBanner" class="offline-banner hidden">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+        <line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>
+      </svg>
+      <span>You're offline &mdash; cached data shown</span>
+    </div>
+
+    <!-- Toast container -->
+    <div id="recorderPanel"></div>
+
+    <div id="toastContainer" class="al-toast-container"></div>
+
+    <script src="shared.js"></script>
+    <script src="localtools.js"></script>
+    <script src="consent.js"></script>
+    <script src="privacy.js"></script>
+    <script src="connect.js"></script>
+    <script src="privacy-panel.js"></script>
+    <script src="getapi.js"></script>
+    <script src="recorder.js"></script>
+    <script src="recorder-panel.js"></script>
+    <script src="byos-refresh.js"></script>
+    <script src="byos-refresh-ui.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
