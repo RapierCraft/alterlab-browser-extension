@@ -1,34 +1,23 @@
-/**
- * AlterLab Connect — Playwright Configuration
- *
- * Extension testing uses Chromium persistent context with --load-extension.
- * Firefox extension testing is not supported by Playwright — see TESTING.md
- * for the manual QA checklist.
- *
- * Usage:
- *   npm test              # build + run tests (headless)
- *   npm run test:headed   # build + run tests (visible browser)
- */
-
 import { defineConfig } from "@playwright/test";
-import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// The specs are mirrored from the monorepo and load the unpacked Chrome tree.
+process.env.EXTENSION_DIR ??= fileURLToPath(new URL("./chrome-extension", import.meta.url));
 
+/**
+ * Playwright smoke suite for the unpacked Chrome build (mirrors the AlterLab
+ * monorepo's web/e2e-extension). Specs launch their own persistent Chromium
+ * context (extensions need headful Chromium: run under xvfb in CI) and a local
+ * mock API, so nothing here talks to production.
+ * Firefox is covered by the static parity tests in extension-tests/.
+ */
 export default defineConfig({
-  testDir: join(__dirname, "tests"),
-  timeout: 30_000,
-  retries: 0,
-  workers: 1, // Extensions require serial execution (one browser context)
-  reporter: [["list"], ["html", { open: "never" }]],
-
-  // No "projects" — we configure the browser context manually in fixtures
-  // because extension loading requires BrowserType.launchPersistentContext(),
-  // which is incompatible with Playwright's built-in project/browser config.
-  use: {
-    headless: false, // Extensions cannot run in headless Chromium
-    viewport: { width: 400, height: 600 },
-    actionTimeout: 10_000,
-  },
+  testDir: "./e2e",
+  fullyParallel: false,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 1 : 0,
+  workers: 1,
+  reporter: process.env.CI ? [["list"], ["github"]] : [["list"]],
+  timeout: 60_000,
+  projects: [{ name: "chromium-extension" }],
 });

@@ -1,0 +1,1113 @@
+/*
+ * AlterLab Connect — Component Library
+ * Reusable component styles shared across popup, side panel, and options.
+ * Depends on design-tokens.css being loaded first.
+ *
+ * Naming: .al-{component}[-variant][-modifier]
+ */
+
+
+/* ================================================================== */
+/*  LAYOUT                                                             */
+/* ================================================================== */
+
+/* Popup container */
+.al-popup {
+  width: var(--al-popup-width);
+  max-height: var(--al-popup-max-height);
+  overflow-y: auto;
+}
+
+/* Side panel container */
+.al-sidepanel {
+  width: var(--al-sidepanel-width);
+  max-width: var(--al-sidepanel-max-w);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Section — padded block with bottom border */
+.al-section {
+  padding: var(--al-space-3) var(--al-panel-padding);
+  border-bottom: 1px solid var(--al-border-subtle);
+}
+
+.al-section:last-child {
+  border-bottom: none;
+}
+
+/* Header bar */
+.al-header {
+  display: flex;
+  align-items: center;
+  gap: var(--al-space-2);
+  padding: var(--al-space-4) var(--al-panel-padding) var(--al-space-3);
+  border-bottom: 1px solid var(--al-border);
+}
+
+.al-header-logo {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.al-header-title {
+  font-size: var(--al-text-lg);
+  font-weight: var(--al-weight-semibold);
+  letter-spacing: var(--al-tracking-tight);
+  color: var(--al-text);
+}
+
+.al-header-meta {
+  margin-left: auto;
+  font-size: var(--al-text-xs);
+  color: var(--al-text-muted);
+}
+
+/* Footer bar */
+.al-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--al-space-2) var(--al-panel-padding);
+  border-top: 1px solid var(--al-border-subtle);
+  font-size: var(--al-text-xs);
+  color: var(--al-text-muted);
+}
+
+/* Flex helpers */
+.al-row {
+  display: flex;
+  align-items: center;
+  gap: var(--al-element-gap);
+}
+
+.al-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--al-element-gap);
+}
+
+.al-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--al-element-gap);
+}
+
+
+/* ================================================================== */
+/*  BUTTONS                                                            */
+/* ================================================================== */
+
+.al-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--al-space-1);
+  padding: var(--al-space-2) var(--al-space-3);
+  border: none;
+  border-radius: var(--al-radius-md);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-base);
+  font-weight: var(--al-weight-medium);
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--al-duration-normal) var(--al-ease-default),
+    color var(--al-duration-normal) var(--al-ease-default),
+    border-color var(--al-duration-normal) var(--al-ease-default),
+    box-shadow var(--al-duration-normal) var(--al-ease-default);
+  user-select: none;
+}
+
+.al-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary — filled accent */
+.al-btn-primary {
+  background: var(--al-accent);
+  color: white;
+}
+
+.al-btn-primary:hover:not(:disabled) {
+  background: var(--al-accent-hover);
+}
+
+.al-btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Secondary — outlined */
+.al-btn-secondary {
+  background: var(--al-bg-input);
+  color: var(--al-text);
+  border: 1px solid var(--al-border);
+}
+
+.al-btn-secondary:hover:not(:disabled) {
+  background: var(--al-bg-hover);
+  border-color: var(--al-text-muted);
+}
+
+/* Ghost — text only */
+.al-btn-ghost {
+  background: transparent;
+  color: var(--al-text-secondary);
+}
+
+.al-btn-ghost:hover:not(:disabled) {
+  background: var(--al-bg-input);
+  color: var(--al-text);
+}
+
+/* Danger */
+.al-btn-danger {
+  background: var(--al-error);
+  color: white;
+}
+
+.al-btn-danger:hover:not(:disabled) {
+  background: oklch(0.50 0.24 25);
+}
+
+/* Size variants */
+.al-btn-sm {
+  padding: var(--al-space-1) var(--al-space-2);
+  font-size: var(--al-text-sm);
+}
+
+.al-btn-lg {
+  padding: var(--al-space-3) var(--al-space-5);
+  font-size: var(--al-text-md);
+}
+
+.al-btn-full {
+  width: 100%;
+}
+
+/* Icon-only button */
+.al-btn-icon {
+  padding: var(--al-space-1);
+  border-radius: var(--al-radius-sm);
+  width: 28px;
+  height: 28px;
+}
+
+.al-btn-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+
+/* ================================================================== */
+/*  INPUTS                                                             */
+/* ================================================================== */
+
+.al-input {
+  width: 100%;
+  background: var(--al-bg-input);
+  border: 1px solid var(--al-border);
+  border-radius: var(--al-radius-md);
+  padding: var(--al-space-2) var(--al-space-2);
+  color: var(--al-text);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-base);
+  line-height: var(--al-leading-normal);
+  outline: none;
+  transition: border-color var(--al-duration-normal) var(--al-ease-default),
+              box-shadow var(--al-duration-normal) var(--al-ease-default);
+}
+
+.al-input::placeholder {
+  color: var(--al-text-muted);
+}
+
+.al-input:focus {
+  border-color: var(--al-border-focus);
+  box-shadow: var(--al-shadow-focus);
+}
+
+.al-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Label */
+.al-label {
+  display: block;
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-medium);
+  color: var(--al-text-secondary);
+  margin-bottom: var(--al-space-1);
+}
+
+/* Checkbox */
+.al-checkbox {
+  accent-color: var(--al-accent);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+
+/* ================================================================== */
+/*  CARDS                                                              */
+/* ================================================================== */
+
+.al-card {
+  background: var(--al-bg-raised);
+  border: 1px solid var(--al-border);
+  border-radius: var(--al-radius-lg);
+  padding: var(--al-space-3);
+  transition: border-color var(--al-duration-normal) var(--al-ease-default);
+}
+
+.al-card:hover {
+  border-color: var(--al-text-muted);
+}
+
+.al-card-flat {
+  background: var(--al-bg-input);
+  border: 1px solid var(--al-border-subtle);
+  border-radius: var(--al-radius-lg);
+  padding: var(--al-space-3);
+}
+
+.al-card-interactive {
+  cursor: pointer;
+  transition:
+    border-color var(--al-duration-normal) var(--al-ease-default),
+    background var(--al-duration-normal) var(--al-ease-default);
+}
+
+.al-card-interactive:hover {
+  background: var(--al-bg-hover);
+  border-color: var(--al-text-muted);
+}
+
+
+/* ================================================================== */
+/*  BADGES                                                             */
+/* ================================================================== */
+
+.al-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--al-space-1);
+  padding: 2px var(--al-space-2);
+  border-radius: var(--al-radius-full);
+  font-size: var(--al-text-xs);
+  font-weight: var(--al-weight-medium);
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: color var(--al-duration-normal) var(--al-ease-default),
+              background var(--al-duration-normal) var(--al-ease-default),
+              border-color var(--al-duration-normal) var(--al-ease-default);
+}
+
+/* Neutral (default) */
+.al-badge {
+  background: var(--al-bg-input);
+  color: var(--al-text-secondary);
+  border: 1px solid var(--al-border);
+}
+
+/* Color variants */
+.al-badge-accent {
+  background: var(--al-accent-muted);
+  color: var(--al-accent-text);
+  border: 1px solid var(--al-accent);
+}
+
+.al-badge-success {
+  background: var(--al-success-muted);
+  color: var(--al-success);
+  border: 1px solid var(--al-success);
+}
+
+.al-badge-warning {
+  background: var(--al-warning-muted);
+  color: var(--al-warning);
+  border: 1px solid var(--al-warning);
+}
+
+.al-badge-error {
+  background: var(--al-error-muted);
+  color: var(--al-error);
+  border: 1px solid var(--al-error);
+}
+
+.al-badge-info {
+  background: var(--al-info-muted);
+  color: var(--al-info);
+  border: 1px solid var(--al-info);
+}
+
+/* Square badge (for flags like "Secure", "HttpOnly") */
+.al-flag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: var(--al-radius-xs);
+  font-size: 10px;
+  font-weight: var(--al-weight-medium);
+  background: var(--al-bg-raised);
+  color: var(--al-text-muted);
+  border: 1px solid var(--al-border);
+}
+
+
+/* ================================================================== */
+/*  TABS — underline style                                             */
+/* ================================================================== */
+
+.al-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--al-border-subtle);
+  gap: 0;
+}
+
+.al-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--al-space-1);
+  padding: var(--al-space-2) var(--al-space-3);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-medium);
+  color: var(--al-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition:
+    color var(--al-duration-normal) var(--al-ease-default);
+  white-space: nowrap;
+}
+
+.al-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: var(--al-space-3);
+  right: var(--al-space-3);
+  height: 2px;
+  border-radius: 1px;
+  background: transparent;
+  transition: background var(--al-duration-normal) var(--al-ease-default);
+}
+
+.al-tab:hover {
+  color: var(--al-text-secondary);
+}
+
+.al-tab[aria-selected="true"],
+.al-tab.al-tab-active {
+  color: var(--al-text);
+}
+
+.al-tab[aria-selected="true"]::after,
+.al-tab.al-tab-active::after {
+  background: var(--al-accent);
+}
+
+.al-tab-panel {
+  animation: al-fade-in var(--al-duration-normal) var(--al-ease-default);
+}
+
+
+/* ================================================================== */
+/*  TOOLTIPS                                                           */
+/* ================================================================== */
+
+.al-tooltip-trigger {
+  position: relative;
+}
+
+.al-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--al-space-1) var(--al-space-2);
+  background: var(--al-text);
+  color: var(--al-text-inverse);
+  font-size: var(--al-text-xs);
+  font-weight: var(--al-weight-medium);
+  line-height: var(--al-leading-tight);
+  border-radius: var(--al-radius-sm);
+  white-space: nowrap;
+  max-width: 200px;
+  white-space: normal;
+  z-index: var(--al-z-tooltip);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--al-duration-fast) var(--al-ease-default);
+  box-shadow: var(--al-shadow-md);
+}
+
+.al-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--al-text);
+}
+
+.al-tooltip-trigger:hover .al-tooltip {
+  opacity: 1;
+  transition-delay: 200ms;
+}
+
+/* Bottom tooltip variant */
+.al-tooltip-bottom {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
+
+.al-tooltip-bottom::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--al-text);
+}
+
+
+/* ================================================================== */
+/*  SKELETON LOADERS                                                   */
+/* ================================================================== */
+
+.al-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--al-bg-input) 25%,
+    var(--al-bg-hover) 50%,
+    var(--al-bg-input) 75%
+  );
+  background-size: 200% 100%;
+  animation: al-shimmer 1.5s infinite;
+  border-radius: var(--al-radius-sm);
+}
+
+.al-skeleton-text {
+  height: 13px;
+  width: 100%;
+  margin-bottom: var(--al-space-1);
+}
+
+.al-skeleton-text:last-child {
+  width: 60%;
+}
+
+.al-skeleton-heading {
+  height: 16px;
+  width: 40%;
+  margin-bottom: var(--al-space-2);
+}
+
+.al-skeleton-badge {
+  height: 20px;
+  width: 60px;
+  border-radius: var(--al-radius-full);
+}
+
+.al-skeleton-card {
+  height: 80px;
+  border-radius: var(--al-radius-lg);
+}
+
+.al-skeleton-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--al-radius-full);
+}
+
+
+/* ================================================================== */
+/*  TOAST NOTIFICATIONS                                                */
+/* ================================================================== */
+
+.al-toast-container {
+  position: fixed;
+  bottom: var(--al-space-3);
+  right: var(--al-space-3);
+  z-index: var(--al-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--al-space-2);
+  pointer-events: none;
+}
+
+.al-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--al-space-2);
+  padding: var(--al-space-3);
+  background: var(--al-bg-raised);
+  border: 1px solid var(--al-border);
+  border-radius: var(--al-radius-lg);
+  box-shadow: var(--al-shadow-lg);
+  font-size: var(--al-text-sm);
+  max-width: 280px;
+  pointer-events: auto;
+  animation: al-toast-in var(--al-duration-slow) var(--al-ease-default);
+}
+
+.al-toast.al-toast-exit {
+  animation: al-toast-out var(--al-duration-normal) var(--al-ease-default) forwards;
+}
+
+.al-toast-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+}
+
+.al-toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.al-toast-title {
+  font-weight: var(--al-weight-medium);
+  color: var(--al-text);
+  margin-bottom: 2px;
+}
+
+.al-toast-message {
+  color: var(--al-text-secondary);
+  font-size: var(--al-text-xs);
+}
+
+.al-toast-close {
+  background: none;
+  border: none;
+  color: var(--al-text-muted);
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.al-toast-close:hover {
+  color: var(--al-text);
+}
+
+/* Toast status variants */
+.al-toast-success { border-left: 3px solid var(--al-success); }
+.al-toast-error   { border-left: 3px solid var(--al-error); }
+.al-toast-warning { border-left: 3px solid var(--al-warning); }
+.al-toast-info    { border-left: 3px solid var(--al-info); }
+
+
+/* ================================================================== */
+/*  STATUS MESSAGES (inline)                                           */
+/* ================================================================== */
+
+.al-status {
+  display: flex;
+  align-items: center;
+  gap: var(--al-space-2);
+  padding: var(--al-space-2) var(--al-space-3);
+  border-radius: var(--al-radius-md);
+  font-size: var(--al-text-sm);
+  animation: al-slide-up var(--al-duration-normal) var(--al-ease-default);
+}
+
+.al-status-success {
+  background: var(--al-success-muted);
+  border: 1px solid var(--al-success);
+  color: var(--al-success);
+}
+
+.al-status-error {
+  background: var(--al-error-muted);
+  border: 1px solid var(--al-error);
+  color: var(--al-error);
+}
+
+.al-status-warning {
+  background: var(--al-warning-muted);
+  border: 1px solid var(--al-warning);
+  color: var(--al-warning);
+}
+
+.al-status-info {
+  background: var(--al-info-muted);
+  border: 1px solid var(--al-info);
+  color: var(--al-info);
+}
+
+.al-status code {
+  font-family: var(--al-font-mono);
+  background: var(--al-bg-input);
+  padding: 1px var(--al-space-1);
+  border-radius: var(--al-radius-xs);
+  font-size: var(--al-text-xs);
+  user-select: all;
+}
+
+
+/* ================================================================== */
+/*  SPINNER                                                            */
+/* ================================================================== */
+
+.al-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--al-border);
+  border-top-color: var(--al-accent);
+  border-radius: 50%;
+  animation: al-spin 0.6s linear infinite;
+}
+
+.al-spinner-sm {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+}
+
+.al-spinner-lg {
+  width: 20px;
+  height: 20px;
+  border-width: 2.5px;
+}
+
+/* White spinner variant (for use on accent backgrounds) */
+.al-spinner-white {
+  border-color: rgba(255, 255, 255, 0.25);
+  border-top-color: white;
+}
+
+
+/* ================================================================== */
+/*  LIST ITEMS (cookies, settings, etc.)                               */
+/* ================================================================== */
+
+.al-list {
+  border: 1px solid var(--al-border);
+  border-radius: var(--al-radius-md);
+  background: var(--al-bg-input);
+  overflow: hidden;
+}
+
+.al-list-scrollable {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.al-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--al-space-2);
+  padding: var(--al-space-1) var(--al-space-2);
+  border-bottom: 1px solid var(--al-border-subtle);
+  font-size: var(--al-text-sm);
+  cursor: pointer;
+  transition: background var(--al-duration-fast) var(--al-ease-default);
+}
+
+.al-list-item:last-child {
+  border-bottom: none;
+}
+
+.al-list-item:hover {
+  background: var(--al-bg-hover);
+}
+
+.al-list-item-name {
+  font-family: var(--al-font-mono);
+  color: var(--al-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.al-list-item-meta {
+  display: flex;
+  gap: var(--al-space-1);
+  flex-shrink: 0;
+}
+
+
+/* ================================================================== */
+/*  SCORE DISPLAY                                                      */
+/* ================================================================== */
+
+.al-score {
+  font-size: var(--al-text-xl);
+  font-weight: var(--al-weight-bold);
+  font-variant-numeric: tabular-nums;
+  animation: al-count-up var(--al-duration-slow) var(--al-ease-default);
+}
+
+.al-score-great  { color: var(--al-score-great); }
+.al-score-good   { color: var(--al-score-good); }
+.al-score-fair   { color: var(--al-score-fair); }
+.al-score-poor   { color: var(--al-score-poor); }
+
+.al-score-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--al-bg-input);
+  overflow: hidden;
+}
+
+.al-score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width var(--al-duration-slow) var(--al-ease-default),
+              background-color var(--al-duration-normal) var(--al-ease-default);
+}
+
+
+/* ================================================================== */
+/*  LINK / TEXT BUTTON                                                 */
+/* ================================================================== */
+
+.al-link {
+  color: var(--al-accent-text);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--al-font-sans);
+  font-size: inherit;
+  padding: 0;
+  transition: color var(--al-duration-normal) var(--al-ease-default);
+}
+
+.al-link:hover {
+  color: var(--al-accent-hover);
+}
+
+.al-link-muted {
+  color: var(--al-text-muted);
+}
+
+.al-link-muted:hover {
+  color: var(--al-text);
+}
+
+
+/* ================================================================== */
+/*  SEPARATOR                                                          */
+/* ================================================================== */
+
+.al-separator {
+  width: 100%;
+  height: 1px;
+  background: var(--al-border-subtle);
+  border: none;
+  margin: var(--al-space-2) 0;
+}
+
+.al-separator-vertical {
+  width: 1px;
+  height: 12px;
+  background: var(--al-border);
+  flex-shrink: 0;
+}
+
+
+/* ================================================================== */
+/*  DOMAIN BADGE (monospace)                                           */
+/* ================================================================== */
+
+.al-domain {
+  display: inline-flex;
+  align-items: center;
+  background: var(--al-bg-input);
+  border: 1px solid var(--al-border);
+  border-radius: var(--al-radius-md);
+  padding: var(--al-space-1) var(--al-space-2);
+  font-family: var(--al-font-mono);
+  font-size: var(--al-text-base);
+  font-weight: var(--al-weight-medium);
+  color: var(--al-text);
+}
+
+
+/* ================================================================== */
+/*  EMPTY STATE                                                        */
+/* ================================================================== */
+
+.al-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--al-space-8) var(--al-space-4);
+  text-align: center;
+}
+
+.al-empty-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--al-text-muted);
+  margin-bottom: var(--al-space-3);
+  opacity: 0.5;
+}
+
+.al-empty-title {
+  font-size: var(--al-text-md);
+  font-weight: var(--al-weight-medium);
+  color: var(--al-text);
+  margin-bottom: var(--al-space-1);
+}
+
+.al-empty-description {
+  font-size: var(--al-text-sm);
+  color: var(--al-text-muted);
+  max-width: 240px;
+}
+
+
+/* ================================================================== */
+/*  THEME TOGGLE                                                       */
+/* ================================================================== */
+
+.al-theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 44px;
+  height: 22px;
+  border-radius: var(--al-radius-full);
+  background: var(--al-bg-input);
+  border: 1px solid var(--al-border);
+  cursor: pointer;
+  transition: background var(--al-duration-normal) var(--al-ease-default),
+              border-color var(--al-duration-normal) var(--al-ease-default);
+  padding: 0 4px;
+}
+
+.al-theme-toggle:hover {
+  border-color: var(--al-text-muted);
+}
+
+/* Sliding knob */
+.al-theme-toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--al-text-secondary);
+  transition: transform var(--al-duration-normal) var(--al-ease-default),
+              background var(--al-duration-normal) var(--al-ease-default);
+  z-index: 1;
+}
+
+.al-theme-toggle[aria-checked="true"]::after,
+[data-theme="light"] .al-theme-toggle::after {
+  transform: translateX(20px);
+  background: var(--al-accent);
+}
+
+/* Sun/Moon icon containers */
+.al-theme-toggle .al-theme-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: opacity var(--al-duration-normal) var(--al-ease-default);
+  position: relative;
+  z-index: 0;
+}
+
+.al-theme-toggle .al-theme-icon svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+/* Moon icon (visible in dark mode) */
+.al-theme-icon-moon {
+  color: var(--al-text-muted);
+  opacity: 1;
+}
+
+/* Sun icon (visible in light mode) */
+.al-theme-icon-sun {
+  color: var(--al-text-muted);
+  opacity: 0.4;
+}
+
+/* Light mode: swap icon visibility */
+.al-theme-toggle[aria-checked="true"] .al-theme-icon-moon,
+[data-theme="light"] .al-theme-toggle .al-theme-icon-moon {
+  opacity: 0.4;
+}
+
+.al-theme-toggle[aria-checked="true"] .al-theme-icon-sun,
+[data-theme="light"] .al-theme-toggle .al-theme-icon-sun {
+  opacity: 1;
+  color: var(--al-warning);
+}
+
+
+/* ================================================================== */
+/*  COPY FEEDBACK ANIMATION                                            */
+/* ================================================================== */
+
+@keyframes al-copy-check {
+  0%   { transform: scale(0.5); opacity: 0; }
+  50%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.al-btn.al-copied,
+.btn.al-copied {
+  pointer-events: none;
+}
+
+.al-btn.al-copied .al-btn-label,
+.btn.al-copied .btn-label {
+  display: none;
+}
+
+.al-copy-check {
+  display: none;
+  color: var(--al-success);
+}
+
+.al-copied .al-copy-check {
+  display: inline-flex;
+  animation: al-copy-check var(--al-duration-normal) var(--al-ease-bounce);
+}
+
+.al-copy-check svg {
+  width: 14px;
+  height: 14px;
+}
+
+
+/* ================================================================== */
+/*  TAB PANEL TRANSITIONS                                              */
+/* ================================================================== */
+
+.al-tab-panel,
+.tab-content {
+  animation: al-fade-in var(--al-duration-normal) var(--al-ease-default);
+}
+
+
+/* ================================================================== */
+/*  SPECTRUM BAR (brand accent)                                        */
+/* ================================================================== */
+
+.al-spectrum-bar {
+  width: 100%;
+  height: 2px;
+  background: var(--al-spectrum);
+  border: none;
+  flex-shrink: 0;
+}
+
+.al-spectrum-bar-thick {
+  height: 3px;
+}
+
+
+/* ================================================================== */
+/*  SCORE RING — enhanced gauge component                              */
+/* ================================================================== */
+
+.al-score-ring {
+  display: flex;
+  align-items: center;
+  gap: var(--al-space-4);
+}
+
+.al-score-ring-circle {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.al-score-ring-circle svg {
+  transform: rotate(-90deg);
+}
+
+.al-score-ring-circle .al-ring-bg {
+  fill: none;
+  stroke: var(--al-border);
+  stroke-width: 4;
+}
+
+.al-score-ring-circle .al-ring-fg {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--al-ease-default);
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+.al-score-ring-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--al-text-xl);
+  font-weight: var(--al-weight-bold);
+  font-family: var(--al-font-mono);
+  letter-spacing: var(--al-tracking-tight);
+}
+
+.al-score-ring-label {
+  font-size: var(--al-text-sm);
+  color: var(--al-text-secondary);
+  line-height: var(--al-leading-normal);
+}
+
+.al-score-ring-label strong {
+  display: block;
+  font-size: var(--al-text-md);
+  font-weight: var(--al-weight-semibold);
+  color: var(--al-text);
+  margin-bottom: 2px;
+}
+
+
+/* ================================================================== */
+/*  SECTION HEADER — reusable heading with optional action             */
+/* ================================================================== */
+
+.al-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--al-space-3);
+}
+
+.al-section-title {
+  font-size: var(--al-text-xs);
+  font-weight: var(--al-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--al-text-muted);
+}
+
+.al-section-count {
+  font-size: var(--al-text-xs);
+  padding: 2px var(--al-space-2);
+  border-radius: var(--al-radius-sm);
+  font-weight: var(--al-weight-medium);
+  background: var(--al-bg-input);
+  color: var(--al-text-secondary);
+  font-family: var(--al-font-mono);
+}

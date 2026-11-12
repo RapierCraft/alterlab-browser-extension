@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AlterLab - Confirm cookie capture</title>
+    <style>
+      body { font: 13px/1.5 system-ui, sans-serif; margin: 16px; background: #1c1917; color: #fafaf9; }
+      code { background: #292524; padding: 1px 5px; border-radius: 4px; }
+      button { padding: 6px 12px; margin-right: 8px; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <h3>Allow cookie capture?</h3>
+    <p>
+      The AlterLab dashboard is requesting the cookies stored in this browser for
+      <code id="domain"></code>. They will be shared with the dashboard page only
+      if you allow it, and only for this domain.
+    </p>
+    <div id="connect" hidden>
+      <p><strong id="agent"></strong> wants to connect this site to AlterLab.</p>
+      <ul>
+        <li>Site: <code id="site"></code> (only this site; nothing else is read)</li>
+        <li>Captured: cookies and localStorage, sealed in this browser before upload</li>
+        <li>Agent may: <span id="scopes"></span></li>
+      </ul>
+    </div>
+    <button id="allow" type="button">Allow for this domain</button>
+    <button id="deny" type="button">Deny</button>
+    <script src="confirm.js"></script>
+  </body>
+</html>
